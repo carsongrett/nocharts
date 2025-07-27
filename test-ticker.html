@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AAPL - Apple Inc. - NoCharts</title>
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/mobile.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/themes.css">
+    <link rel="stylesheet" href="css/ticker.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+</head>
+<body class="ticker-page">
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="index.html" class="logo">
+                <span>🧠</span>
+                <span>NoCharts</span>
+            </a>
+            <button class="theme-toggle">☀️</button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- Stock Header -->
+        <section class="stock-header">
+            <div class="stock-info">
+                <div class="stock-symbol">
+                    <h1 class="symbol">AAPL</h1>
+                    <span class="company-name">Apple Inc.</span>
+                </div>
+                <div class="stock-price">
+                    <div class="price">$176.85</div>
+                    <div class="change">+$1.65 (0.94%)</div>
+                </div>
+            </div>
+            <div class="stock-actions">
+                <button class="btn btn-secondary">
+                    <span>🔍</span>
+                    New Search
+                </button>
+            </div>
+        </section>
+
+        <!-- Overview Cards -->
+        <section class="overview-grid">
+            <div class="overview-card">
+                <h3 class="card-title">Company Info</h3>
+                <div class="info-list">
+                    <div class="info-item">
+                        <span class="label">Sector:</span>
+                        <span class="value">Technology</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Industry:</span>
+                        <span class="value">Consumer Electronics</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Market Cap:</span>
+                        <span class="value">$3.0T</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">P/E Ratio:</span>
+                        <span class="value">28.5</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="overview-card">
+                <h3 class="card-title">News Summary</h3>
+                <div class="news-summary">
+                    <div class="summary-item">
+                        <span class="label">Total Articles:</span>
+                        <span class="value">24</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">Positive:</span>
+                        <span class="value positive">14</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">Negative:</span>
+                        <span class="value negative">6</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">Neutral:</span>
+                        <span class="value neutral">4</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Timeline Section -->
+        <section class="timeline-section">
+            <div class="section-header">
+                <h2 class="section-title">Recent News & Events</h2>
+                <div class="timeline-filters">
+                    <button class="filter-btn active">All</button>
+                    <button class="filter-btn">Positive</button>
+                    <button class="filter-btn">Negative</button>
+                    <button class="filter-btn">Neutral</button>
+                </div>
+            </div>
+            
+            <div class="timeline">
+                <div class="timeline-item positive">
+                    <div class="timeline-date">Dec 15, 2024</div>
+                    <div class="timeline-title">Apple's iPhone 15 Pro sales exceed expectations, driving strong Q4 revenue growth</div>
+                    <div class="timeline-source">Reuters</div>
+                </div>
+                
+                <div class="timeline-item positive">
+                    <div class="timeline-date">Dec 14, 2024</div>
+                    <div class="timeline-title">Apple Services revenue hits new record as subscription growth accelerates</div>
+                    <div class="timeline-source">Bloomberg</div>
+                </div>
+                
+                <div class="timeline-item negative">
+                    <div class="timeline-date">Dec 13, 2024</div>
+                    <div class="timeline-title">Apple faces regulatory scrutiny over App Store practices in EU</div>
+                    <div class="timeline-source">TechCrunch</div>
+                </div>
+                
+                <div class="timeline-item neutral">
+                    <div class="timeline-date">Dec 12, 2024</div>
+                    <div class="timeline-title">Apple announces new sustainability initiatives for 2025</div>
+                    <div class="timeline-source">Apple Newsroom</div>
+                </div>
+                
+                <div class="timeline-item positive">
+                    <div class="timeline-date">Dec 11, 2024</div>
+                    <div class="timeline-title">Apple's M3 chip performance benchmarks show significant improvements</div>
+                    <div class="timeline-source">The Verge</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Company Description -->
+        <section class="company-description">
+            <h3 class="section-title">About the Company</h3>
+            <p class="description-text">
+                Apple Inc. designs, manufactures, and markets smartphones, personal computers, tablets, wearables, and accessories worldwide. The company offers iPhone, Mac, iPad, and wearables, home, and accessories. Apple also sells various related services, including AppleCare, cloud services, and digital content. The company serves consumers, small and mid-sized businesses, and education, enterprise, and government customers through its retail and online stores, and direct sales force, as well as through third-party cellular network carriers, wholesalers, retailers, and resellers.
+            </p>
+        </section>
+    </main>
+
+    <script>
+        // Simple theme toggle
+        document.querySelector('.theme-toggle').addEventListener('click', function() {
+            const icon = this.textContent;
+            this.textContent = icon === '☀️' ? '🌙' : '☀️';
+        });
+
+        // Filter functionality
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html> 

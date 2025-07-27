@@ -211,6 +211,87 @@ stock-narrative-tracker/
 
 ---
 
+## 🧠 Sentiment Analysis Implementation
+
+### Current Mock Data Structure
+The app currently uses pre-tagged sentiment data for development:
+```javascript
+// Example from mock-data.js
+{
+    title: 'Microsoft Cloud Revenue Continues Strong Growth',
+    sentiment: 'positive'  // Pre-tagged for UI testing
+},
+{
+    title: 'Microsoft Faces Antitrust Concerns',
+    sentiment: 'negative'  // Pre-tagged for UI testing
+}
+```
+
+### Phase 3: Real Sentiment Analysis (Recommended Implementation)
+
+#### 1. Keyword-Based Analysis (Immediate - No Additional Cost)
+```javascript
+function analyzeSentiment(headline, description) {
+    const positiveKeywords = ['growth', 'surge', 'profit', 'beat', 'rise', 'gain', 'positive', 'strong', 'up', 'higher'];
+    const negativeKeywords = ['fall', 'drop', 'loss', 'decline', 'negative', 'weak', 'concern', 'risk', 'down', 'lower'];
+    
+    const text = (headline + ' ' + description).toLowerCase();
+    
+    let positiveCount = 0;
+    let negativeCount = 0;
+    
+    positiveKeywords.forEach(word => {
+        if (text.includes(word)) positiveCount++;
+    });
+    
+    negativeKeywords.forEach(word => {
+        if (text.includes(word)) negativeCount++;
+    });
+    
+    if (positiveCount > negativeCount) return 'positive';
+    if (negativeCount > positiveCount) return 'negative';
+    return 'neutral';
+}
+```
+
+#### 2. API Integration Strategy
+```javascript
+// In api.js - Enhanced news function
+async function getCompanyNewsWithSentiment(symbol) {
+    const news = await getCompanyNews(symbol);
+    
+    return news.map(article => ({
+        ...article,
+        sentiment: analyzeSentiment(article.title, article.description),
+        confidence: calculateConfidence(article)
+    }));
+}
+
+function calculateConfidence(article) {
+    // Based on article length, source reliability, keyword density
+    const factors = {
+        length: Math.min(article.description.length / 100, 1),
+        sourceReliability: getSourceReliability(article.source.name),
+        keywordDensity: calculateKeywordDensity(article)
+    };
+    
+    return (factors.length + factors.sourceReliability + factors.keywordDensity) / 3;
+}
+```
+
+#### 3. Sentiment Sources Priority
+1. **News API sentiment** (if available)
+2. **Keyword analysis** (fallback)
+3. **Reddit sentiment** (community-driven)
+4. **AI-powered analysis** (future enhancement)
+
+#### 4. Implementation Timeline
+- **Phase 2 (Current)**: Keep mock sentiment for UI development
+- **Phase 3 (Next)**: Implement keyword analysis with real APIs
+- **Phase 4 (Future)**: Add AI-powered sentiment analysis
+
+---
+
 ## 📱 Usage
 
 1. **Visit the homepage** and enter a stock ticker (e.g., AAPL, TSLA, MSFT)

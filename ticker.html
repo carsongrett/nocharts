@@ -11,11 +11,12 @@
     <link rel="stylesheet" href="css/mobile.css">
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/themes.css">
+    <link rel="stylesheet" href="css/ticker.css">
     
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
 </head>
-<body>
+<body class="ticker-page">
     <!-- Header -->
     <header class="header">
         <div class="container">
@@ -80,48 +81,46 @@
                 </section>
 
                 <!-- Stock Overview -->
-                <section class="stock-overview">
-                    <div class="overview-grid">
-                        <div class="overview-card">
-                            <h3 class="card-title">Company Info</h3>
-                            <div class="info-list">
-                                <div class="info-item">
-                                    <span class="label">Sector:</span>
-                                    <span class="value" id="sector">--</span>
-                                </div>
-                                <div class="info-item">
-                                    <span class="label">Industry:</span>
-                                    <span class="value" id="industry">--</span>
-                                </div>
-                                <div class="info-item">
-                                    <span class="label">Market Cap:</span>
-                                    <span class="value" id="marketCap">--</span>
-                                </div>
-                                <div class="info-item">
-                                    <span class="label">P/E Ratio:</span>
-                                    <span class="value" id="peRatio">--</span>
-                                </div>
+                <section class="overview-grid">
+                    <div class="overview-card">
+                        <h3 class="card-title">Company Info</h3>
+                        <div class="info-list">
+                            <div class="info-item">
+                                <span class="label">Sector:</span>
+                                <span class="value" id="sector">--</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="label">Industry:</span>
+                                <span class="value" id="industry">--</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="label">Market Cap:</span>
+                                <span class="value" id="marketCap">--</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="label">P/E Ratio:</span>
+                                <span class="value" id="peRatio">--</span>
                             </div>
                         </div>
-                        <div class="overview-card">
-                            <h3 class="card-title">News Summary</h3>
-                            <div class="news-summary">
-                                <div class="summary-item">
-                                    <span class="label">Total Articles:</span>
-                                    <span class="value" id="totalArticles">--</span>
-                                </div>
-                                <div class="summary-item">
-                                    <span class="label">Positive:</span>
-                                    <span class="value positive" id="positiveArticles">--</span>
-                                </div>
-                                <div class="summary-item">
-                                    <span class="label">Negative:</span>
-                                    <span class="value negative" id="negativeArticles">--</span>
-                                </div>
-                                <div class="summary-item">
-                                    <span class="label">Neutral:</span>
-                                    <span class="value neutral" id="neutralArticles">--</span>
-                                </div>
+                    </div>
+                    <div class="overview-card">
+                        <h3 class="card-title">News Summary</h3>
+                        <div class="news-summary">
+                            <div class="summary-item">
+                                <span class="label">Total Articles:</span>
+                                <span class="value" id="totalArticles">--</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="label">Positive:</span>
+                                <span class="value positive" id="positiveArticles">--</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="label">Negative:</span>
+                                <span class="value negative" id="negativeArticles">--</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="label">Neutral:</span>
+                                <span class="value neutral" id="neutralArticles">--</span>
                             </div>
                         </div>
                     </div>

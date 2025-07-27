@@ -299,11 +299,8 @@ function updateURL(ticker) {
  * @param {Event} event - Before unload event
  */
 function handleBeforeUnload(event) {
-    if (isLoading) {
-        event.preventDefault();
-        event.returnValue = 'Research in progress. Are you sure you want to leave?';
-        return event.returnValue;
-    }
+    // Removed leave site warning - not needed for this app
+    // Users should be able to navigate freely
 }
 
 /**

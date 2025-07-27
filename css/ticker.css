@@ -1,0 +1,447 @@
+/* ===== TICKER PAGE SPECIFIC STYLES ===== */
+/* This file contains styles ONLY for the ticker page to avoid conflicts with home page */
+
+/* ===== TICKER PAGE LAYOUT ===== */
+.ticker-page {
+    background: #f5f7fa;
+    min-height: 100vh;
+}
+
+.ticker-page .main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* ===== TICKER HEADER OVERRIDES ===== */
+.ticker-page .header {
+    background: #4a5568;
+    padding: 1rem 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.ticker-page .header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ticker-page .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: white;
+    text-decoration: none;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.ticker-page .theme-toggle {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: white;
+    padding: 0.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+/* ===== STOCK HEADER IMPROVEMENTS ===== */
+.ticker-page .stock-header {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border: 1px solid #e2e8f0;
+}
+
+.ticker-page .stock-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.ticker-page .stock-symbol {
+    flex: 1;
+}
+
+.ticker-page .symbol {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 0.25rem;
+}
+
+.ticker-page .company-name {
+    font-size: 1rem;
+    color: #718096;
+    font-weight: 500;
+}
+
+.ticker-page .stock-price {
+    text-align: right;
+}
+
+.ticker-page .price {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 0.25rem;
+}
+
+.ticker-page .change {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #38a169;
+}
+
+.ticker-page .change.negative {
+    color: #e53e3e;
+}
+
+.ticker-page .stock-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+/* ===== OVERVIEW CARDS IMPROVEMENTS ===== */
+.ticker-page .overview-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.ticker-page .overview-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border: 1px solid #e2e8f0;
+}
+
+.ticker-page .card-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #f7fafc;
+}
+
+.ticker-page .info-list,
+.ticker-page .news-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.ticker-page .info-item,
+.ticker-page .summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+}
+
+.ticker-page .label {
+    font-weight: 500;
+    color: #4a5568;
+    font-size: 0.875rem;
+}
+
+.ticker-page .value {
+    font-weight: 600;
+    color: #1a202c;
+    font-size: 0.875rem;
+}
+
+.ticker-page .value.positive {
+    color: #38a169;
+}
+
+.ticker-page .value.negative {
+    color: #e53e3e;
+}
+
+.ticker-page .value.neutral {
+    color: #718096;
+}
+
+/* ===== TIMELINE SECTION IMPROVEMENTS ===== */
+.ticker-page .timeline-section {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border: 1px solid #e2e8f0;
+}
+
+.ticker-page .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.ticker-page .section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.ticker-page .timeline-filters {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.ticker-page .filter-btn {
+    padding: 0.5rem 1rem;
+    border: 1px solid #e2e8f0;
+    background: #f7fafc;
+    color: #4a5568;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.ticker-page .filter-btn.active {
+    background: #4a5568;
+    color: white;
+    border-color: #4a5568;
+}
+
+.ticker-page .filter-btn:hover {
+    background: #edf2f7;
+}
+
+.ticker-page .filter-btn.active:hover {
+    background: #2d3748;
+}
+
+/* ===== TIMELINE ITEMS IMPROVEMENTS ===== */
+.ticker-page .timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.ticker-page .timeline-item {
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 4px solid;
+    background: #f7fafc;
+    transition: all 0.2s;
+}
+
+.ticker-page .timeline-item.positive {
+    border-left-color: #38a169;
+    background: #f0fff4;
+}
+
+.ticker-page .timeline-item.negative {
+    border-left-color: #e53e3e;
+    background: #fff5f5;
+}
+
+.ticker-page .timeline-item.neutral {
+    border-left-color: #718096;
+    background: #f7fafc;
+}
+
+.ticker-page .timeline-item:hover {
+    transform: translateX(4px);
+}
+
+.ticker-page .timeline-date {
+    font-size: 0.75rem;
+    color: #718096;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.ticker-page .timeline-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+}
+
+.ticker-page .timeline-source {
+    font-size: 0.75rem;
+    color: #a0aec0;
+}
+
+/* ===== COMPANY DESCRIPTION IMPROVEMENTS ===== */
+.ticker-page .company-description {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border: 1px solid #e2e8f0;
+}
+
+.ticker-page .description-text {
+    color: #4a5568;
+    line-height: 1.6;
+    font-size: 0.875rem;
+}
+
+/* ===== BUTTON IMPROVEMENTS ===== */
+.ticker-page .btn {
+    padding: 0.75rem 1.25rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+    min-height: 44px;
+    min-width: 44px;
+}
+
+.ticker-page .btn-secondary {
+    background: #edf2f7;
+    color: #4a5568;
+    border: 1px solid #e2e8f0;
+}
+
+.ticker-page .btn-secondary:hover {
+    background: #e2e8f0;
+}
+
+/* ===== LOADING AND ERROR STATES ===== */
+.ticker-page .loading-state,
+.ticker-page .error-state {
+    text-align: center;
+    padding: 3rem 1rem;
+}
+
+.ticker-page .loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #e2e8f0;
+    border-top: 3px solid #4a5568;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ===== MOBILE OPTIMIZATIONS ===== */
+@media (max-width: 768px) {
+    .ticker-page .main {
+        padding: 0 0.75rem;
+    }
+
+    .ticker-page .stock-header {
+        padding: 1.25rem;
+        margin: 0.75rem 0;
+    }
+
+    .ticker-page .stock-info {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+
+    .ticker-page .stock-price {
+        text-align: left;
+    }
+
+    .ticker-page .symbol {
+        font-size: 1.75rem;
+    }
+
+    .ticker-page .price {
+        font-size: 1.5rem;
+    }
+
+    .ticker-page .overview-card {
+        padding: 1.25rem;
+    }
+
+    .ticker-page .timeline-section {
+        padding: 1.25rem;
+    }
+
+    .ticker-page .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .ticker-page .timeline-filters {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .ticker-page .filter-btn {
+        flex: 1;
+        text-align: center;
+        padding: 0.75rem 0.5rem;
+    }
+
+    .ticker-page .company-description {
+        padding: 1.25rem;
+    }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+    .ticker-page .main {
+        padding: 0 0.5rem;
+    }
+
+    .ticker-page .stock-header {
+        padding: 1rem;
+    }
+
+    .ticker-page .overview-card {
+        padding: 1rem;
+    }
+
+    .ticker-page .timeline-section {
+        padding: 1rem;
+    }
+
+    .ticker-page .company-description {
+        padding: 1rem;
+    }
+
+    .ticker-page .symbol {
+        font-size: 1.5rem;
+    }
+
+    .ticker-page .price {
+        font-size: 1.25rem;
+    }
+}
+
+/* ===== UTILITY CLASSES FOR TICKER PAGE ===== */
+.ticker-page .hidden {
+    display: none;
+}
+
+.ticker-page .visible {
+    display: block;
+} 
