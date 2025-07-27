@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Stock Narrative Tracker - Understand the story behind companies without price charts">
+    <title>NoCharts - Stock Narrative Tracker</title>
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/mobile.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/themes.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="header-left">
+                    <h1 class="logo">
+                        <span class="logo-icon">🧠</span>
+                        <span class="logo-text">NoCharts</span>
+                    </h1>
+                    <p class="tagline">Stock research without the squiggles</p>
+                </div>
+                <div class="header-right">
+                    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+                        <span class="theme-icon light">☀️</span>
+                        <span class="theme-icon dark">🌙</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <!-- Hero Section -->
+            <section class="hero">
+                <div class="hero-content">
+                    <h2 class="hero-title">Understand the Story</h2>
+                    <p class="hero-subtitle">
+                        Research stocks through narrative, events, and sentiment — 
+                        not price charts. Think independently.
+                    </p>
+                    
+                    <!-- Search Form -->
+                    <form class="search-form" id="searchForm">
+                        <div class="search-container">
+                            <input 
+                                type="text" 
+                                id="tickerInput" 
+                                class="search-input" 
+                                placeholder="Enter stock ticker (e.g., AAPL, TSLA, MSFT)"
+                                autocomplete="off"
+                                required
+                            >
+                            <button type="submit" class="search-button">
+                                <span class="search-icon">🔍</span>
+                                <span class="search-text">Research</span>
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <!-- Popular Tickers -->
+                    <div class="popular-tickers">
+                        <p class="popular-label">Popular:</p>
+                        <div class="ticker-buttons">
+                            <button class="ticker-button" data-ticker="AAPL">AAPL</button>
+                            <button class="ticker-button" data-ticker="TSLA">TSLA</button>
+                            <button class="ticker-button" data-ticker="MSFT">MSFT</button>
+                            <button class="ticker-button" data-ticker="GOOGL">GOOGL</button>
+                            <button class="ticker-button" data-ticker="AMZN">AMZN</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Features Section -->
+            <section class="features">
+                <h3 class="features-title">Why NoCharts?</h3>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">📰</div>
+                        <h4 class="feature-title">Narrative Focus</h4>
+                        <p class="feature-description">
+                            Understand companies through headlines, earnings, and events 
+                            rather than price movements.
+                        </p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🧠</div>
+                        <h4 class="feature-title">Independent Thinking</h4>
+                        <p class="feature-description">
+                            Strip away visual bias from charts and focus on the 
+                            fundamental story.
+                        </p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📱</div>
+                        <h4 class="feature-title">Mobile First</h4>
+                        <p class="feature-description">
+                            Optimized for mobile research with clean, fast, 
+                            touch-friendly interface.
+                        </p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p class="loading-text">Researching...</p>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div class="error-modal" id="errorModal">
+        <div class="error-content">
+            <div class="error-icon">⚠️</div>
+            <h3 class="error-title">Oops!</h3>
+            <p class="error-message" id="errorMessage">Something went wrong.</p>
+            <button class="error-button" id="errorClose">Try Again</button>
+        </div>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="js/config.js"></script>
+    <script src="js/mock-data.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html> 

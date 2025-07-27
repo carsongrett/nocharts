@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MSFT - Microsoft Corporation | NoCharts</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #2d3748;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Header Section */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 16px 20px 20px;
+            border-radius: 0 0 24px 24px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .ticker-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .ticker-info {
+            flex: 1;
+        }
+
+        .ticker-symbol {
+            font-size: 32px;
+            font-weight: 800;
+            color: #1a202c;
+            margin-bottom: 4px;
+        }
+
+        .company-name {
+            font-size: 16px;
+            color: #718096;
+            font-weight: 500;
+        }
+
+        .price-section {
+            text-align: right;
+        }
+
+        .current-price {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 4px;
+        }
+
+        .price-change {
+            font-size: 14px;
+            font-weight: 600;
+            color: #38a169;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 4px;
+        }
+
+        .price-change.negative {
+            color: #e53e3e;
+        }
+
+        .search-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .search-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .stat-header {
+            font-size: 12px;
+            font-weight: 600;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .stat-content {
+            font-size: 14px;
+            font-weight: 500;
+            color: #2d3748;
+            line-height: 1.4;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .stat-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .stat-label {
+            color: #718096;
+        }
+
+        .stat-value {
+            font-weight: 600;
+            color: #1a202c;
+        }
+
+        .sentiment-count {
+            display: flex;
+            gap: 12px;
+        }
+
+        .sentiment-item {
+            text-align: center;
+            flex: 1;
+        }
+
+        .sentiment-number {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        .sentiment-number.positive {
+            color: #38a169;
+        }
+
+        .sentiment-number.negative {
+            color: #e53e3e;
+        }
+
+        .sentiment-number.neutral {
+            color: #718096;
+        }
+
+        .sentiment-label {
+            font-size: 10px;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* News Section */
+        .news-section {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            margin: 0 12px 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .news-header {
+            padding: 20px 20px 16px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        .news-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 12px;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .filter-btn {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .filter-btn:not(.active):hover {
+            background: rgba(102, 126, 234, 0.2);
+        }
+
+        /* News Items */
+        .news-item {
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .news-item:last-child {
+            border-bottom: none;
+        }
+
+        .news-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .news-icon svg {
+            width: 16px;
+            height: 16px;
+            fill: white;
+        }
+
+        .news-content {
+            flex: 1;
+        }
+
+        .news-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 6px;
+        }
+
+        .news-date {
+            font-size: 12px;
+            color: #718096;
+            font-weight: 500;
+        }
+
+        .news-source {
+            font-size: 12px;
+            color: #667eea;
+            font-weight: 600;
+            background: rgba(102, 126, 234, 0.1);
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+
+        .news-title-text {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a202c;
+            line-height: 1.4;
+            margin-bottom: 4px;
+        }
+
+        .news-description {
+            font-size: 12px;
+            color: #718096;
+            line-height: 1.4;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 360px) {
+            .header {
+                padding: 12px 16px 16px;
+            }
+            
+            .ticker-symbol {
+                font-size: 28px;
+            }
+            
+            .current-price {
+                font-size: 24px;
+            }
+            
+            .stats-grid {
+                gap: 8px;
+            }
+            
+            .stat-card {
+                padding: 12px;
+            }
+            
+            .news-section {
+                margin: 0 8px 12px;
+            }
+            
+            .news-header {
+                padding: 16px 16px 12px;
+            }
+            
+            .news-item {
+                padding: 12px 16px;
+            }
+        }
+
+        /* Loading animation */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        /* Smooth transitions */
+        * {
+            transition: all 0.2s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <div class="header">
+            <div class="ticker-row">
+                <div class="ticker-info">
+                    <div class="ticker-symbol">MSFT</div>
+                    <div class="company-name">Microsoft Corporation</div>
+                </div>
+                <div class="price-section">
+                    <div class="current-price">$381.75</div>
+                    <div class="price-change">
+                        <span>↗</span>
+                        <span>$1.95 (0.51%)</span>
+                    </div>
+                </div>
+            </div>
+            <button class="search-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.35-4.35"></path>
+                </svg>
+                New Search
+            </button>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">Company Info</div>
+                <div class="stat-content">
+                    <div class="stat-row">
+                        <span class="stat-label">Sector:</span>
+                        <span class="stat-value">Technology</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Industry:</span>
+                        <span class="stat-value">Software</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Market Cap:</span>
+                        <span class="stat-value">$2.5T</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">P/E Ratio:</span>
+                        <span class="stat-value">32.10</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">News Summary</div>
+                <div class="stat-content">
+                    <div class="stat-row">
+                        <span class="stat-label">Total Articles:</span>
+                        <span class="stat-value">3</span>
+                    </div>
+                    <div class="sentiment-count">
+                        <div class="sentiment-item">
+                            <div class="sentiment-number positive">2</div>
+                            <div class="sentiment-label">Positive</div>
+                        </div>
+                        <div class="sentiment-item">
+                            <div class="sentiment-number negative">0</div>
+                            <div class="sentiment-label">Negative</div>
+                        </div>
+                        <div class="sentiment-item">
+                            <div class="sentiment-number neutral">1</div>
+                            <div class="sentiment-label">Neutral</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- News Section -->
+        <div class="news-section">
+            <div class="news-header">
+                <div class="news-title">Recent News & Events</div>
+                <div class="filter-buttons">
+                    <button class="filter-btn active">All</button>
+                    <button class="filter-btn">Positive</button>
+                    <button class="filter-btn">Negative</button>
+                    <button class="filter-btn">Neutral</button>
+                </div>
+            </div>
+
+            <div class="news-item">
+                <div class="news-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M3 3v18h18"></path>
+                        <path d="m9 9 3 3 3-3"></path>
+                        <path d="m9 15 3-3 3 3"></path>
+                    </svg>
+                </div>
+                <div class="news-content">
+                    <div class="news-meta">
+                        <span class="news-date">1/15/2024</span>
+                        <span class="news-source">Bloomberg</span>
+                    </div>
+                    <div class="news-title-text">Microsoft Cloud Revenue Continues Strong Growth</div>
+                    <div class="news-description">Microsoft's cloud computing division reported strong revenue growth, driven by Azure and Office 365 subscriptions.</div>
+                </div>
+            </div>
+
+            <div class="news-item">
+                <div class="news-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2v20M2 12h20"></path>
+                    </svg>
+                </div>
+                <div class="news-content">
+                    <div class="news-meta">
+                        <span class="news-date">1/14/2024</span>
+                        <span class="news-source">Tech News</span>
+                    </div>
+                    <div class="news-title-text">Microsoft Acquires AI Startup for $10 Billion</div>
+                    <div class="news-description">Microsoft has acquired a leading AI startup to strengthen its artificial intelligence capabilities.</div>
+                </div>
+            </div>
+
+            <div class="news-item">
+                <div class="news-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                </div>
+                <div class="news-content">
+                    <div class="news-meta">
+                        <span class="news-date">1/13/2024</span>
+                        <span class="news-source">CNBC</span>
+                    </div>
+                    <div class="news-title-text">Microsoft Faces Antitrust Concerns Over Gaming Division</div>
+                    <div class="news-description">Regulators are reviewing Microsoft's gaming division acquisitions for potential antitrust violations.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

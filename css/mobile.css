@@ -1,0 +1,209 @@
+/* ===== MOBILE-SPECIFIC STYLES ===== */
+
+/* Touch-friendly button sizes */
+@media (max-width: 768px) {
+    /* Ensure minimum touch target size of 44px */
+    .search-button,
+    .ticker-button,
+    .error-button {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    /* Increase padding for better touch targets */
+    .search-input {
+        padding: 1.2rem 1.5rem;
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+    
+    .search-button {
+        padding: 1.2rem 1.5rem;
+    }
+    
+    .ticker-button {
+        padding: 0.8rem 1.2rem;
+        font-size: 1rem;
+    }
+    
+    /* Adjust spacing for mobile */
+    .header {
+        padding: 1.5rem 0;
+    }
+    
+    .main {
+        padding: 2rem 0;
+    }
+    
+    .hero {
+        margin-bottom: 3rem;
+    }
+    
+    .hero-title {
+        font-size: 1.8rem;
+        margin-bottom: 0.8rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .features {
+        margin-top: 3rem;
+    }
+    
+    .features-title {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .feature-card {
+        padding: 1.5rem;
+    }
+    
+    .feature-icon {
+        font-size: 2.5rem;
+    }
+    
+    .feature-title {
+        font-size: 1.1rem;
+    }
+    
+    .feature-description {
+        font-size: 0.9rem;
+    }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+    .container {
+        padding: 0 0.75rem;
+    }
+    
+    .hero-title {
+        font-size: 1.6rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 0.95rem;
+    }
+    
+    .logo {
+        font-size: 1.5rem;
+    }
+    
+    .logo-icon {
+        font-size: 2rem;
+    }
+    
+    .tagline {
+        font-size: 1rem;
+    }
+    
+    .search-container {
+        max-width: 100%;
+    }
+    
+    .ticker-buttons {
+        justify-content: space-between;
+    }
+    
+    .ticker-button {
+        flex: 1;
+        margin: 0 0.1rem;
+        text-align: center;
+    }
+    
+    .features-grid {
+        gap: 1rem;
+    }
+    
+    .feature-card {
+        padding: 1.25rem;
+    }
+}
+
+/* Landscape orientation adjustments */
+@media (max-width: 768px) and (orientation: landscape) {
+    .header {
+        padding: 1rem 0;
+    }
+    
+    .main {
+        padding: 1.5rem 0;
+    }
+    
+    .hero {
+        margin-bottom: 2rem;
+    }
+    
+    .features {
+        margin-top: 2rem;
+    }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .search-container {
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .feature-card {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    .search-container,
+    .search-button,
+    .ticker-button,
+    .feature-card,
+    .loading-spinner {
+        transition: none;
+        animation: none;
+    }
+    
+    .search-container:focus-within {
+        transform: none;
+    }
+    
+    .search-button:hover,
+    .ticker-button:hover {
+        transform: none;
+    }
+    
+    .feature-card:hover {
+        transform: none;
+    }
+}
+
+/* Dark mode support (future enhancement) */
+@media (prefers-color-scheme: dark) {
+    /* This will be implemented in Phase 2 */
+}
+
+/* Print styles */
+@media print {
+    .header,
+    .search-form,
+    .popular-tickers,
+    .loading-overlay,
+    .error-modal {
+        display: none !important;
+    }
+    
+    .main {
+        padding: 0;
+    }
+    
+    .hero,
+    .features {
+        margin: 0;
+    }
+    
+    .feature-card {
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+} 

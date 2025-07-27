@@ -1,0 +1,24 @@
+{
+  "name": "nocharts",
+  "version": "1.0.0",
+  "description": "**Stock Narrative Tracker** is a personality-driven stock research tool that helps users understand the *story* behind a company — without using price charts. It emphasizes narrative, events, and sentiment over price lines, helping users think independently.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "live-server --port=3000"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/carsongrett/nocharts.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/carsongrett/nocharts/issues"
+  },
+  "homepage": "https://github.com/carsongrett/nocharts#readme",
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  }
+}

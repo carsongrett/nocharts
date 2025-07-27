@@ -1,0 +1,728 @@
+/* ===== THEME SYSTEM ===== */
+
+/* CSS Custom Properties for theming */
+:root {
+    /* Light theme (default) */
+    --bg-primary: #f8f9fa;
+    --bg-secondary: #ffffff;
+    --bg-tertiary: #f1f3f4;
+    --text-primary: #333333;
+    --text-secondary: #666666;
+    --text-muted: #999999;
+    --border-color: #e9ecef;
+    --border-light: #f0f0f0;
+    --shadow-light: rgba(0, 0, 0, 0.08);
+    --shadow-medium: rgba(0, 0, 0, 0.12);
+    --shadow-heavy: rgba(0, 0, 0, 0.15);
+    --accent-primary: #667eea;
+    --accent-secondary: #764ba2;
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --danger-color: #e74c3c;
+    --info-color: #17a2b8;
+    --positive-color: #28a745;
+    --negative-color: #e74c3c;
+    --neutral-color: #6c757d;
+}
+
+/* Dark theme */
+[data-theme="dark"] {
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --bg-tertiary: #3a3a3a;
+    --text-primary: #ffffff;
+    --text-secondary: #cccccc;
+    --text-muted: #888888;
+    --border-color: #404040;
+    --border-light: #333333;
+    --shadow-light: rgba(0, 0, 0, 0.3);
+    --shadow-medium: rgba(0, 0, 0, 0.4);
+    --shadow-heavy: rgba(0, 0, 0, 0.5);
+    --accent-primary: #7c8fff;
+    --accent-secondary: #9b6dff;
+    --success-color: #4ade80;
+    --warning-color: #fbbf24;
+    --danger-color: #f87171;
+    --info-color: #60a5fa;
+    --positive-color: #4ade80;
+    --negative-color: #f87171;
+    --neutral-color: #9ca3af;
+}
+
+/* Apply theme colors to existing elements */
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Header theming */
+.header {
+    background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+}
+
+/* Card theming */
+.card,
+.feature-card,
+.overview-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 15px var(--shadow-light);
+    transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover,
+.feature-card:hover,
+.overview-card:hover {
+    box-shadow: 0 8px 25px var(--shadow-medium);
+}
+
+/* Form elements */
+.search-container,
+.form-input {
+    background: var(--bg-secondary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+.search-input::placeholder {
+    color: var(--text-muted);
+}
+
+/* Button theming */
+.btn-secondary {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+.btn-secondary:hover {
+    background: var(--bg-tertiary);
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+}
+
+/* Text colors */
+.hero-title,
+.features-title,
+.section-title,
+.card-title {
+    color: var(--text-primary);
+}
+
+.hero-subtitle,
+.feature-description,
+.text-secondary {
+    color: var(--text-secondary);
+}
+
+/* Theme toggle button */
+.theme-toggle {
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-color);
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.theme-toggle:hover {
+    border-color: var(--accent-primary);
+    transform: scale(1.05);
+}
+
+.theme-icon {
+    position: absolute;
+    transition: all 0.3s ease;
+    font-size: 1.2rem;
+}
+
+.theme-icon.light {
+    opacity: 1;
+    transform: rotate(0deg);
+}
+
+.theme-icon.dark {
+    opacity: 0;
+    transform: rotate(90deg);
+}
+
+[data-theme="dark"] .theme-icon.light {
+    opacity: 0;
+    transform: rotate(-90deg);
+}
+
+[data-theme="dark"] .theme-icon.dark {
+    opacity: 1;
+    transform: rotate(0deg);
+}
+
+/* Header layout adjustments */
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-left,
+.header-right {
+    display: flex;
+    align-items: center;
+}
+
+.logo-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Stock page specific theming */
+.ticker-main {
+    background: var(--bg-primary);
+}
+
+.stock-header {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 15px var(--shadow-light);
+    border: 1px solid var(--border-color);
+}
+
+.stock-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.stock-symbol .symbol {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.company-name {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    display: block;
+    margin-top: 0.5rem;
+}
+
+.stock-price {
+    text-align: right;
+}
+
+.stock-price .price {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.stock-price .change {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-top: 0.25rem;
+}
+
+.stock-price .change.positive {
+    color: var(--positive-color);
+}
+
+.stock-price .change.negative {
+    color: var(--negative-color);
+}
+
+/* Overview grid */
+.overview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.info-list,
+.news-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.info-item,
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.info-item:last-child,
+.summary-item:last-child {
+    border-bottom: none;
+}
+
+.info-item .label,
+.summary-item .label {
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.info-item .value,
+.summary-item .value {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.summary-item .value.positive {
+    color: var(--positive-color);
+}
+
+.summary-item .value.negative {
+    color: var(--negative-color);
+}
+
+.summary-item .value.neutral {
+    color: var(--neutral-color);
+}
+
+/* Timeline section */
+.timeline-section {
+    margin-bottom: 3rem;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.timeline-filters {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 0.5rem 1rem;
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-color);
+    border-radius: 20px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.filter-btn:hover,
+.filter-btn.active {
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+    background: var(--bg-tertiary);
+}
+
+/* Company description */
+.company-description {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 15px var(--shadow-light);
+    border: 1px solid var(--border-color);
+}
+
+.description-text {
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin: 0;
+}
+
+/* Loading and error states */
+.loading-state,
+.error-state {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.loading-spinner.large {
+    width: 80px;
+    height: 80px;
+    border-width: 6px;
+    margin: 0 auto 2rem;
+}
+
+.error-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.error-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.error-message {
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .stock-info {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .stock-price {
+        text-align: center;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .timeline-filters {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .overview-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+}
+
+/* Smooth transitions for all theme changes */
+* {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Disable transitions for specific elements that shouldn't animate */
+.loading-spinner,
+.theme-icon {
+    transition: none;
+}
+
+/* ===== TIMELINE STYLES ===== */
+.timeline {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 1rem;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--border-color);
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: flex-start;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -1.5rem;
+    top: 0.5rem;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-secondary);
+    border: 3px solid var(--border-color);
+    z-index: 1;
+    transition: all 0.3s ease;
+}
+
+.timeline-marker.news-marker.positive {
+    border-color: var(--positive-color);
+    background: var(--positive-color);
+    color: white;
+}
+
+.timeline-marker.news-marker.negative {
+    border-color: var(--negative-color);
+    background: var(--negative-color);
+    color: white;
+}
+
+.timeline-marker.news-marker.neutral {
+    border-color: var(--neutral-color);
+    background: var(--neutral-color);
+    color: white;
+}
+
+.timeline-marker.earnings-marker.positive {
+    border-color: var(--positive-color);
+    background: var(--positive-color);
+    color: white;
+}
+
+.timeline-marker.earnings-marker.negative {
+    border-color: var(--negative-color);
+    background: var(--negative-color);
+    color: white;
+}
+
+.timeline-marker.earnings-marker.neutral {
+    border-color: var(--neutral-color);
+    background: var(--neutral-color);
+    color: white;
+}
+
+.marker-icon {
+    font-size: 0.8rem;
+}
+
+.timeline-content {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px var(--shadow-light);
+    border: 1px solid var(--border-color);
+    flex: 1;
+    transition: all 0.3s ease;
+}
+
+.timeline-content:hover {
+    box-shadow: 0 8px 25px var(--shadow-medium);
+    transform: translateY(-2px);
+}
+
+.timeline-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.timeline-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.timeline-date {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.timeline-source {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.timeline-badges {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.category-badge,
+.sentiment-badge,
+.earnings-badge,
+.surprise-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.category-badge {
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+}
+
+.sentiment-badge.positive {
+    background: var(--positive-color);
+    color: white;
+}
+
+.sentiment-badge.negative {
+    background: var(--negative-color);
+    color: white;
+}
+
+.sentiment-badge.neutral {
+    background: var(--neutral-color);
+    color: white;
+}
+
+.earnings-badge {
+    background: var(--accent-primary);
+    color: white;
+}
+
+.surprise-badge.positive {
+    background: var(--positive-color);
+    color: white;
+}
+
+.surprise-badge.negative {
+    background: var(--negative-color);
+    color: white;
+}
+
+.timeline-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 0.75rem 0;
+    line-height: 1.4;
+}
+
+.timeline-title a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.timeline-title a:hover {
+    color: var(--accent-primary);
+}
+
+.timeline-description {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0 0 1rem 0;
+}
+
+.timeline-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.timeline-sentiment {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sentiment-label {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+.sentiment-score {
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.sentiment-score.positive {
+    color: var(--positive-color);
+}
+
+.sentiment-score.negative {
+    color: var(--negative-color);
+}
+
+.sentiment-score.neutral {
+    color: var(--neutral-color);
+}
+
+.earnings-details {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.875rem;
+}
+
+.earnings-details .estimate {
+    color: var(--text-muted);
+}
+
+.earnings-details .actual {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.timeline-empty {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: var(--text-secondary);
+}
+
+.empty-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.empty-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.empty-message {
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+/* Responsive timeline */
+@media (max-width: 768px) {
+    .timeline {
+        padding-left: 1.5rem;
+    }
+    
+    .timeline::before {
+        left: 0.75rem;
+    }
+    
+    .timeline-marker {
+        left: -1.25rem;
+        width: 1.5rem;
+        height: 1.5rem;
+    }
+    
+    .timeline-content {
+        padding: 1rem;
+    }
+    
+    .timeline-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .timeline-footer {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .earnings-details {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+} 

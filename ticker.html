@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Stock research and narrative analysis">
+    <title>Loading... - NoCharts</title>
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/mobile.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/themes.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="header-left">
+                    <a href="index.html" class="logo-link">
+                        <h1 class="logo">
+                            <span class="logo-icon">🧠</span>
+                            <span class="logo-text">NoCharts</span>
+                        </h1>
+                    </a>
+                </div>
+                <div class="header-right">
+                    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+                        <span class="theme-icon light">☀️</span>
+                        <span class="theme-icon dark">🌙</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main ticker-main">
+        <div class="container">
+            <!-- Loading State -->
+            <div class="loading-state" id="loadingState">
+                <div class="loading-spinner large"></div>
+                <p class="loading-text">Loading stock research...</p>
+            </div>
+
+            <!-- Error State -->
+            <div class="error-state hidden" id="errorState">
+                <div class="error-icon">⚠️</div>
+                <h2 class="error-title">Oops! Something went wrong</h2>
+                <p class="error-message" id="errorMessage">Unable to load stock data.</p>
+                <button class="btn btn-primary" onclick="window.location.href='index.html'">
+                    Back to Search
+                </button>
+            </div>
+
+            <!-- Stock Content -->
+            <div class="stock-content hidden" id="stockContent">
+                <!-- Stock Header -->
+                <section class="stock-header">
+                    <div class="stock-info">
+                        <div class="stock-symbol">
+                            <h1 class="symbol" id="stockSymbol">--</h1>
+                            <span class="company-name" id="companyName">--</span>
+                        </div>
+                        <div class="stock-price">
+                            <div class="price" id="stockPrice">--</div>
+                            <div class="change" id="stockChange">--</div>
+                        </div>
+                    </div>
+                    <div class="stock-actions">
+                        <button class="btn btn-secondary" onclick="window.location.href='index.html'">
+                            <span>🔍</span>
+                            New Search
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Stock Overview -->
+                <section class="stock-overview">
+                    <div class="overview-grid">
+                        <div class="overview-card">
+                            <h3 class="card-title">Company Info</h3>
+                            <div class="info-list">
+                                <div class="info-item">
+                                    <span class="label">Sector:</span>
+                                    <span class="value" id="sector">--</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">Industry:</span>
+                                    <span class="value" id="industry">--</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">Market Cap:</span>
+                                    <span class="value" id="marketCap">--</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">P/E Ratio:</span>
+                                    <span class="value" id="peRatio">--</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="overview-card">
+                            <h3 class="card-title">News Summary</h3>
+                            <div class="news-summary">
+                                <div class="summary-item">
+                                    <span class="label">Total Articles:</span>
+                                    <span class="value" id="totalArticles">--</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="label">Positive:</span>
+                                    <span class="value positive" id="positiveArticles">--</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="label">Negative:</span>
+                                    <span class="value negative" id="negativeArticles">--</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="label">Neutral:</span>
+                                    <span class="value neutral" id="neutralArticles">--</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Timeline Section -->
+                <section class="timeline-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Recent News & Events</h2>
+                        <div class="timeline-filters">
+                            <button class="filter-btn active" data-filter="all">All</button>
+                            <button class="filter-btn" data-filter="positive">Positive</button>
+                            <button class="filter-btn" data-filter="negative">Negative</button>
+                            <button class="filter-btn" data-filter="neutral">Neutral</button>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline" id="timeline">
+                        <!-- Timeline items will be dynamically generated here -->
+                    </div>
+                </section>
+
+                <!-- Company Description -->
+                <section class="company-description" id="companyDescription">
+                    <h3 class="section-title">About the Company</h3>
+                    <p class="description-text" id="descriptionText">
+                        Company description will be loaded here...
+                    </p>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p class="loading-text">Researching...</p>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div class="error-modal" id="errorModal">
+        <div class="error-content">
+            <div class="error-icon">⚠️</div>
+            <h3 class="error-title">Oops!</h3>
+            <p class="error-message" id="modalErrorMessage">Something went wrong.</p>
+            <button class="error-button" id="errorClose">Try Again</button>
+        </div>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="js/config.js"></script>
+    <script src="js/mock-data.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/timeline.js"></script>
+    <script src="js/ticker.js"></script>
+</body>
+</html> 
