@@ -36,10 +36,55 @@ class TickerPage {
             });
         }
 
+        // Header search input
+        const headerSearch = document.getElementById('headerSearch');
+        if (headerSearch) {
+            headerSearch.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    this.handleHeaderSearch();
+                }
+            });
+        }
+
+        // Company description click to expand
+        const companyDescription = document.getElementById('companyDescription');
+        if (companyDescription) {
+            companyDescription.addEventListener('click', () => {
+                this.toggleCompanyDescription();
+            });
+        }
+
         // Window events
         window.addEventListener('beforeunload', this.handleBeforeUnload.bind(this));
         window.addEventListener('online', this.handleOnline.bind(this));
         window.addEventListener('offline', this.handleOffline.bind(this));
+    }
+
+    handleHeaderSearch() {
+        const headerSearch = document.getElementById('headerSearch');
+        if (!headerSearch) return;
+
+        const symbol = headerSearch.value.trim().toUpperCase();
+        if (!symbol) return;
+
+        // Valid symbols from mock data
+        const validSymbols = ['AAPL', 'TSLA', 'MSFT', 'GOOGL', 'AMZN', 'META', 'NVDA', 'NFLX', 'TSLA', 'AAPL'];
+        
+        if (validSymbols.includes(symbol)) {
+            // Navigate to ticker page
+            window.location.href = `ticker.html?ticker=${symbol}`;
+        } else {
+            // Show "n/a" message
+            alert('n/a');
+            headerSearch.value = '';
+        }
+    }
+
+    toggleCompanyDescription() {
+        const descriptionText = document.getElementById('descriptionText');
+        if (descriptionText) {
+            descriptionText.classList.toggle('expanded');
+        }
     }
 
     async loadStockData() {

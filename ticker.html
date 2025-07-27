@@ -30,6 +30,10 @@
                     </a>
                 </div>
                 <div class="header-right">
+                    <div class="header-search-container">
+                        <input type="text" class="header-search" id="headerSearch" placeholder="symbol" aria-label="Search for stock symbol" />
+                        <span class="search-icon">🔍</span>
+                    </div>
                     <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
                         <span class="theme-icon light">☀️</span>
                         <span class="theme-icon dark">🌙</span>
@@ -72,55 +76,49 @@
                             <div class="change" id="stockChange">--</div>
                         </div>
                     </div>
-                    <div class="stock-actions">
-                        <button class="btn btn-secondary" onclick="window.location.href='index.html'">
-                            <span>🔍</span>
-                            New Search
-                        </button>
-                    </div>
+
                 </section>
 
-                <!-- Stock Overview -->
+                <!-- Company Description -->
+                <section class="company-description" id="companyDescription">
+                    <h3 class="section-title">About the Company</h3>
+                    <p class="description-text" id="descriptionText">
+                        Company description will be loaded here...
+                    </p>
+                </section>
+
+                <!-- Data Card -->
                 <section class="overview-grid">
                     <div class="overview-card">
-                        <h3 class="card-title">Company Info</h3>
-                        <div class="info-list">
-                            <div class="info-item">
-                                <span class="label">Sector:</span>
-                                <span class="value" id="sector">--</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="label">Industry:</span>
-                                <span class="value" id="industry">--</span>
-                            </div>
-                            <div class="info-item">
+                        <h3 class="card-title">Data</h3>
+                        <div class="data-list">
+                            <div class="data-item">
                                 <span class="label">Market Cap:</span>
                                 <span class="value" id="marketCap">--</span>
                             </div>
-                            <div class="info-item">
+                            <div class="data-item">
                                 <span class="label">P/E Ratio:</span>
                                 <span class="value" id="peRatio">--</span>
                             </div>
-                        </div>
-                    </div>
-                    <div class="overview-card">
-                        <h3 class="card-title">News Summary</h3>
-                        <div class="news-summary">
-                            <div class="summary-item">
-                                <span class="label">Total Articles:</span>
-                                <span class="value" id="totalArticles">--</span>
+                            <div class="data-item">
+                                <span class="label">Revenue Growth:</span>
+                                <span class="value" id="revenueGrowth">--</span>
                             </div>
-                            <div class="summary-item">
-                                <span class="label">Positive:</span>
-                                <span class="value positive" id="positiveArticles">--</span>
+                            <div class="data-item">
+                                <span class="label">Dividend Yield:</span>
+                                <span class="value" id="dividendYield">--</span>
                             </div>
-                            <div class="summary-item">
-                                <span class="label">Negative:</span>
-                                <span class="value negative" id="negativeArticles">--</span>
+                            <div class="data-item">
+                                <span class="label">52 Week High-Low:</span>
+                                <span class="value" id="weekHighLow">--</span>
                             </div>
-                            <div class="summary-item">
-                                <span class="label">Neutral:</span>
-                                <span class="value neutral" id="neutralArticles">--</span>
+                            <div class="data-item">
+                                <span class="label">Profit Margin:</span>
+                                <span class="value" id="profitMargin">--</span>
+                            </div>
+                            <div class="data-item">
+                                <span class="label">Current Ratio:</span>
+                                <span class="value" id="currentRatio">--</span>
                             </div>
                         </div>
                     </div>
@@ -141,14 +139,6 @@
                     <div class="timeline" id="timeline">
                         <!-- Timeline items will be dynamically generated here -->
                     </div>
-                </section>
-
-                <!-- Company Description -->
-                <section class="company-description" id="companyDescription">
-                    <h3 class="section-title">About the Company</h3>
-                    <p class="description-text" id="descriptionText">
-                        Company description will be loaded here...
-                    </p>
                 </section>
             </div>
         </div>
