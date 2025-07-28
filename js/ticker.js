@@ -136,8 +136,10 @@ class TickerPage {
         
         const processed = {
             symbol: stockData.symbol,
-            overview: stockData.overview ? DataProcessor.processStockOverview(stockData.overview) : null,
-            quote: stockData.quote ? DataProcessor.processStockQuote(stockData.quote) : null,
+            overview: stockData.overview ? DataProcessor.processFinnhubProfile(stockData.overview) : null,
+            quote: stockData.quote ? DataProcessor.processFinnhubQuote(stockData.quote) : null,
+            basicFinancials: stockData.basicFinancials ? DataProcessor.processFinnhubBasicFinancials(stockData.basicFinancials) : null,
+            earnings: stockData.earnings ? DataProcessor.processFinnhubEarnings(stockData.earnings) : null,
             news: stockData.news ? DataProcessor.processNewsArticles(stockData.news) : [],
             lastUpdated: stockData.lastUpdated
         };
@@ -192,14 +194,58 @@ class TickerPage {
     }
 
     updateOverviewCards() {
-        const { overview, newsSummary } = this.stockData;
+        const { overview, basicFinancials, earnings, newsSummary } = this.stockData;
         
         // Company info
         if (overview) {
             this.updateElement('sector', overview.sector || 'N/A');
             this.updateElement('industry', overview.industry || 'N/A');
-            this.updateElement('marketCap', overview.marketCap ? (typeof Utils !== 'undefined' ? Utils.formatCurrency(overview.marketCap) : `$${overview.marketCap.toLocaleString()}`) : 'N/A');
-            this.updateElement('peRatio', overview.peRatio ? overview.peRatio.toFixed(2) : 'N/A');
+            
+                           // Format market cap properly
+               let marketCap = 'N/A';
+               if (overview.marketCap) {
+                   const marketCapValue = parseFloat(overview.marketCap);
+                   // Finnhub returns market cap in millions, so we need to convert properly
+                   if (marketCapValue >= 1e6) {
+                       marketCap = `$${(marketCapValue / 1e6).toFixed(1)}T`;
+                   } else if (marketCapValue >= 1e3) {
+                       marketCap = `$${(marketCapValue / 1e3).toFixed(1)}B`;
+                   } else {
+                       marketCap = `$${marketCapValue.toFixed(1)}M`;
+                   }
+               }
+            this.updateElement('marketCap', marketCap);
+        }
+        
+                   // Basic financials
+           if (basicFinancials) {
+               this.updateElement('peRatio', basicFinancials.peRatio ? basicFinancials.peRatio.toFixed(2) : 'N/A');
+               this.updateElement('dividendYield', basicFinancials.dividendYield ? `${basicFinancials.dividendYield.toFixed(2)}%` : 'N/A');
+               this.updateElement('revenueGrowth', basicFinancials.revenueGrowth ? `${basicFinancials.revenueGrowth.toFixed(2)}%` : 'N/A');
+               
+               // Format 52-week range
+               let weekRange = 'N/A';
+               if (basicFinancials.weekHigh && basicFinancials.weekLow) {
+                   weekRange = `$${basicFinancials.weekLow.toFixed(2)} - $${basicFinancials.weekHigh.toFixed(2)}`;
+               }
+               this.updateElement('weekHighLow', weekRange);
+               
+               this.updateElement('profitMargin', basicFinancials.profitMargin ? `${basicFinancials.profitMargin.toFixed(2)}%` : 'N/A');
+               this.updateElement('currentRatio', basicFinancials.currentRatio ? basicFinancials.currentRatio.toFixed(2) : 'N/A');
+           } else {
+               // Fallback to N/A if no basic financials
+               this.updateElement('peRatio', 'N/A');
+               this.updateElement('dividendYield', 'N/A');
+               this.updateElement('revenueGrowth', 'N/A');
+               this.updateElement('weekHighLow', 'N/A');
+               this.updateElement('profitMargin', 'N/A');
+               this.updateElement('currentRatio', 'N/A');
+           }
+        
+        // Earnings data (if available)
+        if (earnings) {
+            // Update any earnings-related fields if needed
+            // For now, we'll keep the existing structure
         }
         
         // News summary

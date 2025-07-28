@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Correct Endpoints Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
+        .data-item { padding: 5px; background: #f5f5f5; border-radius: 3px; }
+        pre { background: #f0f0f0; padding: 10px; border-radius: 5px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Correct Endpoints Test</h1>
+    
+    <div class="test-section">
+        <h3>Test Stock Metrics (Fixed)</h3>
+        <button onclick="testStockMetrics()">Test Stock Metrics</button>
+        <div id="metricsResults"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Test Stock Earnings (Fixed)</h3>
+        <button onclick="testStockEarnings()">Test Stock Earnings</button>
+        <div id="earningsResults"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Test Main App Integration</h3>
+        <button onclick="testMainApp()">Test Main App</button>
+        <div id="mainAppResults"></div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/data.js"></script>
+    
+    <script>
+        async function testStockMetrics() {
+            const resultsDiv = document.getElementById('metricsResults');
+            resultsDiv.innerHTML = '<p class="info">Testing corrected stock metrics...</p>';
+            
+            try {
+                console.log('Testing corrected stock metrics...');
+                const result = await API.getFinnhubBasicFinancials('AAPL');
+                console.log('Stock metrics result:', result);
+                
+                if (result && !result.error) {
+                    resultsDiv.innerHTML = `
+                        <p class="success">✅ Stock metrics API working!</p>
+                        <p><strong>Raw data structure:</strong></p>
+                        <pre>${JSON.stringify(result, null, 2)}</pre>
+                    `;
+                } else {
+                    resultsDiv.innerHTML = `<p class="error">❌ Stock metrics API failed: ${result?.error || 'Unknown error'}</p>`;
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `<p class="error">❌ Stock metrics test failed: ${error.message}</p>`;
+                console.error('Stock metrics test error:', error);
+            }
+        }
+        
+        async function testStockEarnings() {
+            const resultsDiv = document.getElementById('earningsResults');
+            resultsDiv.innerHTML = '<p class="info">Testing corrected stock earnings...</p>';
+            
+            try {
+                console.log('Testing corrected stock earnings...');
+                const result = await API.getFinnhubEarnings('AAPL');
+                console.log('Stock earnings result:', result);
+                
+                if (result && !result.error) {
+                    resultsDiv.innerHTML = `
+                        <p class="success">✅ Stock earnings API working!</p>
+                        <p><strong>Raw data structure:</strong></p>
+                        <pre>${JSON.stringify(result, null, 2)}</pre>
+                    `;
+                } else {
+                    resultsDiv.innerHTML = `<p class="error">❌ Stock earnings API failed: ${result?.error || 'Unknown error'}</p>`;
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `<p class="error">❌ Stock earnings test failed: ${error.message}</p>`;
+                console.error('Stock earnings test error:', error);
+            }
+        }
+        
+        async function testMainApp() {
+            const resultsDiv = document.getElementById('mainAppResults');
+            resultsDiv.innerHTML = '<p class="info">Testing main app integration...</p>';
+            
+            try {
+                const result = await API.getComprehensiveStockData('AAPL');
+                console.log('Main app result:', result);
+                
+                let results = '<p class="success">✅ Main app integration test:</p>';
+                results += `<p><strong>Symbol:</strong> ${result.symbol}</p>`;
+                results += `<p><strong>Profile:</strong> ${result.overview ? 'Available' : 'Missing'}</p>`;
+                results += `<p><strong>Quote:</strong> ${result.quote ? 'Available' : 'Missing'}</p>`;
+                results += `<p><strong>Basic Financials:</strong> ${result.basicFinancials ? 'Available' : 'Missing'}</p>`;
+                results += `<p><strong>Earnings:</strong> ${result.earnings ? 'Available' : 'Missing'}</p>`;
+                results += `<p><strong>News:</strong> ${result.news ? result.news.length : 0} articles</p>`;
+                
+                if (result.basicFinancials) {
+                    results += '<p><strong>Basic Financials Data:</strong></p>';
+                    results += `<pre>${JSON.stringify(result.basicFinancials, null, 2)}</pre>`;
+                }
+                
+                if (result.earnings) {
+                    results += '<p><strong>Earnings Data:</strong></p>';
+                    results += `<pre>${JSON.stringify(result.earnings, null, 2)}</pre>`;
+                }
+                
+                resultsDiv.innerHTML = results;
+            } catch (error) {
+                resultsDiv.innerHTML = `<p class="error">❌ Main app test failed: ${error.message}</p>`;
+                console.error('Main app test error:', error);
+            }
+        }
+    </script>
+</body>
+</html> 

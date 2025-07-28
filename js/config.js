@@ -3,11 +3,11 @@
 
 const CONFIG = {
     // API Keys
-    ALPHA_VANTAGE_API_KEY: 'TNV5PE0PRBC456XO',
+    FINNHUB_API_KEY: 'd23c7j1r01qgiro31s40d23c7j1r01qgiro31s4g',
     NEWS_API_KEY: '5532986076b7449bad2768ba4eafd7fe',
     
     // API Endpoints
-    ALPHA_VANTAGE_BASE_URL: 'https://www.alphavantage.co/query',
+    FINNHUB_BASE_URL: 'https://finnhub.io/api/v1',
     NEWS_API_BASE_URL: 'https://newsapi.org/v2/everything',
     
     // App Settings

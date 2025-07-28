@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alpha Vantage Debug Test</title>
+</head>
+<body>
+    <h1>Alpha Vantage Debug Test</h1>
+    <button onclick="testDirectAPI()">Test Direct API Call</button>
+    <button onclick="testWithFallback()">Test With Fallback</button>
+    <div id="results"></div>
+
+    <script src="js/config.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/mock-data.js"></script>
+    
+    <script>
+        async function testDirectAPI() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<p>Testing direct Alpha Vantage API...</p>';
+            
+            try {
+                const url = `${CONFIG.ALPHA_VANTAGE_BASE_URL}?function=OVERVIEW&symbol=TSLA&apikey=${CONFIG.ALPHA_VANTAGE_API_KEY}`;
+                
+                console.log('🔍 Making direct API call to:', url);
+                
+                const response = await fetch(url);
+                console.log('📡 Response status:', response.status);
+                console.log('📡 Response ok:', response.ok);
+                
+                const data = await response.json();
+                console.log('📊 Raw API response:', data);
+                
+                if (data['Note']) {
+                    resultsDiv.innerHTML = `
+                        <h3>Rate Limit Hit:</h3>
+                        <p><strong>Message:</strong> ${data['Note']}</p>
+                        <p><strong>Status:</strong> Rate limit exceeded</p>
+                    `;
+                } else if (data['Error Message']) {
+                    resultsDiv.innerHTML = `
+                        <h3>API Error:</h3>
+                        <p><strong>Message:</strong> ${data['Error Message']}</p>
+                    `;
+                } else if (data.Symbol) {
+                    resultsDiv.innerHTML = `
+                        <h3>Success!</h3>
+                        <p><strong>Symbol:</strong> ${data.Symbol}</p>
+                        <p><strong>Name:</strong> ${data.Name}</p>
+                        <p><strong>Market Cap:</strong> ${data.MarketCapitalization}</p>
+                        <p><strong>P/E Ratio:</strong> ${data.PERatio}</p>
+                    `;
+                } else {
+                    resultsDiv.innerHTML = `
+                        <h3>Unexpected Response:</h3>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                }
+                
+            } catch (error) {
+                console.error('❌ Direct API call failed:', error);
+                resultsDiv.innerHTML = `
+                    <h3>Network Error:</h3>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                    <p><strong>Type:</strong> ${error.name}</p>
+                `;
+            }
+        }
+        
+        async function testWithFallback() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<p>Testing with fallback...</p>';
+            
+            try {
+                // Try real API first
+                const realData = await API.getStockOverview('TSLA');
+                resultsDiv.innerHTML = `
+                    <h3>Real API Success:</h3>
+                    <p><strong>Symbol:</strong> ${realData.Symbol}</p>
+                    <p><strong>Name:</strong> ${realData.Name}</p>
+                `;
+            } catch (error) {
+                console.log('Real API failed, trying mock data...');
+                
+                // Fallback to mock data
+                try {
+                    const mockData = MockData.getStockOverview('TSLA');
+                    resultsDiv.innerHTML = `
+                        <h3>Mock Data Fallback:</h3>
+                        <p><strong>Symbol:</strong> ${mockData.Symbol}</p>
+                        <p><strong>Name:</strong> ${mockData.Name}</p>
+                        <p><strong>Error that caused fallback:</strong> ${error.message}</p>
+                    `;
+                } catch (mockError) {
+                    resultsDiv.innerHTML = `
+                        <h3>Both Failed:</h3>
+                        <p><strong>Real API Error:</strong> ${error.message}</p>
+                        <p><strong>Mock Data Error:</strong> ${mockError.message}</p>
+                    `;
+                }
+            }
+        }
+    </script>
+</body>
+</html> 

@@ -1,7 +1,42 @@
 // ===== DATA PROCESSING FUNCTIONS =====
 
 /**
- * Process stock overview data
+ * Process Finnhub stock profile data
+ * @param {Object} data - Raw Finnhub profile data
+ * @returns {Object} - Processed profile data
+ */
+function processFinnhubProfile(data) {
+    if (!data || Object.keys(data).length === 0) {
+        return null;
+    }
+    
+    return {
+        symbol: data.ticker || '',
+        name: data.name || '',
+        description: data.name || '', // Finnhub doesn't provide descriptions
+        exchange: data.exchange || '',
+        currency: data.currency || 'USD',
+        country: data.country || '',
+        sector: data.finnhubIndustry || '',
+        industry: data.finnhubIndustry || '',
+        marketCap: data.marketCapitalization ? parseFloat(data.marketCapitalization) : null,
+        peRatio: null, // Finnhub doesn't provide P/E in profile
+        pbRatio: null, // Finnhub doesn't provide P/B in profile
+        dividendYield: null, // Finnhub doesn't provide dividend in profile
+        eps: null, // Finnhub doesn't provide EPS in profile
+        beta: null, // Finnhub doesn't provide beta in profile
+        fiftyTwoWeekHigh: null, // Finnhub doesn't provide 52-week data in profile
+        fiftyTwoWeekLow: null,
+        volume: null, // Volume comes from quote data
+        avgVolume: null,
+        weburl: data.weburl || '',
+        logo: data.logo || '',
+        ipo: data.ipo || ''
+    };
+}
+
+/**
+ * Process stock overview data (legacy - for Alpha Vantage compatibility)
  * @param {Object} data - Raw overview data from API
  * @returns {Object} - Processed overview data
  */
@@ -33,7 +68,83 @@ function processStockOverview(data) {
 }
 
 /**
- * Process stock quote data
+ * Process Finnhub quote data
+ * @param {Object} data - Raw Finnhub quote data
+ * @returns {Object} - Processed quote data
+ */
+function processFinnhubQuote(data) {
+    if (!data || Object.keys(data).length === 0) {
+        return null;
+    }
+    
+    return {
+        symbol: '', // Symbol comes from profile data
+        price: data.c ? parseFloat(data.c) : null,
+        change: data.d ? parseFloat(data.d) : null,
+        changePercent: data.dp ? parseFloat(data.dp) : null,
+        volume: null, // Finnhub quote doesn't include volume
+        high: data.h ? parseFloat(data.h) : null,
+        low: data.l ? parseFloat(data.l) : null,
+        open: data.o ? parseFloat(data.o) : null,
+        previousClose: data.pc ? parseFloat(data.pc) : null,
+        lastUpdated: new Date().toISOString()
+    };
+}
+
+/**
+ * Process Finnhub basic financials data
+ * @param {Object} data - Raw Finnhub basic financials data
+ * @returns {Object} - Processed basic financials data
+ */
+function processFinnhubBasicFinancials(data) {
+    if (!data || Object.keys(data).length === 0) {
+        return null;
+    }
+    
+    // /stock/metric endpoint returns different structure
+    // Handle the actual response format from the correct endpoint
+    const metric = data.metric || {};
+    
+    return {
+        peRatio: metric.peTTM ? parseFloat(metric.peTTM) : null,
+        dividendYield: metric.currentDividendYieldTTM ? parseFloat(metric.currentDividendYieldTTM) : null,
+        pbRatio: metric.pb ? parseFloat(metric.pb) : null,
+        beta: metric.beta ? parseFloat(metric.beta) : null,
+        marketCap: metric.marketCapitalization ? parseFloat(metric.marketCapitalization) : null,
+        profitMargin: metric.netProfitMarginTTM ? parseFloat(metric.netProfitMarginTTM) : null,
+        currentRatio: metric.currentRatioQuarterly ? parseFloat(metric.currentRatioQuarterly) : null,
+        revenueGrowth: metric.revenueGrowthTTMYoy ? parseFloat(metric.revenueGrowthTTMYoy) : null,
+        weekHigh: metric['52WeekHigh'] ? parseFloat(metric['52WeekHigh']) : null,
+        weekLow: metric['52WeekLow'] ? parseFloat(metric['52WeekLow']) : null,
+        lastUpdated: new Date().toISOString()
+    };
+}
+
+/**
+ * Process Finnhub earnings data
+ * @param {Object} data - Raw Finnhub earnings data
+ * @returns {Object} - Processed earnings data
+ */
+function processFinnhubEarnings(data) {
+    if (!data || Object.keys(data).length === 0) {
+        return null;
+    }
+    
+    // Finnhub earnings returns an array of earnings data
+    // Get the most recent earnings data
+    const earningsArray = Array.isArray(data) ? data : [data];
+    const latestEarnings = earningsArray.length > 0 ? earningsArray[0] : {};
+    
+    return {
+        eps: latestEarnings.eps ? parseFloat(latestEarnings.eps) : null,
+        revenue: latestEarnings.revenue ? parseFloat(latestEarnings.revenue) : null,
+        earningsDate: latestEarnings.date || null,
+        lastUpdated: new Date().toISOString()
+    };
+}
+
+/**
+ * Process stock quote data (legacy - for Alpha Vantage compatibility)
  * @param {Object} data - Raw quote data from API
  * @returns {Object} - Processed quote data
  */
@@ -400,6 +511,10 @@ const DataCache = {
 
 // Export data processing functions
 window.DataProcessor = {
+    processFinnhubProfile,
+    processFinnhubQuote,
+    processFinnhubBasicFinancials,
+    processFinnhubEarnings,
     processStockOverview,
     processStockQuote,
     processNewsArticles,

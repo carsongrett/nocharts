@@ -1,0 +1,118 @@
+{
+  "symbol": "AAPL",
+  "overview": {
+    "symbol": "AAPL",
+    "name": "Apple Inc",
+    "description": "Apple Inc",
+    "exchange": "NASDAQ NMS - GLOBAL MARKET",
+    "currency": "USD",
+    "country": "US",
+    "sector": "Technology",
+    "industry": "Technology",
+    "marketCap": 3194474.4195495667,
+    "peRatio": null,
+    "pbRatio": null,
+    "dividendYield": null,
+    "eps": null,
+    "beta": null,
+    "fiftyTwoWeekHigh": null,
+    "fiftyTwoWeekLow": null,
+    "volume": null,
+    "avgVolume": null,
+    "weburl": "https://www.apple.com/",
+    "logo": "https://static2.finnhub.io/file/publicdatany/finnhubimage/stock_logo/AAPL.png",
+    "ipo": "1980-12-12"
+  },
+  "quote": {
+    "symbol": "",
+    "price": 213.88,
+    "change": 0.12,
+    "changePercent": 0.0561,
+    "volume": null,
+    "high": 215.24,
+    "low": 213.4,
+    "open": 214.7,
+    "previousClose": 213.76,
+    "lastUpdated": "2025-07-28T01:09:59.527Z"
+  },
+  "basicFinancials": {
+    "peRatio": null,
+    "dividendYield": null,
+    "pbRatio": null,
+    "beta": 1.108404,
+    "marketCap": 3194474.5,
+    "lastUpdated": "2025-07-28T01:09:59.527Z"
+  },
+  "earnings": {
+    "eps": null,
+    "revenue": null,
+    "earningsDate": null,
+    "lastUpdated": "2025-07-28T01:09:59.527Z"
+  },
+  "news": [
+    {
+      "title": "Should You Wait For Apple’s Revolutionary MacBook?",
+      "description": "Will Apple launch a new MacBook with the heart of an iPhone? What do we know about this fanless, affordable macOS laptop, and is it worth waiting for?",
+      "content": "Employees use Apple Inc. MacBook laptop at the Steve Jobs Theatre in Cupertino, California ... More (Photographer: Michael Short/Bloomberg)\r\n© 2017 Bloomberg Finance LP\r\nWhile Apple prepares the new … [+4285 chars]",
+      "url": "https://www.forbes.com/sites/ewanspence/2025/07/26/apple-macbook-pro-macbook-air-macbook-a18-pro-cheap-budget-macos-laptop/",
+      "imageUrl": "https://imageio.forbes.com/specials-images/imageserve/68855118a1153e13517f4a23/0x0.jpg?format=jpg&height=900&width=1600&fit=bounds",
+      "source": "Forbes",
+      "author": "Ewan Spence, Senior Contributor, \n Ewan Spence, Senior Contributor\n https://www.forbes.com/sites/ewanspence/",
+      "publishedAt": "2025-07-26T22:09:54Z",
+      "relativeTime": "1d ago",
+      "sentiment": {
+        "score": 0,
+        "sentiment": "neutral"
+      },
+      "category": "product"
+    },
+    {
+      "title": "The Tea app was intended to help women date safely. Then hackers leaked 72,000 images online, including users’ selfies",
+      "description": "No email addresses or phone numbers were exposed, the company said, and the breach only affects users who signed up before February 2024.",
+      "content": "Tea, a provocative dating app designed to let women anonymously ask or warn each other about men theyd encountered, rocketed to the top spot on the U.S. Apple App Store this week. On Friday, the comp… [+3937 chars]",
+      "url": "https://fortune.com/2025/07/26/tea-app-hack-images-online-leaks-users-selfies/",
+      "imageUrl": "https://fortune.com/img-assets/wp-content/uploads/2025/07/AP25206770241902-e1753562848851.jpg?resize=1200,600",
+      "source": "Fortune",
+      "author": "Paul Wiseman, The Associated Press",
+      "publishedAt": "2025-07-26T20:56:17Z",
+      "relativeTime": "1d ago",
+      "sentiment": {
+        "score": 1,
+        "sentiment": "positive"
+      },
+      "category": "general"
+    },
+    {
+      "title": "The Tea app was intended to help women date safely. Then it got hacked",
+      "description": "A provocative dating app designed to let women anonymously ask or warn each other about men they'd encountered rocketed to the top spot on the U.S. Apple App Store last week",
+      "content": "Tea, a provocative dating app designed to let women anonymously ask or warn each other about men they'd encountered, rocketed to the top spot on the U.S. Apple App Store this week. On Friday, the com… [+3983 chars]",
+      "url": "https://abcnews.go.com/US/wireStory/tea-app-intended-women-date-safely-hacked-124102462",
+      "imageUrl": "https://i.abcnewsfe.com/a/5c4e43b8-c542-4644-bdaa-b2f434c3d28e/wirestory_c95d5bb2cabe9d1b8ec0ca8903503b29_16x9.jpg?w=1600",
+      "source": "ABC News",
+      "author": "PAUL WISEMAN AP business writer",
+      "publishedAt": "2025-07-26T20:54:16Z",
+      "relativeTime": "1d ago",
+      "sentiment": {
+        "score": 0,
+        "sentiment": "neutral"
+      },
+      "category": "general"
+    },
+    {
+      "title": "The Tea app was intended to help women date safely. Then it got hacked",
+      "description": "The app and the breach highlight the fraught nature of seeking romance in the age of social media.",
+      "content": "Author of the article:\r\nA person uses a smartphone in Chicago, Sept. 16, 2017.Photo by AP /AP\r\nTea, a provocative dating app designed to let women anonymously ask or warn each other about men theyd e… [+7009 chars]",
+      "url": "https://torontosun.com/technology/the-tea-app-was-intended-to-help-women-date-safely-then-it-got-hacked",
+      "imageUrl": "https://smartcdn.gprod.postmedia.digital/torontosun/wp-content/uploads/2025/07/688524c983b2baceebe7f718jpeg-e1753561258270.jpg",
+      "source": "Toronto Sun",
+      "author": "Associated Press",
+      "publishedAt": "2025-07-26T20:35:23Z",
+      "relativeTime": "1d ago",
+      "sentiment": {
+        "score": 0,
+        "sentiment": "neutral"
+      },
+      "category": "general"
+    }
+  ],
+  "lastUpdated": "2025-07-28T01:09:59.522Z"

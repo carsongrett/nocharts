@@ -35,10 +35,11 @@ Homepage → Search Ticker → Company Summary → Timeline → Sentiment Analys
 - **AI-powered story summaries** (coming soon)
 
 ### 📊 Data Sources
-- **Alpha Vantage API** - Stock data, company information
-- **News API** - Company news and headlines
-- **Yahoo Finance** - Financial data, earnings (web scraping)
-- **Reddit** - Social sentiment and mentions (public data)
+- **Finnhub API** - Stock data, company information, financial metrics ($9.99/month, 1M calls/day)
+- **News API** - Company news and headlines (100 req/day free, $449/month unlimited)
+- **Reddit API** - Social sentiment and mentions (60 req/minute free)
+- **Alpha Vantage API** - Alternative stock data (25 req/day free)
+- **Yahoo Finance** - Financial data, earnings (web scraping, fallback)
 - **SEC EDGAR** - Regulatory filings (fallback)
 
 ---
@@ -48,9 +49,11 @@ Homepage → Search Ticker → Company Summary → Timeline → Sentiment Analys
 - **[HTML5](https://developer.mozilla.org/en-US/docs/Web/HTML)** - Semantic markup and structure
 - **[CSS3](https://developer.mozilla.org/en-US/docs/Web/CSS)** - Styling and responsive design
 - **[Vanilla JavaScript](https://developer.mozilla.org/en-US/docs/Web/JavaScript)** - Client-side functionality
-- **[Alpha Vantage API](https://alphavantage.co/)** - Free stock data (500 req/day)
-- **[News API](https://newsapi.org/)** - Free company news (100 req/day)
-- **[Yahoo Finance](https://finance.yahoo.com/)** - Free financial data (scraping)
+- **[Finnhub API](https://finnhub.io/)** - Stock data and financial metrics ($9.99/month)
+- **[News API](https://newsapi.org/)** - Company news and headlines (100 req/day free)
+- **[Reddit API](https://www.reddit.com/dev/api/)** - Social sentiment (60 req/minute free)
+- **[Alpha Vantage API](https://alphavantage.co/)** - Alternative stock data (25 req/day free)
+- **[Yahoo Finance](https://finance.yahoo.com/)** - Financial data (web scraping, fallback)
 
 ---
 
@@ -96,8 +99,9 @@ stock-narrative-tracker/
 - [ ] Loading states and error handling
 
 ### 🔌 Phase 3: Data Integration (Week 3)
-- [ ] Alpha Vantage API integration
+- [x] Finnhub API integration (✅ Complete)
 - [ ] News API integration
+- [ ] Reddit API integration
 - [ ] Yahoo Finance data scraping
 - [ ] API error handling and fallbacks
 - [ ] CORS handling strategies
@@ -119,6 +123,34 @@ stock-narrative-tracker/
 - [ ] Content population (10+ tickers)
 - [ ] GitHub Pages deployment
 - [ ] AdSense application
+
+---
+
+## 🔧 Key Lessons Learned
+
+### API Integration Best Practices
+- **CORS Issues**: Remove `Content-Type: application/json` header from GET requests to avoid preflight issues
+- **Rate Limiting**: Set internal rate limits higher than API limits (20 req/min vs 5 req/min)
+- **Data Structure Validation**: Always test raw API responses before processing
+- **Field Mapping**: API response fields may differ from documentation (e.g., `peTTM` vs `peRatio`)
+
+### Data Processing Insights
+- **Market Cap Formatting**: Finnhub returns market cap in millions, divide by 1M for trillions
+- **Error Handling**: Implement graceful fallbacks to mock data when APIs fail
+- **Caching Strategy**: 30-minute cache duration reduces API calls significantly
+- **Data Validation**: Check for null/undefined values before processing
+
+### Development Workflow
+- **Test Files**: Create isolated HTML test files for API debugging
+- **Console Logging**: Use detailed console logs to track data flow
+- **Incremental Testing**: Test each API endpoint separately before integration
+- **Documentation**: Keep API response examples for reference
+
+### Common Pitfalls
+- **NPM vs REST**: Don't confuse npm wrapper documentation with REST API endpoints
+- **Data Units**: Verify units (millions vs billions) in API responses
+- **Field Names**: API field names may be different than expected (e.g., `currentDividendYieldTTM`)
+- **Error Messages**: Implement specific error messages for different failure types
 
 ---
 

@@ -1,0 +1,379 @@
+{
+  "metric": {
+    "10DayAverageTradingVolume": 45.67319,
+    "13WeekPriceReturnDaily": 4.5357,
+    "26WeekPriceReturnDaily": -7.0006,
+    "3MonthADReturnStd": 23.296463,
+    "3MonthAverageTradingVolume": 58.4835,
+    "52WeekHigh": 260.1,
+    "52WeekHighDate": "2024-12-26",
+    "52WeekLow": 169.2101,
+    "52WeekLowDate": "2025-04-08",
+    "52WeekPriceReturnDaily": -2.1323,
+    "5DayPriceReturnDaily": 0.6589,
+    "assetTurnoverAnnual": 1.0714,
+    "assetTurnoverTTM": 1.1673,
+    "beta": 1.108404,
+    "bookValuePerShareAnnual": 3.7673,
+    "bookValuePerShareQuarterly": 4.4712,
+    "bookValueShareGrowth5Y": -5.85,
+    "capexCagr5Y": -2.08,
+    "cashFlowPerShareAnnual": 7.1978,
+    "cashFlowPerShareQuarterly": 6.5924,
+    "cashFlowPerShareTTM": 6.86253,
+    "cashPerSharePerShareAnnual": 4.3112,
+    "cashPerSharePerShareQuarterly": 3.2463,
+    "currentDividendYieldTTM": 0.4794,
+    "currentEv/freeCashFlowAnnual": 30.0027,
+    "currentEv/freeCashFlowTTM": 33.1468,
+    "currentRatioAnnual": 0.8673,
+    "currentRatioQuarterly": 0.8209,
+    "dividendGrowthRate5Y": 5.3,
+    "dividendPerShareAnnual": 0.9935,
+    "dividendPerShareTTM": 1.0115,
+    "dividendYieldIndicatedAnnual": 0.48625395,
+    "ebitdPerShareAnnual": 8.7571,
+    "ebitdPerShareTTM": 9.1121,
+    "ebitdaCagr5Y": 11.9,
+    "ebitdaInterimCagr5Y": 15.39,
+    "enterpriseValue": 3264498.5,
+    "epsAnnual": 6.0836,
+    "epsBasicExclExtraItemsAnnual": 6.0836,
+    "epsBasicExclExtraItemsTTM": 6.4078,
+    "epsExclExtraItemsAnnual": 6.0836,
+    "epsExclExtraItemsTTM": 6.4078,
+    "epsGrowth3Y": 2.71,
+    "epsGrowth5Y": 15.41,
+    "epsGrowthQuarterlyYoy": 7.68,
+    "epsGrowthTTMYoy": -0.36,
+    "epsInclExtraItemsAnnual": 6.0836,
+    "epsInclExtraItemsTTM": 6.4078,
+    "epsNormalizedAnnual": 6.0836,
+    "epsTTM": 6.4078,
+    "focfCagr5Y": 13.06,
+    "forwardPE": 29.82911853615846,
+    "grossMargin5Y": 42.73,
+    "grossMarginAnnual": 46.21,
+    "grossMarginTTM": 46.63,
+    "inventoryTurnoverAnnual": 30.8955,
+    "inventoryTurnoverTTM": 34.184,
+    "longTermDebt/equityAnnual": 1.5057,
+    "longTermDebt/equityQuarterly": 1.1762,
+    "marketCapitalization": 3194474.5,
+    "monthToDatePriceReturnDaily": 4.2453,
+    "netIncomeEmployeeAnnual": 0.5716,
+    "netIncomeEmployeeTTM": 0.5933,
+    "netInterestCoverageAnnual": 622.5082,
+    "netInterestCoverageTTM": 622.5082,
+    "netMarginGrowth5Y": 2.45,
+    "netProfitMargin5Y": 24.28,
+    "netProfitMarginAnnual": 23.97,
+    "netProfitMarginTTM": 24.3,
+    "operatingMargin5Y": 29.11,
+    "operatingMarginAnnual": 31.51,
+    "operatingMarginTTM": 31.81,
+    "payoutRatioAnnual": 16.25,
+    "payoutRatioTTM": 15.74,
+    "pb": 47.8243,
+    "pbAnnual": 61.8474,
+    "pbQuarterly": 50.0084,
+    "pcfShareAnnual": 27.0137,
+    "pcfShareTTM": 29.1584,
+    "peAnnual": 34.0795,
+    "peBasicExclExtraTTM": 32.8332,
+    "peExclExtraAnnual": 30.96975,
+    "peExclExtraTTM": 32.8332,
+    "peInclExtraTTM": 32.8332,
+    "peNormalizedAnnual": 34.0795,
+    "peTTM": 32.8332,
+    "pfcfShareAnnual": 29.3591,
+    "pfcfShareTTM": 32.4358,
+    "pretaxMargin5Y": 29.15,
+    "pretaxMarginAnnual": 31.58,
+    "pretaxMarginTTM": 31.72,
+    "priceRelativeToS&P50013Week": -14.455,
+    "priceRelativeToS&P50026Week": -13.6139,
+    "priceRelativeToS&P5004Week": 2.7569,
+    "priceRelativeToS&P50052Week": -19.8457,
+    "priceRelativeToS&P500Ytd": -23.2968,
+    "psAnnual": 8.1693,
+    "psTTM": 7.9789,
+    "ptbvAnnual": 4.8643,
+    "ptbvQuarterly": 6.4066,
+    "quickRatioAnnual": 0.826,
+    "quickRatioQuarterly": 0.7775,
+    "receivablesTurnoverAnnual": 12.43,
+    "receivablesTurnoverTTM": 16.6913,
+    "revenueEmployeeAnnual": 2.3844,
+    "revenueEmployeeTTM": 2.4413,
+    "revenueGrowth3Y": 2.25,
+    "revenueGrowth5Y": 8.49,
+    "revenueGrowthQuarterlyYoy": 5.08,
+    "revenueGrowthTTMYoy": 4.91,
+    "revenuePerShareAnnual": 25.3785,
+    "revenuePerShareTTM": 26.5916,
+    "revenueShareGrowth5Y": 12.65,
+    "roa5Y": 25.24,
+    "roaRfy": 25.679999999999996,
+    "roaTTM": 28.37,
+    "roe5Y": 151.11,
+    "roeRfy": 164.59,
+    "roeTTM": 151.31,
+    "roi5Y": 50.63,
+    "roiAnnual": 56.989999999999995,
+    "roiTTM": 58.95,
+    "tangibleBookValuePerShareAnnual": 5.8583,
+    "tangibleBookValuePerShareQuarterly": 6.7916,
+    "tbvCagr5Y": 11.34,
+    "totalDebt/totalEquityAnnual": 1.8881,
+    "totalDebt/totalEquityQuarterly": 1.4699,
+    "yearToDatePriceReturnDaily": -14.5915
+  },
+  "metricType": "all",
+  "series": {
+    "annual": {
+      "bookValue": [
+        {
+          "period": "2024-09-28",
+          "v": 56950
+        },
+        {
+          "period": "2023-09-30",
+          "v": 62146
+        },
+        {
+          "period": "2022-09-24",
+          "v": 50672
+        },
+        {
+          "period": "2021-09-25",
+          "v": 63090
+        },
+        {
+          "period": "2020-09-26",
+          "v": 65339
+        },
+        {
+          "period": "2019-09-28",
+          "v": 90488
+        },
+        {
+          "period": "2018-09-29",
+          "v": 107147
+        },
+        {
+          "period": "2017-09-30",
+          "v": 134047
+        },
+        {
+          "period": "2016-09-24",
+          "v": 128249
+        },
+        {
+          "period": "2015-09-26",
+          "v": 119355
+        },
+        {
+          "period": "2014-09-27",
+          "v": 111547
+        },
+        {
+          "period": "2013-09-28",
+          "v": 123549
+        },
+        {
+          "period": "2012-09-29",
+          "v": 118210
+        },
+        {
+          "period": "2011-09-24",
+          "v": 76615
+        },
+        {
+          "period": "2010-09-25",
+          "v": 47791
+        },
+        {
+          "period": "2009-09-26",
+          "v": 31640
+        },
+        {
+          "period": "2008-09-27",
+          "v": 22297
+        },
+        {
+          "period": "2007-09-29",
+          "v": 14532
+        },
+        {
+          "period": "2006-09-30",
+          "v": 9984
+        },
+        {
+          "period": "2005-09-24",
+          "v": 7428
+        },
+        {
+          "period": "2004-09-25",
+          "v": 5076
+        },
+        {
+          "period": "2003-09-27",
+          "v": 4223
+        },
+        {
+          "period": "2002-09-28",
+          "v": 4095
+        },
+        {
+          "period": "2001-09-29",
+          "v": 3920
+        },
+        {
+          "period": "2000-09-30",
+          "v": 4107
+        }
+      ],
+      "cashRatio": [
+        {
+          "period": "2024-09-28",
+          "v": 0.16975259648963673
+        },
+        {
+          "period": "2023-09-30",
+          "v": 0.20621713876730807
+        },
+        {
+          "period": "2022-09-24",
+          "v": 0.15356340351469652
+        },
+        {
+          "period": "2021-09-25",
+          "v": 0.2784485300563432
+        },
+        {
+          "period": "2020-09-26",
+          "v": 0.36071049035979963
+        },
+        {
+          "period": "2019-09-28",
+          "v": 0.46202160464632325
+        },
+        {
+          "period": "2018-09-29",
+          "v": 0.22352474359306126
+        },
+        {
+          "period": "2017-09-30",
+          "v": 0.2012518102644474
+        },
+        {
+          "period": "2016-09-24",
+          "v": 0.2592714477381465
+        },
+        {
+          "period": "2015-09-26",
+          "v": 0.2620022329735765
+        },
+        {
+          "period": "2014-09-27",
+          "v": 0.21819442693229102
+        },
+        {
+          "period": "2013-09-28",
+          "v": 0.3266068074579688
+        },
+        {
+          "period": "2012-09-29",
+          "v": 0.27881272378184835
+        },
+        {
+          "period": "2011-09-24",
+          "v": 0.35091169109760456
+        },
+        {
+          "period": "2010-09-25",
+          "v": 0.5434321011485378
+        },
+        {
+          "period": "2009-09-26",
+          "v": 0.45741352337910657
+        },
+        {
+          "period": "2008-09-27",
+          "v": 1.045242496259132
+        },
+        {
+          "period": "2007-09-29",
+          "v": 1.0077586206896552
+        },
+        {
+          "period": "2006-09-30",
+          "v": 0.9920844327176781
+        },
+        {
+          "period": "2005-09-24",
+          "v": 1.0011471178663607
+        },
+        {
+          "period": "2004-09-25",
+          "v": 1.119954734062618
+        },
+        {
+          "period": "2003-09-27",
+          "v": 1.4408145948239288
+        },
+        {
+          "period": "2002-09-28",
+          "v": 1.3582629674306392
+        },
+        {
+          "period": "2001-09-29",
+          "v": 1.5217391304347827
+        },
+        {
+          "period": "2000-09-30",
+          "v": 0.6161407139161924
+        },
+        {
+          "period": "1999-09-25",
+          "v": 0.856036152356359
+        },
+        {
+          "period": "1998-09-25",
+          "v": 0.9743421052631579
+        },
+        {
+          "period": "1997-09-26",
+          "v": 0.6765676567656765
+        },
+        {
+          "period": "1996-09-27",
+          "v": 0.7748377433849226
+        },
+        {
+          "period": "1995-09-29",
+          "v": 0.3251612903225806
+        },
+        {
+          "period": "1994-09-30",
+          "v": 0.6189810754999858
+        },
+        {
+          "period": "1993-09-24",
+          "v": 0.2696930127966157
+        },
+        {
+          "period": "1992-09-25",
+          "v": 0.3497369380997811
+        },
+        {
+          "period": "1991-09-27",
+          "v": 0.49640236933374204
+        },
+        {
+          "period": "1990-09-28",
+          "v": 0.3648120110412782
+        },
+        {
+          "period": "1989-09-29",

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finnhub API Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+    </style>
+</head>
+<body>
+    <h1>Finnhub API Integration Test</h1>
+    
+    <div class="test-section">
+        <h3>Test Configuration</h3>
+        <button onclick="testConfig()">Test Config</button>
+        <div id="configResults"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Test Finnhub Profile</h3>
+        <button onclick="testProfile()">Test Profile API</button>
+        <div id="profileResults"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Test Finnhub Quote</h3>
+        <button onclick="testQuote()">Test Quote API</button>
+        <div id="quoteResults"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Test Comprehensive Data</h3>
+        <button onclick="testComprehensive()">Test Comprehensive Data</button>
+        <div id="comprehensiveResults"></div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/data.js"></script>
+    
+    <script>
+        async function testConfig() {
+            const resultsDiv = document.getElementById('configResults');
+            resultsDiv.innerHTML = '<p class="info">Testing configuration...</p>';
+            
+            try {
+                console.log('CONFIG:', CONFIG);
+                console.log('FINNHUB_API_KEY:', CONFIG.FINNHUB_API_KEY);
+                console.log('FINNHUB_BASE_URL:', CONFIG.FINNHUB_BASE_URL);
+                console.log('MOCK_MODE:', CONFIG.MOCK_MODE);
+                
+                resultsDiv.innerHTML = `
+                    <p class="success">✅ Configuration loaded successfully</p>
+                    <p><strong>Finnhub API Key:</strong> ${CONFIG.FINNHUB_API_KEY ? 'Set' : 'Not set'}</p>
+                    <p><strong>Finnhub Base URL:</strong> ${CONFIG.FINNHUB_BASE_URL}</p>
+                    <p><strong>Mock Mode:</strong> ${CONFIG.MOCK_MODE}</p>
+                `;
+            } catch (error) {
+                resultsDiv.innerHTML = `<p class="error">❌ Configuration error: ${error.message}</p>`;
+            }
+        }
+        
+        async function testProfile() {
+            const resultsDiv = document.getElementById('profileResults');
+            resultsDiv.innerHTML = '<p class="info">Testing Finnhub profile API...</p>';
+            
+            try {
+                const result = await API.getFinnhubStockProfile('AAPL');
+                console.log('Profile result:', result);
+                
+                if (result && result.ticker) {
+                    resultsDiv.innerHTML = `
+                        <p class="success">✅ Profile API working</p>
+                        <p><strong>Company:</strong> ${result.name}</p>
+                        <p><strong>Symbol:</strong> ${result.ticker}</p>
+                        <p><strong>Exchange:</strong> ${result.exchange}</p>
+                        <p><strong>Market Cap:</strong> ${result.marketCapitalization ? `$${(result.marketCapitalization / 1000000000).toFixed(2)}B` : 'N/A'}</p>
+                    `;
+                } else {
+                    resultsDiv.innerHTML = `<p class="error">❌ Profile API returned invalid data</p>`;
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `<p class="error">❌ Profile API error: ${error.message}</p>`;
+            }
+        }
+        
+        async function testQuote() {
+            const resultsDiv = document.getElementById('quoteResults');
+            resultsDiv.innerHTML = '<p class="info">Testing Finnhub quote API...</p>';
+            
+            try {
+                const result = await API.getFinnhubQuote('AAPL');
+                console.log('Quote result:', result);
+                
+                if (result && result.c) {
+                    resultsDiv.innerHTML = `
+                        <p class="success">✅ Quote API working</p>
+                        <p><strong>Current Price:</strong> $${result.c}</p>
+                        <p><strong>Change:</strong> $${result.d}</p>
+                        <p><strong>Change %:</strong> ${result.dp}%</p>
+                        <p><strong>High:</strong> $${result.h}</p>
+                        <p><strong>Low:</strong> $${result.l}</p>
+                    `;
+                } else {
+                    resultsDiv.innerHTML = `<p class="error">❌ Quote API returned invalid data</p>`;
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `<p class="error">❌ Quote API error: ${error.message}</p>`;
+            }
+        }
+        
+        async function testComprehensive() {
+            const resultsDiv = document.getElementById('comprehensiveResults');
+            resultsDiv.innerHTML = '<p class="info">Testing comprehensive data...</p>';
+            
+            try {
+                const result = await API.getComprehensiveStockData('AAPL');
+                console.log('Comprehensive result:', result);
+                
+                if (result && result.overview) {
+                    resultsDiv.innerHTML = `
+                        <p class="success">✅ Comprehensive data working</p>
+                        <p><strong>Symbol:</strong> ${result.symbol}</p>
+                        <p><strong>Company:</strong> ${result.overview.name}</p>
+                        <p><strong>Quote Available:</strong> ${result.quote ? 'Yes' : 'No'}</p>
+                        <p><strong>News Articles:</strong> ${result.news ? result.news.length : 0}</p>
+                    `;
+                } else {
+                    resultsDiv.innerHTML = `<p class="error">❌ Comprehensive data returned invalid data</p>`;
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `<p class="error">❌ Comprehensive data error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html> 

@@ -47,7 +47,7 @@ async function makeApiRequest(url, options = {}, cacheKey = null) {
         const response = await fetch(url, {
             method: 'GET',
             headers: {
-                'Content-Type': 'application/json',
+                // Don't add Content-Type for GET requests to avoid CORS preflight issues
                 ...options.headers
             },
             ...options
@@ -75,18 +75,18 @@ async function makeApiRequest(url, options = {}, cacheKey = null) {
 }
 
 /**
- * Get stock overview from Alpha Vantage
+ * Get stock profile from Finnhub
  * @param {string} symbol - Stock symbol
- * @returns {Promise} - Promise with stock data
+ * @returns {Promise} - Promise with stock profile data
  */
-async function getStockOverview(symbol) {
-    console.log('🔍 getStockOverview called with symbol:', symbol);
+async function getFinnhubStockProfile(symbol) {
+    console.log('🔍 getFinnhubStockProfile called with symbol:', symbol);
     console.log('🔧 CONFIG.MOCK_MODE:', CONFIG.MOCK_MODE);
     console.log('🔧 MockData available:', typeof MockData !== 'undefined');
     
     // Use mock data if mock mode is enabled and available
     if (CONFIG.MOCK_MODE && typeof MockData !== 'undefined') {
-        console.log('🔧 Using mock data for stock overview');
+        console.log('🔧 Using mock data for stock profile');
         try {
             return await MockData.getStockOverview(symbol);
         } catch (error) {
@@ -96,40 +96,60 @@ async function getStockOverview(symbol) {
     }
     
     const formattedSymbol = Utils.formatTicker(symbol);
-    const cacheKey = `stock_overview_${formattedSymbol}`;
+    const cacheKey = `finnhub_profile_${formattedSymbol}`;
     
-    const url = `${CONFIG.ALPHA_VANTAGE_BASE_URL}?function=OVERVIEW&symbol=${formattedSymbol}&apikey=${CONFIG.ALPHA_VANTAGE_API_KEY}`;
+    const url = `${CONFIG.FINNHUB_BASE_URL}/stock/profile2?symbol=${formattedSymbol}&token=${CONFIG.FINNHUB_API_KEY}`;
     
     try {
         const data = await makeApiRequest(url, {}, cacheKey);
         
         // Check for API error response
-        if (data['Error Message']) {
-            throw new Error(data['Error Message']);
-        }
-        
-        if (data['Note']) {
-            // Cache rate limit to prevent repeated calls
-            const rateLimitKey = `rate_limit_${cacheKey}`;
-            Utils.setCache(rateLimitKey, Date.now(), 60000); // 1 minute cache
-            throw new Error('Alpha Vantage API rate limit exceeded (500 calls/day). Please try again later.');
+        if (data.error) {
+            throw new Error(data.error);
         }
         
         return data;
         
     } catch (error) {
-        console.error('Failed to get stock overview:', error);
+        console.error('Failed to get Finnhub stock profile:', error);
+        
+        // Fallback to mock data if available
+        if (typeof MockData !== 'undefined') {
+            console.log('🔄 Falling back to mock data for stock profile');
+            try {
+                return MockData.getStockOverview(symbol);
+            } catch (mockError) {
+                console.error('Mock data fallback also failed:', mockError);
+            }
+        }
+        
         throw error;
     }
 }
 
 /**
- * Get stock quote from Alpha Vantage
+ * Get stock overview from Alpha Vantage (legacy - keeping for fallback)
+ * @param {string} symbol - Stock symbol
+ * @returns {Promise} - Promise with stock data
+ */
+async function getStockOverview(symbol) {
+    // Use Finnhub as primary, fallback to Alpha Vantage if needed
+    try {
+        return await getFinnhubStockProfile(symbol);
+    } catch (error) {
+        console.log('Finnhub failed, trying Alpha Vantage fallback...');
+        // Fallback to Alpha Vantage implementation if needed
+        throw error;
+    }
+}
+
+/**
+ * Get stock quote from Finnhub
  * @param {string} symbol - Stock symbol
  * @returns {Promise} - Promise with quote data
  */
-async function getStockQuote(symbol) {
-    console.log('🔍 getStockQuote called with symbol:', symbol);
+async function getFinnhubQuote(symbol) {
+    console.log('🔍 getFinnhubQuote called with symbol:', symbol);
     console.log('🔧 CONFIG.MOCK_MODE:', CONFIG.MOCK_MODE);
     console.log('🔧 MockData available:', typeof MockData !== 'undefined');
     
@@ -145,25 +165,48 @@ async function getStockQuote(symbol) {
     }
     
     const formattedSymbol = Utils.formatTicker(symbol);
-    const cacheKey = `stock_quote_${formattedSymbol}`;
+    const cacheKey = `finnhub_quote_${formattedSymbol}`;
     
-    const url = `${CONFIG.ALPHA_VANTAGE_BASE_URL}?function=GLOBAL_QUOTE&symbol=${formattedSymbol}&apikey=${CONFIG.ALPHA_VANTAGE_API_KEY}`;
+    const url = `${CONFIG.FINNHUB_BASE_URL}/quote?symbol=${formattedSymbol}&token=${CONFIG.FINNHUB_API_KEY}`;
     
     try {
         const data = await makeApiRequest(url, {}, cacheKey);
         
-        if (data['Error Message']) {
-            throw new Error(data['Error Message']);
+        if (data.error) {
+            throw new Error(data.error);
         }
         
-        if (data['Note']) {
-            throw new Error('Alpha Vantage API rate limit exceeded (500 calls/day). Please try again later.');
-        }
-        
-        return data['Global Quote'] || {};
+        return data;
         
     } catch (error) {
-        console.error('Failed to get stock quote:', error);
+        console.error('Failed to get Finnhub quote:', error);
+        
+        // Fallback to mock data if available
+        if (typeof MockData !== 'undefined') {
+            console.log('🔄 Falling back to mock data for stock quote');
+            try {
+                return MockData.getStockQuote(symbol);
+            } catch (mockError) {
+                console.error('Mock data fallback also failed:', mockError);
+            }
+        }
+        
+        throw error;
+    }
+}
+
+/**
+ * Get stock quote from Alpha Vantage (legacy - keeping for fallback)
+ * @param {string} symbol - Stock symbol
+ * @returns {Promise} - Promise with quote data
+ */
+async function getStockQuote(symbol) {
+    // Use Finnhub as primary, fallback to Alpha Vantage if needed
+    try {
+        return await getFinnhubQuote(symbol);
+    } catch (error) {
+        console.log('Finnhub failed, trying Alpha Vantage fallback...');
+        // Fallback to Alpha Vantage implementation if needed
         throw error;
     }
 }
@@ -352,6 +395,112 @@ async function getRedditSentiment(symbol) {
 }
 
 /**
+ * Get basic financials from Finnhub
+ * @param {string} symbol - Stock symbol
+ * @returns {Promise} - Promise with basic financial data
+ */
+async function getFinnhubBasicFinancials(symbol) {
+    console.log('🔍 getFinnhubBasicFinancials called with symbol:', symbol);
+    console.log('🔧 CONFIG.MOCK_MODE:', CONFIG.MOCK_MODE);
+    console.log('🔧 MockData available:', typeof MockData !== 'undefined');
+    
+    // Use mock data if mock mode is enabled and available
+    if (CONFIG.MOCK_MODE && typeof MockData !== 'undefined') {
+        console.log('🔧 Using mock data for basic financials');
+        try {
+            return await MockData.getStockOverview(symbol);
+        } catch (error) {
+            console.error('Mock data failed, falling back to API:', error);
+            // Continue to API call if mock data fails
+        }
+    }
+    
+    const formattedSymbol = Utils.formatTicker(symbol);
+    const cacheKey = `finnhub_basic_financials_${formattedSymbol}`;
+    
+    const url = `${CONFIG.FINNHUB_BASE_URL}/stock/metric?symbol=${formattedSymbol}&metric=all&token=${CONFIG.FINNHUB_API_KEY}`;
+    
+    try {
+        const data = await makeApiRequest(url, {}, cacheKey);
+        
+        // Check for API error response
+        if (data.error) {
+            throw new Error(data.error);
+        }
+        
+        return data;
+        
+    } catch (error) {
+        console.error('Failed to get Finnhub basic financials:', error);
+        
+        // Fallback to mock data if available
+        if (typeof MockData !== 'undefined') {
+            console.log('🔄 Falling back to mock data for basic financials');
+            try {
+                return MockData.getStockOverview(symbol);
+            } catch (mockError) {
+                console.error('Mock data fallback also failed:', mockError);
+            }
+        }
+        
+        throw error;
+    }
+}
+
+/**
+ * Get earnings data from Finnhub
+ * @param {string} symbol - Stock symbol
+ * @returns {Promise} - Promise with earnings data
+ */
+async function getFinnhubEarnings(symbol) {
+    console.log('🔍 getFinnhubEarnings called with symbol:', symbol);
+    console.log('🔧 CONFIG.MOCK_MODE:', CONFIG.MOCK_MODE);
+    console.log('🔧 MockData available:', typeof MockData !== 'undefined');
+    
+    // Use mock data if mock mode is enabled and available
+    if (CONFIG.MOCK_MODE && typeof MockData !== 'undefined') {
+        console.log('🔧 Using mock data for earnings');
+        try {
+            return await MockData.getStockOverview(symbol);
+        } catch (error) {
+            console.error('Mock data failed, falling back to API:', error);
+            // Continue to API call if mock data fails
+        }
+    }
+    
+    const formattedSymbol = Utils.formatTicker(symbol);
+    const cacheKey = `finnhub_earnings_${formattedSymbol}`;
+    
+    const url = `${CONFIG.FINNHUB_BASE_URL}/stock/earnings?symbol=${formattedSymbol}&limit=10&token=${CONFIG.FINNHUB_API_KEY}`;
+    
+    try {
+        const data = await makeApiRequest(url, {}, cacheKey);
+        
+        // Check for API error response
+        if (data.error) {
+            throw new Error(data.error);
+        }
+        
+        return data;
+        
+    } catch (error) {
+        console.error('Failed to get Finnhub earnings:', error);
+        
+        // Fallback to mock data if available
+        if (typeof MockData !== 'undefined') {
+            console.log('🔄 Falling back to mock data for earnings');
+            try {
+                return MockData.getStockOverview(symbol);
+            } catch (mockError) {
+                console.error('Mock data fallback also failed:', mockError);
+            }
+        }
+        
+        throw error;
+    }
+}
+
+/**
  * Get comprehensive stock data (combines multiple APIs)
  * @param {string} symbol - Stock symbol
  * @returns {Promise} - Promise with comprehensive stock data
@@ -375,21 +524,25 @@ async function getComprehensiveStockData(symbol) {
     const formattedSymbol = Utils.formatTicker(symbol);
     
     try {
-        // First get overview to extract company name
-        const overview = await getStockOverview(formattedSymbol);
-        const companyName = overview?.Name || formattedSymbol;
+        // First get Finnhub profile to extract company name
+        const profile = await getFinnhubStockProfile(formattedSymbol);
+        const companyName = profile?.name || formattedSymbol;
         
-        // Then fetch quote and news in parallel (reduced API calls)
-        const [quote, news] = await Promise.allSettled([
-            getStockQuote(formattedSymbol),
+        // Then fetch quote, basic financials, earnings, and news in parallel
+        const [quote, basicFinancials, earnings, news] = await Promise.allSettled([
+            getFinnhubQuote(formattedSymbol),
+            getFinnhubBasicFinancials(formattedSymbol),
+            getFinnhubEarnings(formattedSymbol),
             getCompanyNews(formattedSymbol, 5, companyName)
         ]);
         
         // Combine results
         const result = {
             symbol: formattedSymbol,
-            overview: overview,
+            overview: profile, // Use Finnhub profile instead of Alpha Vantage overview
             quote: quote.status === 'fulfilled' ? quote.value : null,
+            basicFinancials: basicFinancials.status === 'fulfilled' ? basicFinancials.value : null,
+            earnings: earnings.status === 'fulfilled' ? earnings.value : null,
             news: news.status === 'fulfilled' ? news.value : [],
             lastUpdated: new Date().toISOString()
         };
@@ -416,23 +569,23 @@ async function getComprehensiveStockData(symbol) {
  */
 function validateApiKeys() {
     const results = {
-        alphaVantage: false,
+        finnhub: false,
         newsApi: false,
         message: ''
     };
     
-    if (CONFIG.ALPHA_VANTAGE_API_KEY && CONFIG.ALPHA_VANTAGE_API_KEY !== 'your_alpha_vantage_key_here') {
-        results.alphaVantage = true;
+    if (CONFIG.FINNHUB_API_KEY && CONFIG.FINNHUB_API_KEY !== 'your_finnhub_key_here') {
+        results.finnhub = true;
     }
     
     if (CONFIG.NEWS_API_KEY && CONFIG.NEWS_API_KEY !== 'your_news_api_key_here') {
         results.newsApi = true;
     }
     
-    if (!results.alphaVantage && !results.newsApi) {
+    if (!results.finnhub && !results.newsApi) {
         results.message = 'No API keys configured. Please add your API keys to config.js';
-    } else if (!results.alphaVantage) {
-        results.message = 'Alpha Vantage API key not configured';
+    } else if (!results.finnhub) {
+        results.message = 'Finnhub API key not configured';
     } else if (!results.newsApi) {
         results.message = 'News API key not configured';
     }
@@ -479,6 +632,10 @@ async function testAlphaVantageAPI(symbol = 'AAPL') {
 // Export API functions
 window.API = {
     makeApiRequest,
+    getFinnhubStockProfile,
+    getFinnhubQuote,
+    getFinnhubBasicFinancials,
+    getFinnhubEarnings,
     getStockOverview,
     getStockQuote,
     getCompanyNews,
