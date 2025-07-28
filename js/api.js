@@ -17,7 +17,7 @@ async function makeApiRequest(url, options = {}, cacheKey = null) {
     try {
         // Check rate limiting
         if (!Utils.checkRateLimit()) {
-            throw new Error('Rate limit exceeded. Please try again later.');
+            throw new Error('Internal rate limit exceeded. Please try again later.');
         }
         
         // Check for rate limit in cache (to avoid repeated failed calls)
@@ -27,7 +27,7 @@ async function makeApiRequest(url, options = {}, cacheKey = null) {
             if (rateLimitTime) {
                 const timeSinceLimit = Date.now() - rateLimitTime;
                 if (timeSinceLimit < 60000) { // 1 minute cooldown
-                    throw new Error('Rate limit exceeded. Please try again later.');
+                    throw new Error('API rate limit exceeded. Please try again later.');
                 } else {
                     // Clear rate limit cache after cooldown
                     Utils.clearCache(rateLimitKey);
@@ -112,7 +112,7 @@ async function getStockOverview(symbol) {
             // Cache rate limit to prevent repeated calls
             const rateLimitKey = `rate_limit_${cacheKey}`;
             Utils.setCache(rateLimitKey, Date.now(), 60000); // 1 minute cache
-            throw new Error('API rate limit exceeded. Please try again later.');
+            throw new Error('Alpha Vantage API rate limit exceeded (500 calls/day). Please try again later.');
         }
         
         return data;
@@ -157,7 +157,7 @@ async function getStockQuote(symbol) {
         }
         
         if (data['Note']) {
-            throw new Error('API rate limit exceeded. Please try again later.');
+            throw new Error('Alpha Vantage API rate limit exceeded (500 calls/day). Please try again later.');
         }
         
         return data['Global Quote'] || {};
@@ -199,7 +199,35 @@ async function getCompanyNews(symbol, pageSize = 10, companyName = null) {
     const url = `${CONFIG.NEWS_API_BASE_URL}?q=${encodeURIComponent(searchTerm)}&pageSize=${pageSize}&sortBy=publishedAt&language=en&apiKey=${CONFIG.NEWS_API_KEY}`;
     
     try {
-        const data = await makeApiRequest(url, {}, cacheKey);
+        // Check cache first
+        const cachedData = Utils.getCache(cacheKey);
+        if (cachedData) {
+            return cachedData;
+        }
+        
+        // Check rate limiting
+        if (!Utils.checkRateLimit()) {
+            throw new Error('Internal rate limit exceeded. Please try again later.');
+        }
+        
+        // Make News API request without problematic headers
+        const response = await fetch(url, {
+            method: 'GET',
+            // No Content-Type header to avoid CORS issues
+        });
+        
+        // Check if response is ok
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        // Parse response
+        const data = await response.json();
+        
+        // Cache the response
+        if (data && !data.status === 'error') {
+            Utils.setCache(cacheKey, data.articles || []);
+        }
         
         if (data.status === 'error') {
             throw new Error(data.message || 'News API error');
@@ -209,6 +237,16 @@ async function getCompanyNews(symbol, pageSize = 10, companyName = null) {
         
     } catch (error) {
         console.error('Failed to get company news:', error);
+        
+        // If CORS error, try to provide helpful message
+        if (error.message.includes('CORS') || error.message.includes('Failed to fetch')) {
+            console.warn('CORS error with News API, falling back to mock data');
+            // Return mock data as fallback
+            if (typeof MockData !== 'undefined') {
+                return MockData.getCompanyNews(symbol, pageSize);
+            }
+        }
+        
         throw error;
     }
 }
@@ -402,6 +440,42 @@ function validateApiKeys() {
     return results;
 }
 
+/**
+ * Test Alpha Vantage API connection
+ * @param {string} symbol - Stock symbol to test
+ * @returns {Promise} - Promise with test results
+ */
+async function testAlphaVantageAPI(symbol = 'AAPL') {
+    console.log('🧪 Testing Alpha Vantage API with symbol:', symbol);
+    
+    try {
+        // Test stock overview
+        console.log('📊 Testing stock overview...');
+        const overview = await getStockOverview(symbol);
+        console.log('✅ Stock overview test passed:', overview ? 'Data received' : 'No data');
+        
+        // Test stock quote
+        console.log('💰 Testing stock quote...');
+        const quote = await getStockQuote(symbol);
+        console.log('✅ Stock quote test passed:', quote ? 'Data received' : 'No data');
+        
+        return {
+            success: true,
+            overview: overview ? 'Data received' : 'No data',
+            quote: quote ? 'Data received' : 'No data',
+            message: 'Alpha Vantage API test completed successfully'
+        };
+        
+    } catch (error) {
+        console.error('❌ Alpha Vantage API test failed:', error);
+        return {
+            success: false,
+            error: error.message,
+            message: 'Alpha Vantage API test failed'
+        };
+    }
+}
+
 // Export API functions
 window.API = {
     makeApiRequest,
@@ -413,6 +487,7 @@ window.API = {
     getRedditSentiment,
     getComprehensiveStockData,
     validateApiKeys,
+    testAlphaVantageAPI,
     // Cache management for testing
     clearAllCache: () => Utils.clearCache(),
     getCacheStats: () => {

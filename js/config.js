@@ -15,10 +15,10 @@ const CONFIG = {
     APP_VERSION: '1.0.0',
     
     // Cache Settings
-    CACHE_DURATION: 5 * 60 * 1000, // 5 minutes in milliseconds
+    CACHE_DURATION: 30 * 60 * 1000, // 30 minutes in milliseconds
     
     // Rate Limiting
-    MAX_REQUESTS_PER_MINUTE: 5,
+    MAX_REQUESTS_PER_MINUTE: 20,
     
     // UI Settings
     LOADING_TIMEOUT: 30000, // 30 seconds
@@ -36,7 +36,7 @@ const CONFIG = {
     },
     
     // Mock Data Mode (set to true to use mock data instead of APIs)
-    MOCK_MODE: true
+    MOCK_MODE: false
 };
 
 // Prevent modification of config object
