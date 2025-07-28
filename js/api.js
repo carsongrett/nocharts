@@ -128,19 +128,12 @@ async function getFinnhubStockProfile(symbol) {
 }
 
 /**
- * Get stock overview from Alpha Vantage (legacy - keeping for fallback)
+ * Get stock overview from Finnhub
  * @param {string} symbol - Stock symbol
  * @returns {Promise} - Promise with stock data
  */
 async function getStockOverview(symbol) {
-    // Use Finnhub as primary, fallback to Alpha Vantage if needed
-    try {
-        return await getFinnhubStockProfile(symbol);
-    } catch (error) {
-        console.log('Finnhub failed, trying Alpha Vantage fallback...');
-        // Fallback to Alpha Vantage implementation if needed
-        throw error;
-    }
+    return await getFinnhubStockProfile(symbol);
 }
 
 /**
@@ -196,19 +189,12 @@ async function getFinnhubQuote(symbol) {
 }
 
 /**
- * Get stock quote from Alpha Vantage (legacy - keeping for fallback)
+ * Get stock quote from Finnhub
  * @param {string} symbol - Stock symbol
  * @returns {Promise} - Promise with quote data
  */
 async function getStockQuote(symbol) {
-    // Use Finnhub as primary, fallback to Alpha Vantage if needed
-    try {
-        return await getFinnhubQuote(symbol);
-    } catch (error) {
-        console.log('Finnhub failed, trying Alpha Vantage fallback...');
-        // Fallback to Alpha Vantage implementation if needed
-        throw error;
-    }
+    return await getFinnhubQuote(symbol);
 }
 
 /**
@@ -295,7 +281,7 @@ async function getCompanyNews(symbol, pageSize = 10, companyName = null) {
 }
 
 /**
- * Get earnings calendar from Alpha Vantage
+ * Get earnings calendar from Finnhub
  * @param {string} symbol - Stock symbol
  * @returns {Promise} - Promise with earnings data
  */
@@ -303,37 +289,24 @@ async function getEarningsCalendar(symbol) {
     const formattedSymbol = Utils.formatTicker(symbol);
     const cacheKey = `earnings_${formattedSymbol}`;
     
-    const url = `${CONFIG.ALPHA_VANTAGE_BASE_URL}?function=EARNINGS_CALENDAR&symbol=${formattedSymbol}&horizon=3month&apikey=${CONFIG.ALPHA_VANTAGE_API_KEY}`;
-    
     try {
-        const response = await fetch(url);
+        // Use Finnhub earnings data instead of Alpha Vantage
+        const earnings = await getFinnhubEarnings(formattedSymbol);
         
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        // Transform Finnhub earnings data to match expected format
+        const transformedEarnings = earnings.map(earning => ({
+            symbol: earning.symbol,
+            reportDate: earning.period,
+            estimate: earning.estimate,
+            actual: earning.actual,
+            surprise: earning.surprise,
+            surprisePercent: earning.surprisePercent
+        }));
         
-        const csvText = await response.text();
+        // Cache the transformed data
+        Utils.setCache(cacheKey, transformedEarnings);
         
-        // Parse CSV response
-        const lines = csvText.split('\n');
-        const headers = lines[0].split(',');
-        const earnings = [];
-        
-        for (let i = 1; i < lines.length; i++) {
-            if (lines[i].trim()) {
-                const values = lines[i].split(',');
-                const earning = {};
-                headers.forEach((header, index) => {
-                    earning[header.trim()] = values[index] ? values[index].trim() : '';
-                });
-                earnings.push(earning);
-            }
-        }
-        
-        // Cache the parsed data
-        Utils.setCache(cacheKey, earnings);
-        
-        return earnings;
+        return transformedEarnings;
         
     } catch (error) {
         console.error('Failed to get earnings calendar:', error);
@@ -349,23 +322,26 @@ async function getEarningsCalendar(symbol) {
 async function searchCompanies(keywords) {
     const cacheKey = `company_search_${keywords.toLowerCase().replace(/\s+/g, '_')}`;
     
-    const url = `${CONFIG.ALPHA_VANTAGE_BASE_URL}?function=SYMBOL_SEARCH&keywords=${encodeURIComponent(keywords)}&apikey=${CONFIG.ALPHA_VANTAGE_API_KEY}`;
-    
     try {
+        // Use Finnhub symbol lookup instead of Alpha Vantage
+        const formattedKeywords = encodeURIComponent(keywords);
+        const url = `${CONFIG.FINNHUB_BASE_URL}/search?q=${formattedKeywords}&token=${CONFIG.FINNHUB_API_KEY}`;
+        
         const data = await makeApiRequest(url, {}, cacheKey);
         
-        if (data['Error Message']) {
-            throw new Error(data['Error Message']);
+        if (data.error) {
+            throw new Error(data.error);
         }
         
-        if (data['Note']) {
-            // Cache rate limit to prevent repeated calls
-            const rateLimitKey = `rate_limit_${cacheKey}`;
-            Utils.setCache(rateLimitKey, Date.now(), 60000); // 1 minute cache
-            throw new Error('API rate limit exceeded. Please try again later.');
-        }
+        // Transform Finnhub search results to match expected format
+        const transformedResults = data.result?.map(item => ({
+            symbol: item.symbol,
+            name: item.description,
+            type: item.type,
+            primaryExchange: item.primaryExchange
+        })) || [];
         
-        return data.bestMatches || [];
+        return transformedResults;
         
     } catch (error) {
         console.error('Failed to search companies:', error);
@@ -594,12 +570,12 @@ function validateApiKeys() {
 }
 
 /**
- * Test Alpha Vantage API connection
+ * Test Finnhub API connection
  * @param {string} symbol - Stock symbol to test
  * @returns {Promise} - Promise with test results
  */
-async function testAlphaVantageAPI(symbol = 'AAPL') {
-    console.log('🧪 Testing Alpha Vantage API with symbol:', symbol);
+async function testFinnhubAPI(symbol = 'AAPL') {
+    console.log('🧪 Testing Finnhub API with symbol:', symbol);
     
     try {
         // Test stock overview
@@ -616,15 +592,15 @@ async function testAlphaVantageAPI(symbol = 'AAPL') {
             success: true,
             overview: overview ? 'Data received' : 'No data',
             quote: quote ? 'Data received' : 'No data',
-            message: 'Alpha Vantage API test completed successfully'
+            message: 'Finnhub API test completed successfully'
         };
         
     } catch (error) {
-        console.error('❌ Alpha Vantage API test failed:', error);
+        console.error('❌ Finnhub API test failed:', error);
         return {
             success: false,
             error: error.message,
-            message: 'Alpha Vantage API test failed'
+            message: 'Finnhub API test failed'
         };
     }
 }
@@ -644,7 +620,7 @@ window.API = {
     getRedditSentiment,
     getComprehensiveStockData,
     validateApiKeys,
-    testAlphaVantageAPI,
+    testFinnhubAPI,
     // Cache management for testing
     clearAllCache: () => Utils.clearCache(),
     getCacheStats: () => {

@@ -194,6 +194,14 @@
     font-weight: 500;
     color: #4a5568;
     font-size: 0.875rem;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.ticker-page .label:hover {
+    background-color: #e9ecef;
 }
 
 .ticker-page .value {

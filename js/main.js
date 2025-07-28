@@ -41,6 +41,7 @@ function initializeApp() {
     // Initialize UI
     UI.initializeUI();
     UI.setupKeyboardShortcuts();
+    UI.setupMetricPopups();
     
     // Setup theme
     setupTheme();
@@ -414,19 +415,19 @@ window.NoChartsDebug = {
         }
     },
     
-    // Test Alpha Vantage API only
-    testAlphaVantage: async (ticker = 'AAPL') => {
-        console.log(`🧪 Testing Alpha Vantage API with ticker: ${ticker}`);
+    // Test Finnhub API only
+    testFinnhub: async (ticker = 'AAPL') => {
+        console.log(`🧪 Testing Finnhub API with ticker: ${ticker}`);
         if (typeof API === 'undefined') {
             console.error('❌ API not available');
             return;
         }
         try {
             const data = await API.getStockOverview(ticker);
-            console.log('✅ Alpha Vantage works:', data);
+            console.log('✅ Finnhub works:', data);
             return data;
         } catch (error) {
-            console.error('❌ Alpha Vantage failed:', error);
+            console.error('❌ Finnhub failed:', error);
             throw error;
         }
     },
@@ -478,7 +479,7 @@ window.NoChartsDebug = {
     console.log('  - NoChartsDebug.getCacheStats() - Get cache statistics');
     console.log('  - NoChartsDebug.testAPI("TICKER") - Test API with ticker');
     console.log('  - NoChartsDebug.checkKeys() - Check API key status');
-    console.log('  - NoChartsDebug.testAlphaVantage("TICKER") - Test Alpha Vantage only');
+    console.log('  - NoChartsDebug.testFinnhub("TICKER") - Test Finnhub only');
     console.log('  - NoChartsDebug.testNewsAPI() - Test News API directly');
     console.log('  - NoChartsDebug.testCORS() - Test CORS issues');
 

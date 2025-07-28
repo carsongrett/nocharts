@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metric Popup Mockup - Stock Narrative Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .stock-header {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .price-change {
+            font-size: 24px;
+            font-weight: bold;
+            color: #dc3545;
+            margin-bottom: 10px;
+        }
+
+        .company-name {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .data-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .metric-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .metric-label {
+            font-weight: 600;
+            color: #495057;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .metric-label:hover {
+            background-color: #e9ecef;
+        }
+
+        .metric-value {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .news-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 1px solid #dee2e6;
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-btn:hover {
+            background: #f8f9fa;
+        }
+
+        .filter-btn.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        /* Popup Styles */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: none;
+        }
+
+        .popup {
+            position: absolute;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            max-width: 280px;
+            min-width: 240px;
+            z-index: 1001;
+        }
+
+        .popup-content {
+            padding: 16px;
+            line-height: 1.5;
+        }
+
+        .popup-definition {
+            margin-bottom: 12px;
+            color: #495057;
+            font-size: 14px;
+        }
+
+        .popup-context {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            color: #6c757d;
+            font-size: 13px;
+            border-left: 3px solid #dee2e6;
+        }
+
+        .popup-close {
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #6c757d;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+        }
+
+        .popup-close:hover {
+            background-color: #e9ecef;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .popup {
+                max-width: calc(100vw - 40px);
+                margin: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Stock Header -->
+        <div class="stock-header">
+            <div class="price-change">-$0.19 (-0.09%)</div>
+            <div class="company-name">Apple Inc</div>
+        </div>
+
+        <!-- About the Company -->
+        <div class="data-section">
+            <div class="section-title">About the Company</div>
+            <p>Apple Inc. designs, manufactures, and markets smartphones, personal computers, tablets, wearables, and accessories worldwide.</p>
+        </div>
+
+        <!-- Data Section -->
+        <div class="data-section">
+            <div class="section-title">Data</div>
+            <div class="metrics-grid">
+                <div class="metric-item">
+                    <span class="metric-label" data-metric="market-cap">Market Cap:</span>
+                    <span class="metric-value">$3.2T</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label" data-metric="pe-ratio">P/E Ratio:</span>
+                    <span class="metric-value">32.83</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label" data-metric="revenue-growth">Revenue Growth:</span>
+                    <span class="metric-value">4.91%</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label" data-metric="dividend-yield">Dividend Yield:</span>
+                    <span class="metric-value">0.48%</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label" data-metric="week-range">52 Week High-Low:</span>
+                    <span class="metric-value">$169.21 - $260.10</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label" data-metric="profit-margin">Profit Margin:</span>
+                    <span class="metric-value">24.30%</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label" data-metric="current-ratio">Current Ratio:</span>
+                    <span class="metric-value">0.82</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent News & Events -->
+        <div class="news-section">
+            <div class="section-title">Recent News & Events</div>
+            <div class="filter-buttons">
+                <button class="filter-btn active">All</button>
+                <button class="filter-btn">Positive</button>
+                <button class="filter-btn">Negative</button>
+                <button class="filter-btn">Neutral</button>
+            </div>
+            <p>News content would appear here...</p>
+        </div>
+    </div>
+
+    <!-- Popup Overlay -->
+    <div class="popup-overlay" id="popupOverlay"></div>
+
+    <script>
+        // Metric definitions
+        const metricDefinitions = {
+            'market-cap': {
+                definition: 'The total value of all shares of a company\'s stock.',
+                context: 'Higher market cap indicates a larger, more established company'
+            },
+            'pe-ratio': {
+                definition: 'Price-to-Earnings ratio - how much you pay per $1 of earnings.',
+                context: 'Lower P/E may indicate undervalued stock, higher P/E suggests growth expectations'
+            },
+            'revenue-growth': {
+                definition: 'Year-over-year percentage increase in total sales.',
+                context: 'Positive growth shows expanding business, negative indicates declining sales'
+            },
+            'dividend-yield': {
+                definition: 'Annual dividend payment as percentage of share price.',
+                context: 'Higher yield provides more income but may indicate slower growth'
+            },
+            'week-range': {
+                definition: 'The highest and lowest share prices over the past year.',
+                context: 'Shows price volatility and current position within yearly range'
+            },
+            'profit-margin': {
+                definition: 'Percentage of revenue that becomes profit after expenses.',
+                context: 'Higher margin indicates more efficient operations and pricing power'
+            },
+            'current-ratio': {
+                definition: 'Ability to pay short-term debts with current assets.',
+                context: 'Above 1.0 means can pay debts, below 1.0 indicates potential liquidity issues'
+            }
+        };
+
+        // Popup functionality
+        function createPopup(metricKey, x, y) {
+            const metric = metricDefinitions[metricKey];
+            if (!metric) return;
+
+            const overlay = document.getElementById('popupOverlay');
+            const popup = document.createElement('div');
+            popup.className = 'popup';
+            
+            // Position popup
+            const rect = overlay.getBoundingClientRect();
+            const popupWidth = 280;
+            const popupHeight = 120;
+            
+            let left = x;
+            let top = y;
+            
+            // Adjust if popup would go off screen
+            if (left + popupWidth > window.innerWidth) {
+                left = window.innerWidth - popupWidth - 20;
+            }
+            if (top + popupHeight > window.innerHeight) {
+                top = window.innerHeight - popupHeight - 20;
+            }
+            
+            popup.style.left = left + 'px';
+            popup.style.top = top + 'px';
+
+            popup.innerHTML = `
+                <button class="popup-close" onclick="closePopup()">&times;</button>
+                <div class="popup-content">
+                    <div class="popup-definition">${metric.definition}</div>
+                    <div class="popup-context">${metric.context}</div>
+                </div>
+            `;
+
+            overlay.appendChild(popup);
+            overlay.style.display = 'block';
+        }
+
+        function closePopup() {
+            const overlay = document.getElementById('popupOverlay');
+            overlay.style.display = 'none';
+            const popup = overlay.querySelector('.popup');
+            if (popup) {
+                popup.remove();
+            }
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Click on metric labels
+            document.querySelectorAll('.metric-label').forEach(label => {
+                label.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const metricKey = this.getAttribute('data-metric');
+                    const rect = this.getBoundingClientRect();
+                    createPopup(metricKey, rect.left, rect.bottom + 5);
+                });
+            });
+
+            // Click outside to close
+            document.getElementById('popupOverlay').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closePopup();
+                }
+            });
+
+            // Escape key to close
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closePopup();
+                }
+            });
+
+            // Filter button functionality
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+        });
+
+        // Debug function to test popups
+        window.testPopup = function(metricKey) {
+            createPopup(metricKey, 100, 100);
+        };
+    </script>
+</body>
+</html> 

@@ -417,6 +417,176 @@ function setupKeyboardShortcuts() {
     });
 }
 
+/**
+ * Metric definitions for popup tooltips
+ */
+const metricDefinitions = {
+    'market-cap': {
+        definition: 'The total value of all shares of a company\'s stock.',
+        context: 'Higher market cap indicates a larger, more established company'
+    },
+    'pe-ratio': {
+        definition: 'Price-to-Earnings ratio - how much you pay per $1 of earnings.',
+        context: 'Lower P/E may indicate undervalued stock, higher P/E suggests growth expectations'
+    },
+    'revenue-growth': {
+        definition: 'Year-over-year percentage increase in total sales.',
+        context: 'Positive growth shows expanding business, negative indicates declining sales'
+    },
+    'dividend-yield': {
+        definition: 'Annual dividend payment as percentage of share price.',
+        context: 'Higher yield provides more income but may indicate slower growth'
+    },
+    'week-range': {
+        definition: 'The highest and lowest share prices over the past year.',
+        context: 'Shows price volatility and current position within yearly range'
+    },
+    'profit-margin': {
+        definition: 'Percentage of revenue that becomes profit after expenses.',
+        context: 'Higher margin indicates more efficient operations and pricing power'
+    },
+    'current-ratio': {
+        definition: 'Ability to pay short-term debts with current assets.',
+        context: 'Above 1.0 means can pay debts, below 1.0 indicates potential liquidity issues'
+    }
+};
+
+/**
+ * Create popup overlay if it doesn't exist
+ */
+function createPopupOverlay() {
+    if (!document.getElementById('popupOverlay')) {
+        const overlay = document.createElement('div');
+        overlay.id = 'popupOverlay';
+        overlay.className = 'popup-overlay';
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: none;
+        `;
+        document.body.appendChild(overlay);
+    }
+}
+
+/**
+ * Show metric definition popup
+ * @param {string} metricKey - The metric key
+ * @param {number} x - X position
+ * @param {number} y - Y position
+ */
+function showMetricPopup(metricKey, x, y) {
+    const metric = metricDefinitions[metricKey];
+    if (!metric) return;
+
+    createPopupOverlay();
+    const overlay = document.getElementById('popupOverlay');
+    
+    // Remove existing popup
+    const existingPopup = overlay.querySelector('.popup');
+    if (existingPopup) {
+        existingPopup.remove();
+    }
+
+    const popup = document.createElement('div');
+    popup.className = 'popup';
+    popup.style.cssText = `
+        position: absolute;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        max-width: 280px;
+        min-width: 240px;
+        z-index: 1001;
+        left: ${x}px;
+        top: ${y}px;
+    `;
+
+    popup.innerHTML = `
+        <button class="popup-close" onclick="UI.closeMetricPopup()" style="
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #6c757d;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+        ">&times;</button>
+        <div class="popup-content" style="padding: 16px; line-height: 1.5;">
+            <div class="popup-definition" style="margin-bottom: 12px; color: #495057; font-size: 14px;">${metric.definition}</div>
+            <div class="popup-context" style="background: #f8f9fa; padding: 10px; border-radius: 4px; color: #6c757d; font-size: 13px; border-left: 3px solid #dee2e6;">${metric.context}</div>
+        </div>
+    `;
+
+    overlay.appendChild(popup);
+    overlay.style.display = 'block';
+
+    // Adjust position if popup would go off screen
+    const rect = popup.getBoundingClientRect();
+    const popupWidth = 280;
+    const popupHeight = 120;
+    
+    let left = x;
+    let top = y;
+    
+    if (left + popupWidth > window.innerWidth) {
+        left = window.innerWidth - popupWidth - 20;
+    }
+    if (top + popupHeight > window.innerHeight) {
+        top = window.innerHeight - popupHeight - 20;
+    }
+    
+    popup.style.left = left + 'px';
+    popup.style.top = top + 'px';
+}
+
+/**
+ * Close metric popup
+ */
+function closeMetricPopup() {
+    const overlay = document.getElementById('popupOverlay');
+    if (overlay) {
+        overlay.style.display = 'none';
+        const popup = overlay.querySelector('.popup');
+        if (popup) {
+            popup.remove();
+        }
+    }
+}
+
+/**
+ * Setup metric popup event listeners
+ */
+function setupMetricPopups() {
+    // Click outside to close
+    document.addEventListener('click', function(e) {
+        const overlay = document.getElementById('popupOverlay');
+        if (overlay && e.target === overlay) {
+            closeMetricPopup();
+        }
+    });
+
+    // Escape key to close
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeMetricPopup();
+        }
+    });
+}
+
 // Export UI functions
 window.UI = {
     showLoading,
@@ -440,5 +610,8 @@ window.UI = {
     toggleElement,
     updatePopularTickers,
     initializeUI,
-    setupKeyboardShortcuts
+    setupKeyboardShortcuts,
+    showMetricPopup,
+    closeMetricPopup,
+    setupMetricPopups
 }; 

@@ -54,6 +54,9 @@ class TickerPage {
             });
         }
 
+        // Setup metric popups
+        this.setupMetricPopups();
+
         // Window events
         window.addEventListener('beforeunload', this.handleBeforeUnload.bind(this));
         window.addEventListener('online', this.handleOnline.bind(this));
@@ -170,6 +173,9 @@ class TickerPage {
         
         // Show content
         this.showContent();
+        
+        // Setup metric popups after content is displayed
+        this.setupMetricPopups();
     }
 
     updateStockHeader() {
@@ -403,6 +409,47 @@ class TickerPage {
         if (typeof UI !== 'undefined') {
             UI.showError('Connection lost. Some features may not work.');
         }
+    }
+
+    setupMetricPopups() {
+        // Wait for DOM to be ready and data to be displayed
+        setTimeout(() => {
+            this.attachMetricPopupListeners();
+        }, 100);
+    }
+
+    attachMetricPopupListeners() {
+        // Metric mapping for popup functionality
+        const metricMapping = {
+            'marketCap': 'market-cap',
+            'peRatio': 'pe-ratio',
+            'revenueGrowth': 'revenue-growth',
+            'dividendYield': 'dividend-yield',
+            'weekHighLow': 'week-range',
+            'profitMargin': 'profit-margin',
+            'currentRatio': 'current-ratio'
+        };
+
+        // Add click listeners to metric labels
+        Object.keys(metricMapping).forEach(elementId => {
+            const element = document.getElementById(elementId);
+            if (element) {
+                // Find the label element (parent of the value)
+                const labelElement = element.previousElementSibling;
+                if (labelElement && labelElement.classList.contains('label')) {
+                    labelElement.style.cursor = 'pointer';
+                    labelElement.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const metricKey = metricMapping[elementId];
+                        const rect = labelElement.getBoundingClientRect();
+                        
+                        if (typeof UI !== 'undefined' && UI.showMetricPopup) {
+                            UI.showMetricPopup(metricKey, rect.left, rect.bottom + 5);
+                        }
+                    });
+                }
+            }
+        });
     }
 
     // Public methods for external access

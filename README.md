@@ -37,10 +37,9 @@ Homepage → Search Ticker → Company Summary → Timeline → Sentiment Analys
 ### 📊 Data Sources
 - **Finnhub API** - Stock data, company information, financial metrics ($9.99/month, 1M calls/day)
 - **News API** - Company news and headlines (100 req/day free, $449/month unlimited)
-- **Reddit API** - Social sentiment and mentions (60 req/minute free)
-- **Alpha Vantage API** - Alternative stock data (25 req/day free)
-- **Yahoo Finance** - Financial data, earnings (web scraping, fallback)
-- **SEC EDGAR** - Regulatory filings (fallback)
+- **Reddit API** - Social sentiment and mentions (60 req/minute free) - Coming Soon
+- **Yahoo Finance** - Financial data, earnings (web scraping, fallback) - Coming Soon
+- **SEC EDGAR** - Regulatory filings (fallback) - Coming Soon
 
 ---
 
@@ -51,9 +50,8 @@ Homepage → Search Ticker → Company Summary → Timeline → Sentiment Analys
 - **[Vanilla JavaScript](https://developer.mozilla.org/en-US/docs/Web/JavaScript)** - Client-side functionality
 - **[Finnhub API](https://finnhub.io/)** - Stock data and financial metrics ($9.99/month)
 - **[News API](https://newsapi.org/)** - Company news and headlines (100 req/day free)
-- **[Reddit API](https://www.reddit.com/dev/api/)** - Social sentiment (60 req/minute free)
-- **[Alpha Vantage API](https://alphavantage.co/)** - Alternative stock data (25 req/day free)
-- **[Yahoo Finance](https://finance.yahoo.com/)** - Financial data (web scraping, fallback)
+- **[Reddit API](https://www.reddit.com/dev/api/)** - Social sentiment (60 req/minute free) - Coming Soon
+- **[Yahoo Finance](https://finance.yahoo.com/)** - Financial data (web scraping, fallback) - Coming Soon
 
 ---
 
@@ -100,9 +98,9 @@ stock-narrative-tracker/
 
 ### 🔌 Phase 3: Data Integration (Week 3)
 - [x] Finnhub API integration (✅ Complete)
-- [ ] News API integration
-- [ ] Reddit API integration
-- [ ] Yahoo Finance data scraping
+- [x] News API integration (✅ Complete)
+- [ ] Reddit API integration (Coming Soon)
+- [ ] Yahoo Finance data scraping (Coming Soon)
 - [ ] API error handling and fallbacks
 - [ ] CORS handling strategies
 
@@ -206,7 +204,7 @@ stock-narrative-tracker/
    ```javascript
    // config.js - Add your API keys here
    const CONFIG = {
-       ALPHA_VANTAGE_API_KEY: 'your_alpha_vantage_key_here',
+       FINNHUB_API_KEY: 'your_finnhub_key_here',
        NEWS_API_KEY: 'your_news_api_key_here'
    };
    ```
@@ -226,20 +224,20 @@ stock-narrative-tracker/
 
 ## 🔑 API Setup (All Free!)
 
-### Alpha Vantage API (Stock Data)
-1. Sign up at [alphavantage.co](https://alphavantage.co/)
-2. Get your free API key (500 requests/day)
-3. Add to `js/config.js` as `ALPHA_VANTAGE_API_KEY`
+### Finnhub API (Stock Data) - PRIMARY
+1. Sign up at [finnhub.io](https://finnhub.io/)
+2. Get your free API key (1M requests/day with paid plan)
+3. Add to `js/config.js` as `FINNHUB_API_KEY`
 
-### News API (Company News)
+### News API (Company News) - ACTIVE
 1. Sign up at [newsapi.org](https://newsapi.org/)
 2. Get your free API key (100 requests/day)
 3. Add to `js/config.js` as `NEWS_API_KEY`
 
-### Alternative Free APIs
-- **Yahoo Finance** - No API key needed, web scraping
-- **Reddit** - No API key needed for public data
-- **SEC EDGAR** - No API key needed, public filings
+### Coming Soon APIs
+- **Reddit API** - Social sentiment and mentions (60 req/minute free)
+- **Yahoo Finance** - Financial data, earnings (web scraping, fallback)
+- **SEC EDGAR** - Regulatory filings (fallback)
 
 ---
 
@@ -314,7 +312,7 @@ function calculateConfidence(article) {
 #### 3. Sentiment Sources Priority
 1. **News API sentiment** (if available)
 2. **Keyword analysis** (fallback)
-3. **Reddit sentiment** (community-driven)
+3. **Reddit sentiment** (community-driven) - Coming Soon
 4. **AI-powered analysis** (future enhancement)
 
 #### 4. Implementation Timeline
@@ -357,11 +355,11 @@ function calculateConfidence(article) {
 
 #### 1. Direct API Calls (Preferred)
 ```javascript
-// Example: Alpha Vantage API call
+// Example: Finnhub API call
 async function getStockData(symbol) {
     try {
         const response = await fetch(
-            `https://www.alphavantage.co/query?function=OVERVIEW&symbol=${symbol}&apikey=${CONFIG.ALPHA_VANTAGE_API_KEY}`
+            `https://finnhub.io/api/v1/stock/profile2?symbol=${symbol}&token=${CONFIG.FINNHUB_API_KEY}`
         );
         const data = await response.json();
         return data;
@@ -398,12 +396,12 @@ async function getCompanyNews(symbol) {
     // Try News API first
     let news = await getNewsFromAPI(symbol);
     
-    // If that fails, try Yahoo Finance
+    // If that fails, try Yahoo Finance (Coming Soon)
     if (!news) {
         news = await getNewsFromYahoo(symbol);
     }
     
-    // If that fails, try Reddit
+    // If that fails, try Reddit (Coming Soon)
     if (!news) {
         news = await getNewsFromReddit(symbol);
     }
@@ -423,13 +421,13 @@ async function getCompanyNews(symbol) {
 
 ## 📊 Data Sources & Rate Limits (All Free!)
 
-| Source | Rate Limit | Data Type | CORS Support | Cost |
-|--------|------------|-----------|--------------|------|
-| Alpha Vantage | 500 requests/day | Stock data, company info | ✅ Yes | Free |
-| News API | 100 requests/day | Company news, headlines | ✅ Yes | Free |
-| Yahoo Finance | No limit | Financial data, earnings | ❌ No (proxy needed) | Free |
-| Reddit | No limit | Social sentiment | ✅ Yes | Free |
-| SEC EDGAR | No limit | Regulatory filings | ✅ Yes | Free |
+| Source | Rate Limit | Data Type | CORS Support | Cost | Status |
+|--------|------------|-----------|--------------|------|--------|
+| Finnhub | 1M requests/day | Stock data, company info | ✅ Yes | $9.99/month | ✅ Active |
+| News API | 100 requests/day | Company news, headlines | ✅ Yes | Free | ✅ Active |
+| Reddit | No limit | Social sentiment | ✅ Yes | Free | 🔄 Coming Soon |
+| Yahoo Finance | No limit | Financial data, earnings | ❌ No (proxy needed) | Free | 🔄 Coming Soon |
+| SEC EDGAR | No limit | Regulatory filings | ✅ Yes | Free | 🔄 Coming Soon |
 
 ---
 
@@ -509,7 +507,7 @@ async function getCompanyNews(symbol) {
 
 #### Option C: Use Public APIs Only
 - Use only APIs that don't require keys
-- Yahoo Finance, Reddit, SEC EDGAR
+- Yahoo Finance, Reddit, SEC EDGAR (Coming Soon)
 - Limited functionality but completely secure
 
 ---
@@ -567,9 +565,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- [Alpha Vantage](https://alphavantage.co/) for free stock data API
+- [Finnhub](https://finnhub.io/) for stock data API
 - [News API](https://newsapi.org/) for free news data
-- [Yahoo Finance](https://finance.yahoo.com/) for financial data
+- [Yahoo Finance](https://finance.yahoo.com/) for financial data (Coming Soon)
 - [GitHub Pages](https://pages.github.com/) for free hosting
 - [MDN Web Docs](https://developer.mozilla.org/) for excellent documentation
 
