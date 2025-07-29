@@ -11,7 +11,7 @@ const CONFIG = {
     REDDIT_CLIENT_SECRET: 'BQICk0-7tYN53FPj1hrN--CC0NKOCQ',
     REDDIT_REDIRECT_URI: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
         ? `${window.location.origin}/reddit-data-test.html`
-        : 'https://carsongrett.github.io/nocharts/index.html',
+        : 'https://carsongrett.github.io/nocharts/reddit-data-test.html',
     REDDIT_AUTH_URL: 'https://www.reddit.com/api/v1/authorize',
     REDDIT_TOKEN_URL: 'https://www.reddit.com/api/v1/access_token',
     REDDIT_API_BASE: 'https://oauth.reddit.com',

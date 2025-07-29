@@ -839,6 +839,9 @@ function analyzeRedditSentiment(text) {
  * @returns {string} - Authorization URL
  */
 function getRedditAuthUrl() {
+    console.log('🔧 Debug - CONFIG.REDDIT_REDIRECT_URI:', CONFIG.REDDIT_REDIRECT_URI);
+    console.log('🔧 Debug - window.location.hostname:', window.location.hostname);
+    
     const params = new URLSearchParams({
         client_id: CONFIG.REDDIT_CLIENT_ID,
         response_type: 'code',
@@ -848,7 +851,10 @@ function getRedditAuthUrl() {
         scope: 'read'
     });
     
-    return `${CONFIG.REDDIT_AUTH_URL}?${params.toString()}`;
+    const authUrl = `${CONFIG.REDDIT_AUTH_URL}?${params.toString()}`;
+    console.log('🔧 Debug - Generated auth URL:', authUrl);
+    
+    return authUrl;
 }
 
 /**
