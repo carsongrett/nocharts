@@ -641,36 +641,35 @@ async function getRedditNews(symbol, pageSize = 10) {
             throw new Error('Internal rate limit exceeded. Please try again later.');
         }
         
-        // Use OAuth API to search Reddit
-        const searchEndpoint = `/search.json?q=${encodeURIComponent(formattedSymbol)}&restrict_sr=1&sort=new&limit=${pageSize}`;
-        
-        console.log('🔗 Making authenticated Reddit API request...');
-        const data = await makeRedditApiRequest(searchEndpoint);
-        
-        if (!data || !data.data || !data.data.children) {
-            console.warn('❌ No Reddit data returned, using sample data');
+        // Try OAuth first, fallback to sample data
+        try {
+            // Use OAuth API to search Reddit
+            const searchEndpoint = `/search.json?q=${encodeURIComponent(formattedSymbol)}&restrict_sr=1&sort=new&limit=${pageSize}`;
+            
+            console.log('🔗 Making authenticated Reddit API request...');
+            const data = await makeRedditApiRequest(searchEndpoint);
+            
+            if (!data || !data.data || !data.data.children) {
+                console.warn('❌ No Reddit data returned, using sample data');
+                return getSampleRedditData(formattedSymbol, pageSize);
+            }
+            
+            // Transform Reddit posts to match news article format
+            const posts = transformRedditData(data, 'Reddit OAuth API');
+            
+            // Cache the response
+            Utils.setCache(cacheKey, posts);
+            
+            console.log(`✅ Reddit OAuth API returned ${posts.length} posts for ${formattedSymbol}`);
+            return posts;
+            
+        } catch (oauthError) {
+            console.warn('❌ OAuth failed, using sample data:', oauthError.message);
             return getSampleRedditData(formattedSymbol, pageSize);
         }
         
-        // Transform Reddit posts to match news article format
-        const posts = transformRedditData(data, 'Reddit OAuth API');
-        
-        // Cache the response
-        Utils.setCache(cacheKey, posts);
-        
-        console.log(`✅ Reddit OAuth API returned ${posts.length} posts for ${formattedSymbol}`);
-        return posts;
-        
     } catch (error) {
         console.error('Failed to get Reddit news:', error);
-        
-        // If it's an auth error, the makeRedditApiRequest will handle the redirect
-        if (error.message.includes('No Reddit access token')) {
-            throw error; // Let the auth flow handle it
-        }
-        
-        // For other errors, return sample data
-        console.warn('❌ Reddit OAuth API failed, returning sample data');
         return getSampleRedditData(formattedSymbol, pageSize);
     }
 }
