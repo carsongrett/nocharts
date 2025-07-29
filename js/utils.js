@@ -207,6 +207,11 @@ function truncateText(text, maxLength = 100) {
  * @returns {string} - Relative time string
  */
 function getRelativeTime(date) {
+    // Handle invalid dates gracefully
+    if (!date || isNaN(new Date(date).getTime())) {
+        return 'Unknown time';
+    }
+    
     const now = new Date();
     const targetDate = new Date(date);
     const diffInSeconds = Math.floor((now - targetDate) / 1000);

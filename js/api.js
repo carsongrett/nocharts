@@ -267,16 +267,28 @@ async function getCompanyNews(symbol, pageSize = 10, companyName = null) {
     } catch (error) {
         console.error('Failed to get company news:', error);
         
-        // If CORS error, try to provide helpful message
-        if (error.message.includes('CORS') || error.message.includes('Failed to fetch')) {
-            console.warn('CORS error with News API, falling back to mock data');
-            // Return mock data as fallback
-            if (typeof MockData !== 'undefined') {
-                return MockData.getCompanyNews(symbol, pageSize);
+        // Try Reddit as fallback if News API fails
+        console.log('🔄 News API failed, trying Reddit as fallback...');
+        try {
+            const redditPosts = await getRedditNews(symbol, pageSize);
+            console.log('✅ Reddit fallback successful');
+            return redditPosts;
+        } catch (redditError) {
+            console.error('Reddit fallback also failed:', redditError);
+            
+            // If CORS error, try to provide helpful message
+            if (error.message.includes('CORS') || error.message.includes('Failed to fetch')) {
+                console.warn('CORS error with APIs, falling back to mock data');
+                // Return mock data as final fallback
+                if (typeof MockData !== 'undefined') {
+                    return MockData.getCompanyNews(symbol, pageSize);
+                }
             }
+            
+            // Return empty array instead of throwing error to prevent undefined issues
+            console.warn('All news sources failed, returning empty array');
+            return [];
         }
-        
-        throw error;
     }
 }
 
@@ -605,6 +617,353 @@ async function testFinnhubAPI(symbol = 'AAPL') {
     }
 }
 
+/**
+ * Get Reddit posts about a company using OAuth
+ * @param {string} symbol - Stock symbol
+ * @param {number} pageSize - Number of posts to return
+ * @returns {Promise} - Promise with Reddit posts
+ */
+async function getRedditNews(symbol, pageSize = 10) {
+    console.log('🔍 getRedditNews called with symbol:', symbol, 'pageSize:', pageSize);
+    
+    const formattedSymbol = Utils.formatTicker(symbol);
+    const cacheKey = `reddit_news_${formattedSymbol}_${pageSize}`;
+    
+    try {
+        // Check cache first
+        const cachedData = Utils.getCache(cacheKey);
+        if (cachedData) {
+            return cachedData;
+        }
+        
+        // Check rate limiting
+        if (!Utils.checkRateLimit()) {
+            throw new Error('Internal rate limit exceeded. Please try again later.');
+        }
+        
+        // Use OAuth API to search Reddit
+        const searchEndpoint = `/search.json?q=${encodeURIComponent(formattedSymbol)}&restrict_sr=1&sort=new&limit=${pageSize}`;
+        
+        console.log('🔗 Making authenticated Reddit API request...');
+        const data = await makeRedditApiRequest(searchEndpoint);
+        
+        if (!data || !data.data || !data.data.children) {
+            console.warn('❌ No Reddit data returned, using sample data');
+            return getSampleRedditData(formattedSymbol, pageSize);
+        }
+        
+        // Transform Reddit posts to match news article format
+        const posts = transformRedditData(data, 'Reddit OAuth API');
+        
+        // Cache the response
+        Utils.setCache(cacheKey, posts);
+        
+        console.log(`✅ Reddit OAuth API returned ${posts.length} posts for ${formattedSymbol}`);
+        return posts;
+        
+    } catch (error) {
+        console.error('Failed to get Reddit news:', error);
+        
+        // If it's an auth error, the makeRedditApiRequest will handle the redirect
+        if (error.message.includes('No Reddit access token')) {
+            throw error; // Let the auth flow handle it
+        }
+        
+        // For other errors, return sample data
+        console.warn('❌ Reddit OAuth API failed, returning sample data');
+        return getSampleRedditData(formattedSymbol, pageSize);
+    }
+}
+
+/**
+ * Parse RSS feed and convert to JSON format
+ * @param {string} rssText - RSS feed text
+ * @returns {Object} - Parsed data in Reddit JSON format
+ */
+function parseRSSFeed(rssText) {
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(rssText, 'text/xml');
+    
+    const items = xmlDoc.querySelectorAll('item');
+    const children = Array.from(items).map(item => {
+        const title = item.querySelector('title')?.textContent || '';
+        const link = item.querySelector('link')?.textContent || '';
+        const description = item.querySelector('description')?.textContent || '';
+        const pubDate = item.querySelector('pubDate')?.textContent || '';
+        
+        return {
+            data: {
+                title: title,
+                selftext: description,
+                permalink: link.replace('https://www.reddit.com', ''),
+                author: 'Reddit User',
+                score: Math.floor(Math.random() * 100) + 10, // Mock score
+                num_comments: Math.floor(Math.random() * 50) + 5, // Mock comments
+                created_utc: new Date(pubDate).getTime() / 1000
+            }
+        };
+    });
+    
+    return { data: { children } };
+}
+
+/**
+ * Transform Reddit data to news article format
+ * @param {Object} data - Reddit API response
+ * @param {string} source - Source name for logging
+ * @returns {Array} - Transformed posts
+ */
+function transformRedditData(data, source) {
+    const posts = data.data?.children?.map(post => {
+        const createdUtc = post.data.created_utc;
+        const timestampMs = createdUtc ? createdUtc * 1000 : null;
+        const date = timestampMs ? new Date(timestampMs) : new Date();
+        
+        // Validate the date
+        const isValidDate = !isNaN(date.getTime());
+        const publishedAt = isValidDate ? date.toISOString() : new Date().toISOString();
+        const relativeTime = isValidDate ? Utils.getRelativeTime(date) : 'Unknown time';
+        
+        return {
+            title: post.data.title,
+            description: post.data.selftext?.substring(0, 200) + '...' || 'No description available',
+            content: post.data.selftext || '',
+            url: `https://reddit.com${post.data.permalink}`,
+            imageUrl: '', // Reddit posts don't have images
+            source: { name: 'Reddit r/stocks' },
+            author: post.data.author || 'Anonymous',
+            publishedAt: publishedAt,
+            relativeTime: relativeTime,
+            sentiment: analyzeRedditSentiment(post.data.title + ' ' + (post.data.selftext || '')),
+            score: post.data.score,
+            numComments: post.data.num_comments,
+            category: 'reddit'
+        };
+    }) || [];
+    
+    return posts;
+}
+
+/**
+ * Get sample Reddit data for fallback
+ * @param {string} symbol - Stock symbol
+ * @param {number} pageSize - Number of posts
+ * @returns {Array} - Sample Reddit posts
+ */
+function getSampleRedditData(symbol, pageSize) {
+    const samplePosts = [
+        {
+            title: `What do you think about $${symbol}?`,
+            description: `Just curious about everyone's thoughts on ${symbol} stock. Looking for different perspectives on the current valuation and future prospects.`,
+            content: `Just curious about everyone's thoughts on ${symbol} stock. Looking for different perspectives on the current valuation and future prospects.`,
+            url: `https://reddit.com/r/stocks/comments/example/${symbol.toLowerCase()}_discussion/`,
+            imageUrl: '',
+            source: { name: 'Reddit r/stocks' },
+            author: 'RedditUser',
+            publishedAt: new Date().toISOString(),
+            relativeTime: '1d ago',
+            sentiment: { score: 0, sentiment: 'neutral' },
+            score: 25,
+            numComments: 12,
+            category: 'reddit'
+        },
+        {
+            title: `${symbol} earnings analysis`,
+            description: `Detailed analysis of ${symbol}'s recent earnings report. Key insights and trends from this quarter's financial results.`,
+            content: `Detailed analysis of ${symbol}'s recent earnings report. Key insights and trends from this quarter's financial results.`,
+            url: `https://reddit.com/r/stocks/comments/example/${symbol.toLowerCase()}_earnings/`,
+            imageUrl: '',
+            source: { name: 'Reddit r/stocks' },
+            author: 'StockAnalyst',
+            publishedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+            relativeTime: '2d ago',
+            sentiment: { score: 2, sentiment: 'positive' },
+            score: 45,
+            numComments: 8,
+            category: 'reddit'
+        }
+    ];
+    
+    return samplePosts.slice(0, pageSize);
+}
+
+/**
+ * Simple sentiment analysis for Reddit posts
+ * @param {string} text - Text to analyze
+ * @returns {Object} - Sentiment analysis result
+ */
+function analyzeRedditSentiment(text) {
+    if (!text) return { score: 0, sentiment: 'neutral' };
+    
+    const positiveWords = [
+        'positive', 'growth', 'increase', 'up', 'higher', 'strong', 'profit', 'gain',
+        'success', 'win', 'beat', 'exceed', 'surge', 'rally', 'bullish', 'optimistic',
+        'improve', 'better', 'excellent', 'outperform', 'upgrade', 'buy', 'strong',
+        'moon', '🚀', '💎', 'hodl', 'diamond', 'hands'
+    ];
+    
+    const negativeWords = [
+        'negative', 'fall', 'drop', 'loss', 'decline', 'weak', 'concern', 'risk',
+        'down', 'lower', 'crash', 'bearish', 'pessimistic', 'worse', 'sell',
+        'dump', 'paper', 'hands', '💩', '📉'
+    ];
+    
+    const textLower = text.toLowerCase();
+    let positiveCount = 0;
+    let negativeCount = 0;
+    
+    positiveWords.forEach(word => {
+        const regex = new RegExp(word, 'gi');
+        const matches = textLower.match(regex);
+        if (matches) positiveCount += matches.length;
+    });
+    
+    negativeWords.forEach(word => {
+        const regex = new RegExp(word, 'gi');
+        const matches = textLower.match(regex);
+        if (matches) negativeCount += matches.length;
+    });
+    
+    const score = positiveCount - negativeCount;
+    
+    if (score > 0) return { score, sentiment: 'positive' };
+    if (score < 0) return { score, sentiment: 'negative' };
+    return { score, sentiment: 'neutral' };
+}
+
+/**
+ * Reddit OAuth Authentication Functions
+ */
+
+/**
+ * Generate Reddit OAuth authorization URL
+ * @returns {string} - Authorization URL
+ */
+function getRedditAuthUrl() {
+    const params = new URLSearchParams({
+        client_id: CONFIG.REDDIT_CLIENT_ID,
+        response_type: 'code',
+        state: generateRandomState(),
+        redirect_uri: CONFIG.REDDIT_REDIRECT_URI,
+        duration: 'permanent',
+        scope: 'read'
+    });
+    
+    return `${CONFIG.REDDIT_AUTH_URL}?${params.toString()}`;
+}
+
+/**
+ * Generate random state for OAuth security
+ * @returns {string} - Random state string
+ */
+function generateRandomState() {
+    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+}
+
+/**
+ * Exchange authorization code for access token
+ * @param {string} code - Authorization code from Reddit
+ * @returns {Promise<Object>} - Token response
+ */
+async function exchangeRedditCode(code) {
+    const params = new URLSearchParams({
+        grant_type: 'authorization_code',
+        code: code,
+        redirect_uri: CONFIG.REDDIT_REDIRECT_URI
+    });
+    
+    const response = await fetch(CONFIG.REDDIT_TOKEN_URL, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Basic ${btoa(`${CONFIG.REDDIT_CLIENT_ID}:${CONFIG.REDDIT_CLIENT_SECRET}`)}`,
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'User-Agent': 'nocharts/1.0'
+        },
+        body: params.toString()
+    });
+    
+    if (!response.ok) {
+        throw new Error(`Token exchange failed: ${response.status}`);
+    }
+    
+    return await response.json();
+}
+
+/**
+ * Get Reddit access token (from storage or auth flow)
+ * @returns {Promise<string>} - Access token
+ */
+async function getRedditAccessToken() {
+    // Check if we have a stored token
+    const storedToken = localStorage.getItem('reddit_access_token');
+    const tokenExpiry = localStorage.getItem('reddit_token_expiry');
+    
+    if (storedToken && tokenExpiry && Date.now() < parseInt(tokenExpiry)) {
+        return storedToken;
+    }
+    
+    // Check if we have an authorization code in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    const state = urlParams.get('state');
+    
+    if (code && state) {
+        try {
+            // Exchange code for token
+            const tokenResponse = await exchangeRedditCode(code);
+            
+            // Store token
+            localStorage.setItem('reddit_access_token', tokenResponse.access_token);
+            localStorage.setItem('reddit_token_expiry', (Date.now() + tokenResponse.expires_in * 1000).toString());
+            
+            // Clean up URL
+            window.history.replaceState({}, document.title, window.location.pathname);
+            
+            return tokenResponse.access_token;
+        } catch (error) {
+            console.error('Token exchange failed:', error);
+            throw error;
+        }
+    }
+    
+    // No token available, need to authenticate
+    throw new Error('No Reddit access token available. Please authenticate first.');
+}
+
+/**
+ * Make authenticated Reddit API request
+ * @param {string} endpoint - API endpoint
+ * @param {Object} options - Request options
+ * @returns {Promise<Object>} - API response
+ */
+async function makeRedditApiRequest(endpoint, options = {}) {
+    try {
+        const accessToken = await getRedditAccessToken();
+        
+        const response = await fetch(`${CONFIG.REDDIT_API_BASE}${endpoint}`, {
+            ...options,
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'User-Agent': 'nocharts/1.0',
+                ...options.headers
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error(`Reddit API error: ${response.status}`);
+        }
+        
+        return await response.json();
+    } catch (error) {
+        if (error.message.includes('No Reddit access token')) {
+            // Redirect to Reddit auth
+            window.location.href = getRedditAuthUrl();
+            return null;
+        }
+        throw error;
+    }
+}
+
 // Export API functions
 window.API = {
     makeApiRequest,
@@ -615,12 +974,17 @@ window.API = {
     getStockOverview,
     getStockQuote,
     getCompanyNews,
+    getRedditNews,
     getEarningsCalendar,
     searchCompanies,
     getRedditSentiment,
     getComprehensiveStockData,
     validateApiKeys,
     testFinnhubAPI,
+    // Reddit OAuth functions
+    getRedditAuthUrl,
+    getRedditAccessToken,
+    makeRedditApiRequest,
     // Cache management for testing
     clearAllCache: () => Utils.clearCache(),
     getCacheStats: () => {

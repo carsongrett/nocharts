@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reddit Data Test - Engagement Analysis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.4;
+            color: #333;
+            background: #f8f9fa;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 10px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .recommendation {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .recommendation h2 {
+            color: #1976d2;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .recommendation ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .recommendation li {
+            margin-bottom: 5px;
+            padding-left: 15px;
+            position: relative;
+        }
+
+        .recommendation li:before {
+            content: "✅";
+            position: absolute;
+            left: 0;
+        }
+
+        .test-section {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+        }
+
+        .test-section h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        /* Mobile-first card layout */
+        .post-card {
+            background: white;
+            border-bottom: 1px solid #e1e8ed;
+            padding: 12px 16px;
+            margin-bottom: 1px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .post-card:hover {
+            background-color: #f8f9fa;
+        }
+
+        .post-card:active {
+            background-color: #e9ecef;
+        }
+
+        .post-title {
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 1.3;
+            margin-bottom: 6px;
+            color: #14171a;
+        }
+
+        .post-description {
+            font-size: 11px;
+            line-height: 1.4;
+            color: #657786;
+            margin-bottom: 6px;
+        }
+
+        .post-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 10px;
+            color: #657786;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .subreddit-badge {
+            background: #e1e8ed;
+            color: #657786;
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-size: 9px;
+        }
+
+        /* Filter buttons - horizontal scrollable */
+        .filters {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .filter-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 16px;
+            background: #e9ecef;
+            color: #495057;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 12px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .filter-btn.active {
+            background: #007bff;
+            color: white;
+        }
+
+        .filter-btn:hover {
+            background: #007bff;
+            color: white;
+        }
+
+        /* Desktop table (hidden on mobile) */
+        .data-table {
+            display: none;
+        }
+
+        /* Stats cards */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            margin-top: 3px;
+            font-size: 0.8rem;
+        }
+
+        .chart-container {
+            height: 200px;
+            margin-top: 15px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed #dee2e6;
+        }
+
+        .chart-placeholder {
+            color: #6c757d;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .todo-section {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+        }
+
+        .todo-section h3 {
+            color: #856404;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .todo-item {
+            margin-bottom: 8px;
+            padding-left: 15px;
+            position: relative;
+        }
+
+        .todo-item:before {
+            content: "// TODO:";
+            position: absolute;
+            left: 0;
+            color: #856404;
+            font-weight: bold;
+        }
+
+        /* Mobile-specific styles */
+        @media (max-width: 768px) {
+            .container {
+                padding: 8px;
+            }
+
+            .header {
+                padding: 15px 12px;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .test-section {
+                padding: 12px;
+            }
+
+            .post-card {
+                padding: 8px 10px;
+            }
+
+            .post-title {
+                font-size: 11px;
+            }
+
+            .post-description {
+                font-size: 10px;
+                margin-bottom: 4px;
+            }
+
+            .post-meta {
+                font-size: 9px;
+                gap: 8px;
+            }
+
+            .subreddit-badge {
+                font-size: 8px;
+                padding: 1px 3px;
+            }
+
+            .filters {
+                gap: 6px;
+            }
+
+            .filter-btn {
+                padding: 5px 10px;
+                font-size: 11px;
+            }
+        }
+
+        /* Desktop styles */
+        @media (min-width: 769px) {
+            .data-table {
+                display: table;
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 15px;
+                font-size: 14px;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 10px;
+                text-align: left;
+                border-bottom: 1px solid #eee;
+            }
+
+            .data-table th {
+                background: #f8f9fa;
+                font-weight: 600;
+                color: #495057;
+            }
+
+            .post-cards {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🔍 Reddit Data Test</h1>
+            <p>Analyzing engagement patterns to improve our filtering algorithms</p>
+        </div>
+
+        <!-- Recommendation Block -->
+        <div class="recommendation">
+            <h2>Why This Test Page Matters</h2>
+            <ul>
+                <li>Avoids reliance on mock data</li>
+                <li>Helps refine our engagement scoring logic</li>
+                <li>Improves signal-to-noise filtering</li>
+                <li>Makes Reddit ingestion and UI smarter</li>
+            </ul>
+        </div>
+
+        <!-- Data Display Section -->
+        <div class="test-section">
+            <h2>📊 Sample Reddit Data</h2>
+            <p>Twitter-style mobile layout with compact metrics:</p>
+            
+            <!-- Real Data Fetch Section -->
+            <div style="margin-bottom: 15px; padding: 12px; background: #f8f9fa; border-radius: 6px;">
+                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    <input type="text" id="tickerInput" placeholder="Enter ticker (e.g., AAPL)" 
+                           style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; flex: 1; min-width: 150px;">
+                    <button id="fetchBtn" onclick="fetchRealData()" 
+                            style="padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">
+                        🔍 Fetch Real Data
+                    </button>
+                    <button id="sampleBtn" onclick="loadSampleData()" 
+                            style="padding: 8px 16px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">
+                        📋 Sample Data
+                    </button>
+                    <button id="authBtn" onclick="authenticateReddit()" 
+                            style="padding: 8px 16px; background: #ff4500; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">
+                        🔐 Reddit Auth
+                    </button>
+                </div>
+                <div id="fetchStatus" style="margin-top: 8px; font-size: 12px; color: #6c757d;"></div>
+            </div>
+            
+            <div class="filters">
+                <button class="filter-btn active" onclick="filterData('all')">All Posts</button>
+                <button class="filter-btn" onclick="filterData('high')">High Engagement</button>
+                <button class="filter-btn" onclick="filterData('medium')">Medium Engagement</button>
+                <button class="filter-btn" onclick="filterData('low')">Low Engagement</button>
+                <button class="filter-btn" onclick="filterData('questionable')">Questionable</button>
+            </div>
+
+            <!-- Mobile Cards -->
+            <div class="post-cards" id="postCards">
+                <!-- Cards will be populated by JavaScript -->
+            </div>
+
+            <!-- Desktop Table (hidden on mobile) -->
+            <table class="data-table" id="redditTable">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Upvotes</th>
+                        <th>Comments</th>
+                        <th>Age</th>
+                        <th>Subreddit</th>
+                        <th>Engagement</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- Data will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Engagement Chart -->
+        <div class="test-section">
+            <h2>📈 Time Decay Analysis</h2>
+            <p>Visualizing how engagement changes over the first 12 hours:</p>
+            
+            <div class="chart-container">
+                <div class="chart-placeholder">
+                    📊 Chart Placeholder<br>
+                    <small>Will show engagement decay over time</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="test-section">
+            <h2>📊 Engagement Statistics</h2>
+            <div class="stats" id="stats">
+                <!-- Stats will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- TODO Section -->
+        <div class="todo-section">
+            <h3>🔍 Investigation Questions</h3>
+            <div class="todo-item">What's the typical upvote range for organic stock posts?</div>
+            <div class="todo-item">How do comments correlate with true engagement?</div>
+            <div class="todo-item">What's the time decay pattern in engagement?</div>
+            <div class="todo-item">Are there any data quality issues or spam patterns?</div>
+            <div class="todo-item">What engagement threshold separates "high" from "medium"?</div>
+            <div class="todo-item">How do different subreddits (r/stocks vs r/wallstreetbets) differ?</div>
+        </div>
+    </div>
+
+    <!-- Load our API functions -->
+    <script src="js/config.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/api.js"></script>
+
+    <script>
+        // Sample Reddit data for testing
+        const sampleRedditData = [
+            {
+                title: "Stocks which will benefit the most if Trump's Tariff actions are ruled to be illegal…",
+                description: "The US Court of Appeals will hear oral arguments regarding the legality of Trump's tariff actions on July 31, 2025. A decision within weeks is expected thereafter, and likely further appeal to the US Supreme Court. If the Court upholds Trump's actions, it seems to be a status quo event. But if it is ruled that the President does NOT legally have such authority, the impact might be very significant for many companies.",
+                upvotes: 183,
+                comments: 115,
+                age: 2,
+                subreddit: "stocks",
+                created_utc: 1753569634,
+                score: 183,
+                engagement: "high",
+                url: "https://www.reddit.com/r/stocks/comments/1ma6h5j/stocks_which_will_benefit_the_most_if_trumps/"
+            },
+            {
+                title: "r/Stocks Daily Discussion & Fundamentals Friday Jul 25, 2025",
+                description: "This is the daily discussion, so anything stocks related is fine, but the theme for today is on fundamentals, but if fundamentals aren't your thing then just ignore the theme. Some helpful day to day links, including news: Finviz for charts, fundamentals, and aggregated news on individual stocks, Bloomberg market news, StreetInsider news.",
+                upvotes: 20,
+                comments: 293,
+                age: 3,
+                subreddit: "stocks",
+                created_utc: 1753435831,
+                score: 20,
+                engagement: "medium",
+                url: "https://www.reddit.com/r/stocks/comments/1m8uohx/rstocks_daily_discussion_fundamentals_friday_jul/"
+            },
+            {
+                title: "DOJ antitrust case against Google could hit Apple harder than expected $20B/year in question",
+                description: "It looks like the Department of Justice is about to announce a remedial decision in Google's antitrust case. Most people are focusing on Alphabet but Apple may be at greater risk in the short term. According to Morgan Stanley the case directly threatens the roughly $20 billion-plus that Google pays Apple annually for defaulting to Google's search engine on the iPhone.",
+                upvotes: 106,
+                comments: 22,
+                age: 7,
+                subreddit: "stocks",
+                created_utc: 1753103202,
+                score: 106,
+                engagement: "high",
+                url: "https://www.reddit.com/r/stocks/comments/1m5if2a/doj_antitrust_case_against_google_could_hit_apple/"
+            },
+            {
+                title: "What do you think about $TSLA?",
+                description: "Just curious about everyone's thoughts on Tesla stock. Looking for different perspectives on the current valuation and future prospects.",
+                upvotes: 5,
+                comments: 3,
+                age: 1,
+                subreddit: "stocks",
+                created_utc: 1753656000,
+                score: 5,
+                engagement: "low",
+                url: "https://www.reddit.com/r/stocks/comments/example/what_do_you_think_about_tsla/"
+            },
+            {
+                title: "🚀🚀🚀 TO THE MOON! 🚀🚀🚀",
+                description: "GME to the moon! Diamond hands! HODL! This is not financial advice, just pure speculation and memes.",
+                upvotes: 1500,
+                comments: 50,
+                age: 1,
+                subreddit: "wallstreetbets",
+                created_utc: 1753656000,
+                score: 1500,
+                engagement: "high",
+                questionable: true,
+                url: "https://www.reddit.com/r/wallstreetbets/comments/example/to_the_moon/"
+            },
+            {
+                title: "Earnings report analysis",
+                description: "Detailed analysis of recent earnings reports across various sectors. Key insights and trends from this quarter's financial results.",
+                upvotes: 45,
+                comments: 12,
+                age: 4,
+                subreddit: "investing",
+                created_utc: 1753400000,
+                score: 45,
+                engagement: "medium",
+                url: "https://www.reddit.com/r/investing/comments/example/earnings_report_analysis/"
+            }
+        ];
+
+        // Engagement scoring algorithm
+        function calculateEngagementScore(post) {
+            const upvoteWeight = 1;
+            const commentWeight = 2;
+            const timeDecay = Math.max(1, post.age);
+            
+            const baseScore = (post.upvotes * upvoteWeight) + (post.comments * commentWeight);
+            const timeAdjustedScore = baseScore / timeDecay;
+            
+            return Math.round(timeAdjustedScore);
+        }
+
+        // Determine engagement level
+        function getEngagementLevel(score) {
+            if (score >= 50) return "high";
+            if (score >= 20) return "medium";
+            return "low";
+        }
+
+        // Check if post is questionable
+        function isQuestionable(post) {
+            return (
+                post.title.length < 20 ||
+                (post.upvotes === 0 && post.comments === 0 && post.age > 6) ||
+                post.title.includes("🚀") && post.title.includes("MOON") ||
+                post.upvotes > 1000 && post.comments < 10
+            );
+        }
+
+        // Render mobile cards
+        function renderCards(data) {
+            const cardsContainer = document.getElementById('postCards');
+            cardsContainer.innerHTML = '';
+
+            data.forEach(post => {
+                const engagementScore = calculateEngagementScore(post);
+                const engagementLevel = getEngagementLevel(engagementScore);
+                const questionable = isQuestionable(post);
+
+                const card = document.createElement('div');
+                card.className = 'post-card';
+                if (questionable) card.style.borderLeft = '3px solid #dc3545';
+
+                // Add click functionality
+                card.addEventListener('click', () => {
+                    if (post.url) {
+                        window.open(post.url, '_blank', 'noopener,noreferrer');
+                    }
+                });
+
+                // Add keyboard accessibility
+                card.setAttribute('tabindex', '0');
+                card.setAttribute('role', 'button');
+                card.setAttribute('aria-label', `Open Reddit post: ${post.title}`);
+
+                card.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        card.click();
+                    }
+                });
+
+                card.innerHTML = `
+                    <div class="post-title">${post.title}</div>
+                    <div class="post-description">${post.description}</div>
+                    <div class="post-meta">
+                        <div class="meta-item">
+                            <span class="metric-icon">💬</span>
+                            <span>${post.comments.toLocaleString()}</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="metric-icon">⬆️</span>
+                            <span>${post.upvotes.toLocaleString()}</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="metric-icon">⏰</span>
+                            <span>${post.age}d</span>
+                        </div>
+                        <span class="subreddit-badge">r/${post.subreddit}</span>
+                    </div>
+                `;
+
+                cardsContainer.appendChild(card);
+            });
+        }
+
+        // Render desktop table
+        function renderTable(data) {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            data.forEach(post => {
+                const engagementScore = calculateEngagementScore(post);
+                const engagementLevel = getEngagementLevel(engagementScore);
+                const questionable = isQuestionable(post);
+
+                const row = document.createElement('tr');
+                row.className = `engagement-${engagementLevel}`;
+                if (questionable) row.style.borderLeft = '4px solid #dc3545';
+
+                row.innerHTML = `
+                    <td>
+                        <strong>${post.title}</strong>
+                        ${questionable ? '<span class="badge badge-low">⚠️ Questionable</span>' : ''}
+                    </td>
+                    <td>${post.upvotes.toLocaleString()}</td>
+                    <td>${post.comments.toLocaleString()}</td>
+                    <td>${post.age}d ago</td>
+                    <td><span class="subreddit-badge">r/${post.subreddit}</span></td>
+                    <td><span class="badge badge-${engagementLevel}">${engagementLevel.toUpperCase()}</span></td>
+                    <td>${engagementScore}</td>
+                `;
+
+                tbody.appendChild(row);
+            });
+        }
+
+        // Filter data
+        function filterData(filter) {
+            // Update active filter button
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            let filteredData = sampleRedditData;
+
+            switch(filter) {
+                case 'high':
+                    filteredData = sampleRedditData.filter(post => 
+                        getEngagementLevel(calculateEngagementScore(post)) === 'high'
+                    );
+                    break;
+                case 'medium':
+                    filteredData = sampleRedditData.filter(post => 
+                        getEngagementLevel(calculateEngagementScore(post)) === 'medium'
+                    );
+                    break;
+                case 'low':
+                    filteredData = sampleRedditData.filter(post => 
+                        getEngagementLevel(calculateEngagementScore(post)) === 'low'
+                    );
+                    break;
+                case 'questionable':
+                    filteredData = sampleRedditData.filter(post => isQuestionable(post));
+                    break;
+            }
+
+            renderCards(filteredData);
+            renderTable(filteredData);
+            updateStats(filteredData);
+        }
+
+        // Update statistics
+        function updateStats(data) {
+            const stats = document.getElementById('stats');
+            
+            const totalPosts = data.length;
+            const avgUpvotes = Math.round(data.reduce((sum, post) => sum + post.upvotes, 0) / totalPosts);
+            const avgComments = Math.round(data.reduce((sum, post) => sum + post.comments, 0) / totalPosts);
+            const highEngagement = data.filter(post => getEngagementLevel(calculateEngagementScore(post)) === 'high').length;
+
+            stats.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">${totalPosts}</div>
+                    <div class="stat-label">Total Posts</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${avgUpvotes}</div>
+                    <div class="stat-label">Avg Upvotes</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${avgComments}</div>
+                    <div class="stat-label">Avg Comments</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${highEngagement}</div>
+                    <div class="stat-label">High Engagement</div>
+                </div>
+            `;
+        }
+
+        // Initialize page
+        function init() {
+            renderCards(sampleRedditData);
+            renderTable(sampleRedditData);
+            updateStats(sampleRedditData);
+        }
+
+        // Fetch real Reddit data
+        async function fetchRealData() {
+            const ticker = document.getElementById('tickerInput').value.trim().toUpperCase();
+            const statusDiv = document.getElementById('fetchStatus');
+            const fetchBtn = document.getElementById('fetchBtn');
+            
+            if (!ticker) {
+                statusDiv.innerHTML = '⚠️ Please enter a ticker symbol';
+                return;
+            }
+
+            // Update UI
+            fetchBtn.disabled = true;
+            fetchBtn.textContent = '⏳ Fetching...';
+            statusDiv.innerHTML = `🔍 Searching Reddit for ${ticker}...`;
+
+            try {
+                // Use our existing API function
+                const posts = await window.API.getRedditNews(ticker, 10);
+                
+                if (posts && posts.length > 0) {
+                    // Transform Reddit data to our format
+                    const transformedData = posts.map(post => ({
+                        title: post.title,
+                        description: post.description || post.title,
+                        upvotes: post.upvotes || 0,
+                        comments: post.numComments || 0,
+                        age: post.relativeTime ? parseInt(post.relativeTime.split(' ')[0]) : 1,
+                        subreddit: post.category || 'stocks',
+                        created_utc: post.publishedAt ? new Date(post.publishedAt).getTime() / 1000 : Date.now() / 1000,
+                        score: post.upvotes || 0,
+                        engagement: post.sentiment || 'neutral',
+                        url: post.url,
+                        questionable: isQuestionable({
+                            title: post.title,
+                            upvotes: post.upvotes || 0,
+                            comments: post.numComments || 0,
+                            age: post.relativeTime ? parseInt(post.relativeTime.split(' ')[0]) : 1
+                        })
+                    }));
+
+                    // Update global data
+                    window.currentData = transformedData;
+                    
+                    // Render the data
+                    renderCards(transformedData);
+                    renderTable(transformedData);
+                    updateStats(transformedData);
+                    
+                    statusDiv.innerHTML = `✅ Found ${transformedData.length} posts for ${ticker}`;
+                } else {
+                    statusDiv.innerHTML = `❌ No posts found for ${ticker}. Try a different ticker.`;
+                }
+            } catch (error) {
+                console.error('Error fetching Reddit data:', error);
+                statusDiv.innerHTML = `❌ Error: ${error.message}. Check console for details.`;
+            } finally {
+                // Reset UI
+                fetchBtn.disabled = false;
+                fetchBtn.textContent = '🔍 Fetch Real Data';
+            }
+        }
+
+        // Load sample data
+        function loadSampleData() {
+            window.currentData = sampleRedditData;
+            renderCards(sampleRedditData);
+            renderTable(sampleRedditData);
+            updateStats(sampleRedditData);
+            document.getElementById('fetchStatus').innerHTML = '📋 Loaded sample data';
+        }
+
+        // Authenticate with Reddit
+        async function authenticateReddit() {
+            const statusDiv = document.getElementById('fetchStatus');
+            const authBtn = document.getElementById('authBtn');
+            
+            try {
+                statusDiv.innerHTML = '🔐 Checking Reddit authentication...';
+                authBtn.disabled = true;
+                authBtn.textContent = '⏳ Checking...';
+                
+                // Try to get access token
+                const token = await window.API.getRedditAccessToken();
+                
+                if (token) {
+                    statusDiv.innerHTML = '✅ Reddit authentication successful!';
+                    authBtn.textContent = '✅ Authenticated';
+                    authBtn.style.background = '#28a745';
+                } else {
+                    // Redirect to Reddit auth
+                    statusDiv.innerHTML = '🔄 Redirecting to Reddit authentication...';
+                    window.location.href = window.API.getRedditAuthUrl();
+                }
+            } catch (error) {
+                console.error('Reddit authentication error:', error);
+                statusDiv.innerHTML = `❌ Authentication failed: ${error.message}`;
+                authBtn.textContent = '🔐 Reddit Auth';
+                authBtn.disabled = false;
+            }
+        }
+
+        // Update filter function to use current data
+        function filterData(filter) {
+            // Update active filter button
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            const currentData = window.currentData || sampleRedditData;
+            let filteredData = currentData;
+
+            switch(filter) {
+                case 'high':
+                    filteredData = currentData.filter(post => 
+                        getEngagementLevel(calculateEngagementScore(post)) === 'high'
+                    );
+                    break;
+                case 'medium':
+                    filteredData = currentData.filter(post => 
+                        getEngagementLevel(calculateEngagementScore(post)) === 'medium'
+                    );
+                    break;
+                case 'low':
+                    filteredData = currentData.filter(post => 
+                        getEngagementLevel(calculateEngagementScore(post)) === 'low'
+                    );
+                    break;
+                case 'questionable':
+                    filteredData = currentData.filter(post => isQuestionable(post));
+                    break;
+            }
+
+            renderCards(filteredData);
+            renderTable(filteredData);
+            updateStats(filteredData);
+        }
+
+        // Start the page
+        init();
+    </script>
+</body>
+</html> 

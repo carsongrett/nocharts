@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reddit API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .success { border-color: #4CAF50; background-color: #f1f8e9; }
+        .error { border-color: #f44336; background-color: #ffebee; }
+        .loading { border-color: #2196F3; background-color: #e3f2fd; }
+        button {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #1976D2; }
+        .post {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+        }
+        .post-title {
+            font-weight: bold;
+            color: #333;
+        }
+        .post-meta {
+            font-size: 12px;
+            color: #666;
+            margin: 5px 0;
+        }
+        .post-content {
+            margin: 10px 0;
+            color: #555;
+        }
+        .sentiment {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .sentiment.positive { background: #4CAF50; color: white; }
+        .sentiment.negative { background: #f44336; color: white; }
+        .sentiment.neutral { background: #9E9E9E; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Reddit API Test</h1>
+        
+        <div class="test-section">
+            <h3>Test Reddit API Integration</h3>
+            <p>This test will try to fetch Reddit posts about AAPL using the CORS proxy.</p>
+            <button onclick="testRedditAPI()">Test Reddit API</button>
+            <button onclick="testNewsAPIFallback()">Test News API Fallback</button>
+            <div id="testResults"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>Reddit Posts Results</h3>
+            <div id="redditPosts"></div>
+        </div>
+    </div>
+
+    <!-- Load dependencies -->
+    <script src="js/config.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/api.js"></script>
+
+    <script>
+        async function testRedditAPI() {
+            const resultsDiv = document.getElementById('testResults');
+            const postsDiv = document.getElementById('redditPosts');
+            
+            resultsDiv.innerHTML = '<div class="loading">🔄 Testing Reddit API...</div>';
+            postsDiv.innerHTML = '';
+            
+            try {
+                console.log('🧪 Testing Reddit API...');
+                const posts = await API.getRedditNews('AAPL', 5);
+                
+                resultsDiv.innerHTML = `<div class="success">✅ Reddit API Test Successful! Found ${posts.length} posts.</div>`;
+                
+                // Display posts
+                postsDiv.innerHTML = posts.map(post => `
+                    <div class="post">
+                        <div class="post-title">
+                            <a href="${post.url}" target="_blank">${post.title}</a>
+                        </div>
+                        <div class="post-meta">
+                            <span class="sentiment ${post.sentiment.sentiment}">${post.sentiment.sentiment}</span>
+                            • ${post.relativeTime} • ${post.source.name} • ⬆️ ${post.score} • 💬 ${post.numComments}
+                        </div>
+                        <div class="post-content">${post.description}</div>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('❌ Reddit API test failed:', error);
+                resultsDiv.innerHTML = `<div class="error">❌ Reddit API Test Failed: ${error.message}</div>`;
+            }
+        }
+        
+        async function testNewsAPIFallback() {
+            const resultsDiv = document.getElementById('testResults');
+            const postsDiv = document.getElementById('redditPosts');
+            
+            resultsDiv.innerHTML = '<div class="loading">🔄 Testing News API with Reddit fallback...</div>';
+            postsDiv.innerHTML = '';
+            
+            try {
+                console.log('🧪 Testing News API with Reddit fallback...');
+                const posts = await API.getCompanyNews('AAPL', 5);
+                
+                if (!posts || posts.length === 0) {
+                    resultsDiv.innerHTML = `<div class="error">❌ No posts found. All APIs may have failed.</div>`;
+                    return;
+                }
+                
+                resultsDiv.innerHTML = `<div class="success">✅ News API with Reddit fallback successful! Found ${posts.length} posts.</div>`;
+                
+                // Display posts with proper error handling
+                postsDiv.innerHTML = posts.map(post => {
+                    // Handle undefined sentiment
+                    const sentiment = post.sentiment || { sentiment: 'neutral', score: 0 };
+                    const sentimentClass = sentiment.sentiment || 'neutral';
+                    
+                    return `
+                        <div class="post">
+                            <div class="post-title">
+                                <a href="${post.url || '#'}" target="_blank">${post.title || 'No title'}</a>
+                            </div>
+                            <div class="post-meta">
+                                <span class="sentiment ${sentimentClass}">${sentimentClass}</span>
+                                • ${post.relativeTime || 'Unknown time'} • ${post.source?.name || 'Unknown source'}
+                                ${post.category === 'reddit' ? `• ⬆️ ${post.score || 0} • 💬 ${post.numComments || 0}` : ''}
+                            </div>
+                            <div class="post-content">${post.description || 'No description available'}</div>
+                        </div>
+                    `;
+                }).join('');
+                
+            } catch (error) {
+                console.error('❌ News API with Reddit fallback test failed:', error);
+                resultsDiv.innerHTML = `<div class="error">❌ News API with Reddit fallback test failed: ${error.message}</div>`;
+            }
+        }
+        
+        // Auto-test on page load
+        window.addEventListener('load', () => {
+            console.log('🚀 Reddit API test page loaded');
+            console.log('📊 Available API functions:', Object.keys(API));
+        });
+    </script>
+</body>
+</html> 

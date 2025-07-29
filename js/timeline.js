@@ -78,7 +78,27 @@ class Timeline {
         this.container.innerHTML = '';
         
         this.filteredItems.forEach((item, index) => {
-            const timelineItem = this.createTimelineItem(item, index);
+            const itemType = item.type || 'news';
+            const itemClass = itemType === 'earnings' ? 'earnings-item' : 
+                             (item.category === 'reddit' ? 'reddit-post' : 'news-item');
+            
+            const timelineItem = document.createElement('div');
+            timelineItem.className = `timeline-item ${itemClass} ${item.sentiment || ''}`;
+            
+            const content = this.createTimelineItem(item, index);
+            timelineItem.innerHTML = content;
+            
+            // Add click handler for news items
+            if (itemType === 'news' && item.url) {
+                const link = timelineItem.querySelector('.timeline-link');
+                if (link) {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        this.openNewsArticle(item.url);
+                    });
+                }
+            }
+            
             this.container.appendChild(timelineItem);
         });
     }
@@ -99,40 +119,26 @@ class Timeline {
     }
 
     createTimelineItem(item, index) {
-        const timelineItem = document.createElement('div');
-        timelineItem.className = `timeline-item ${item.type} ${item.sentiment || ''}`;
+        const itemType = item.type || 'news';
         
-        const isNews = item.type === 'news';
-        const isEarnings = item.type === 'earnings';
-        
-        let content = '';
-        
-        if (isNews) {
-            content = this.createNewsItem(item, index);
-        } else if (isEarnings) {
-            content = this.createEarningsItem(item, index);
+        if (itemType === 'earnings') {
+            return this.createEarningsItem(item, index);
+        } else {
+            return this.createNewsItem(item, index);
         }
-        
-        timelineItem.innerHTML = content;
-        
-        // Add click handler for news items
-        if (isNews && item.url) {
-            const link = timelineItem.querySelector('.timeline-link');
-            if (link) {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    this.openNewsArticle(item.url);
-                });
-            }
-        }
-        
-        return timelineItem;
     }
 
     createNewsItem(item, index) {
         const sentimentClass = item.sentiment || 'neutral';
         const sentimentIcon = this.getSentimentIcon(item.sentiment);
         const categoryBadge = this.getCategoryBadge(item.category);
+        
+        // Handle Reddit-specific data
+        const isRedditPost = item.category === 'reddit';
+        const redditMetadata = isRedditPost ? `
+            <span class="reddit-score">⬆️ ${item.score || 0}</span>
+            <span class="reddit-comments">💬 ${item.numComments || 0}</span>
+        ` : '';
         
         return `
             <div class="timeline-marker news-marker ${sentimentClass}">
@@ -141,16 +147,18 @@ class Timeline {
             <div class="timeline-content">
                 <div class="timeline-header">
                     <div class="timeline-meta">
-                        <span class="timeline-date">${item.relativeTime || (typeof Utils !== 'undefined' ? Utils.getRelativeTime(item.date) : new Date(item.date).toLocaleDateString())}</span>
-    <span class="timeline-source">${item.source || 'Unknown Source'}</span>
+                        <span class="timeline-date">${item.relativeTime || (typeof Utils !== 'undefined' ? Utils.getRelativeTime(item.publishedAt || item.date) : this.formatDateSafely(item.publishedAt || item.date))}</span>
+                        <span class="timeline-source">${item.source?.name || item.source || 'Unknown Source'}</span>
+                        ${redditMetadata}
                     </div>
                     <div class="timeline-badges">
                         ${categoryBadge}
                         <span class="sentiment-badge ${sentimentClass}">${item.sentiment || 'neutral'}</span>
+                        ${isRedditPost ? '<span class="reddit-badge">Reddit</span>' : ''}
                     </div>
                 </div>
                 <h3 class="timeline-title">
-                    <a href="#" class="timeline-link" target="_blank" rel="noopener noreferrer">
+                    <a href="${item.url || '#'}" class="timeline-link" target="_blank" rel="noopener noreferrer">
                         ${item.title || 'No title available'}
                     </a>
                 </h3>
@@ -180,7 +188,7 @@ class Timeline {
             <div class="timeline-content">
                 <div class="timeline-header">
                     <div class="timeline-meta">
-                        <span class="timeline-date">${(typeof Utils !== 'undefined' ? Utils.getRelativeTime(item.date) : new Date(item.date).toLocaleDateString())}</span>
+                        <span class="timeline-date">${(typeof Utils !== 'undefined' ? Utils.getRelativeTime(item.publishedAt || item.date) : this.formatDateSafely(item.publishedAt || item.date))}</span>
                         <span class="timeline-source">Earnings Report</span>
                     </div>
                     <div class="timeline-badges">
@@ -288,6 +296,17 @@ class Timeline {
             stats: this.getStats(),
             filter: this.currentFilter
         };
+    }
+
+    // Helper for date formatting
+    formatDateSafely(dateString) {
+        if (!dateString) return 'N/A';
+        try {
+            const date = new Date(dateString);
+            return date.toLocaleDateString();
+        } catch (e) {
+            return dateString; // Fallback to original string if parsing fails
+        }
     }
 }
 

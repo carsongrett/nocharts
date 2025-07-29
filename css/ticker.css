@@ -563,3 +563,53 @@
 .ticker-page .visible {
     display: block;
 } 
+
+/* Reddit-specific styles */
+.reddit-score,
+.reddit-comments {
+    font-size: 12px;
+    color: #666;
+    margin-left: 8px;
+}
+
+.reddit-badge {
+    background: #ff4500;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: bold;
+    margin-left: 4px;
+}
+
+.timeline-meta .reddit-score,
+.timeline-meta .reddit-comments {
+    display: inline-block;
+    margin-left: 8px;
+    font-size: 11px;
+    color: #888;
+}
+
+/* Enhanced timeline for Reddit posts */
+.timeline-item.reddit-post .timeline-content {
+    border-left: 3px solid #ff4500;
+}
+
+.timeline-item.reddit-post .timeline-marker {
+    background: #ff4500;
+}
+
+/* Responsive adjustments for Reddit metadata */
+@media (max-width: 768px) {
+    .timeline-meta .reddit-score,
+    .timeline-meta .reddit-comments {
+        display: block;
+        margin-left: 0;
+        margin-top: 2px;
+    }
+    
+    .reddit-badge {
+        font-size: 9px;
+        padding: 1px 4px;
+    }
+} 

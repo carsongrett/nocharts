@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Reddit Dates</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .debug-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .success { border-color: #4CAF50; background-color: #f1f8e9; }
+        .error { border-color: #f44336; background-color: #ffebee; }
+        .info { border-color: #2196F3; background-color: #e3f2fd; }
+        button {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #1976D2; }
+        .date-debug {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .raw-data {
+            background: #000;
+            color: #0f0;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 11px;
+            overflow-x: auto;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Debug Reddit Date Processing</h1>
+        
+        <div class="debug-section info">
+            <h3>🔍 What This Debug Does</h3>
+            <p>This will fetch Reddit data and show exactly how dates are being processed at each step.</p>
+        </div>
+        
+        <div class="debug-section">
+            <h3>Test Reddit Date Processing</h3>
+            <button onclick="debugRedditDates()">Debug Reddit Dates</button>
+            <button onclick="testDateParsing()">Test Date Parsing</button>
+            <button onclick="testRedditTimestamps()">Test Reddit Timestamps</button>
+            <div id="debugResults"></div>
+        </div>
+        
+        <div class="debug-section">
+            <h3>Raw Reddit Response</h3>
+            <div id="rawResponse"></div>
+        </div>
+        
+        <div class="debug-section">
+            <h3>Date Processing Steps</h3>
+            <div id="dateSteps"></div>
+        </div>
+    </div>
+
+    <!-- Load dependencies -->
+    <script src="js/config.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/api.js"></script>
+
+    <script>
+        async function debugRedditDates() {
+            const resultsDiv = document.getElementById('debugResults');
+            const rawDiv = document.getElementById('rawResponse');
+            const stepsDiv = document.getElementById('dateSteps');
+            
+            resultsDiv.innerHTML = '<div class="info">🔄 Fetching Reddit data...</div>';
+            rawDiv.innerHTML = '';
+            stepsDiv.innerHTML = '';
+            
+            try {
+                console.log('🔍 Debugging Reddit date processing...');
+                
+                // Step 1: Get raw Reddit response
+                const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
+                const redditUrl = `${CORS_PROXY}${encodeURIComponent('https://www.reddit.com/r/stocks/search.json?q=AAPL&restrict_sr=1&sort=new&limit=3')}`;
+                
+                console.log('🔗 Fetching from:', redditUrl);
+                
+                const response = await fetch(redditUrl, {
+                    method: 'GET',
+                    headers: {
+                        'User-Agent': 'no-charts-bot/1.0'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                // Display raw response
+                rawDiv.innerHTML = `
+                    <h4>Raw Reddit API Response:</h4>
+                    <div class="raw-data">${JSON.stringify(data, null, 2)}</div>
+                `;
+                
+                // Step 2: Process each post's date
+                if (data.data && data.data.children) {
+                    stepsDiv.innerHTML = '<h4>Date Processing Steps:</h4>';
+                    
+                    data.data.children.forEach((post, index) => {
+                        const postData = post.data;
+                        const createdUtc = postData.created_utc;
+                        
+                        stepsDiv.innerHTML += `
+                            <div class="date-debug">
+                                <strong>Post ${index + 1}:</strong><br>
+                                <strong>Title:</strong> ${postData.title}<br>
+                                <strong>Raw created_utc:</strong> ${createdUtc}<br>
+                                <strong>Type:</strong> ${typeof createdUtc}<br>
+                                <strong>Date object:</strong> ${new Date(createdUtc * 1000)}<br>
+                                <strong>ISO String:</strong> ${new Date(createdUtc * 1000).toISOString()}<br>
+                                <strong>Relative time:</strong> ${Utils.getRelativeTime(new Date(createdUtc * 1000))}<br>
+                                <strong>Valid date?</strong> ${!isNaN(new Date(createdUtc * 1000).getTime()) ? '✅ Yes' : '❌ No'}
+                            </div>
+                        `;
+                    });
+                }
+                
+                resultsDiv.innerHTML = `<div class="success">✅ Debug completed! Check the sections below for details.</div>`;
+                
+            } catch (error) {
+                console.error('❌ Debug failed:', error);
+                resultsDiv.innerHTML = `<div class="error">❌ Debug failed: ${error.message}</div>`;
+            }
+        }
+        
+        function testDateParsing() {
+            const stepsDiv = document.getElementById('dateSteps');
+            
+            stepsDiv.innerHTML = '<h4>Date Parsing Tests:</h4>';
+            
+            // Test various date formats
+            const testCases = [
+                { name: 'Unix timestamp (seconds)', value: 1640995200 },
+                { name: 'Unix timestamp (milliseconds)', value: 1640995200000 },
+                { name: 'ISO string', value: '2022-01-01T00:00:00.000Z' },
+                { name: 'Invalid date', value: 'invalid' },
+                { name: 'Null', value: null },
+                { name: 'Undefined', value: undefined }
+            ];
+            
+            testCases.forEach(testCase => {
+                const date = new Date(testCase.value);
+                const isValid = !isNaN(date.getTime());
+                
+                stepsDiv.innerHTML += `
+                    <div class="date-debug">
+                        <strong>${testCase.name}:</strong><br>
+                        <strong>Input:</strong> ${testCase.value}<br>
+                        <strong>Date object:</strong> ${date}<br>
+                        <strong>Valid?</strong> ${isValid ? '✅ Yes' : '❌ No'}<br>
+                        <strong>ISO:</strong> ${isValid ? date.toISOString() : 'Invalid Date'}<br>
+                        <strong>Relative:</strong> ${isValid ? Utils.getRelativeTime(date) : 'Invalid Date'}
+                    </div>
+                `;
+            });
+        }
+
+        function testRedditTimestamps() {
+            const stepsDiv = document.getElementById('dateSteps');
+            
+            stepsDiv.innerHTML = '<h4>Reddit Timestamp Tests:</h4>';
+            
+            // Test the exact timestamps from the Reddit response
+            const redditTimestamps = [
+                { name: 'Post 1 - Trump Tariff', value: 1753569634 },
+                { name: 'Post 2 - Daily Discussion', value: 1753435831 },
+                { name: 'Post 3 - DOJ Antitrust', value: 1753103202 }
+            ];
+            
+            redditTimestamps.forEach(testCase => {
+                const timestampSeconds = testCase.value;
+                const timestampMs = timestampSeconds * 1000;
+                const dateFromSeconds = new Date(timestampSeconds);
+                const dateFromMs = new Date(timestampMs);
+                
+                stepsDiv.innerHTML += `
+                    <div class="date-debug">
+                        <strong>${testCase.name}:</strong><br>
+                        <strong>Raw timestamp:</strong> ${timestampSeconds}<br>
+                        <strong>As seconds:</strong> ${dateFromSeconds}<br>
+                        <strong>As milliseconds:</strong> ${dateFromMs}<br>
+                        <strong>ISO (ms):</strong> ${dateFromMs.toISOString()}<br>
+                        <strong>Relative (ms):</strong> ${Utils.getRelativeTime(dateFromMs)}<br>
+                        <strong>Valid (ms)?</strong> ${!isNaN(dateFromMs.getTime()) ? '✅ Yes' : '❌ No'}
+                    </div>
+                `;
+            });
+        }
+        
+        // Auto-test on page load
+        window.addEventListener('load', () => {
+            console.log('🚀 Reddit date debug page loaded');
+        });
+    </script>
+</body>
+</html> 

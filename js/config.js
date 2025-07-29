@@ -6,6 +6,14 @@ const CONFIG = {
     FINNHUB_API_KEY: 'd23c7j1r01qgiro31s40d23c7j1r01qgiro31s4g',
     NEWS_API_KEY: '5532986076b7449bad2768ba4eafd7fe',
     
+    // Reddit OAuth Configuration
+    REDDIT_CLIENT_ID: '7SDzEZrEp4brTFp4eG9-wg',
+    REDDIT_CLIENT_SECRET: 'BQICk0-7tYN53FPj1hrN--CC0NKOCQ',
+    REDDIT_REDIRECT_URI: 'https://carsongrett.github.io/nocharts/index.html',
+    REDDIT_AUTH_URL: 'https://www.reddit.com/api/v1/authorize',
+    REDDIT_TOKEN_URL: 'https://www.reddit.com/api/v1/access_token',
+    REDDIT_API_BASE: 'https://oauth.reddit.com',
+    
     // API Endpoints
     FINNHUB_BASE_URL: 'https://finnhub.io/api/v1',
     NEWS_API_BASE_URL: 'https://newsapi.org/v2/everything',
