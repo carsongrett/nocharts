@@ -753,7 +753,7 @@ function getRedditAuthUrl() {
     
     const params = new URLSearchParams({
         client_id: CONFIG.REDDIT_CLIENT_ID,
-        response_type: 'code',
+        response_type: 'token', // Use implicit flow for client-side
         state: generateRandomState(),
         redirect_uri: CONFIG.REDDIT_REDIRECT_URI,
         duration: 'permanent',
@@ -780,27 +780,50 @@ function generateRandomState() {
  * @returns {Promise<Object>} - Token response
  */
 async function exchangeRedditCode(code) {
+    console.log('🔄 Exchanging Reddit authorization code for token...');
+    console.log('🔧 Code:', code);
+    console.log('🔧 Redirect URI:', CONFIG.REDDIT_REDIRECT_URI);
+    
     const params = new URLSearchParams({
         grant_type: 'authorization_code',
         code: code,
         redirect_uri: CONFIG.REDDIT_REDIRECT_URI
     });
     
-    const response = await fetch(CONFIG.REDDIT_TOKEN_URL, {
-        method: 'POST',
-        headers: {
-            'Authorization': `Basic ${btoa(`${CONFIG.REDDIT_CLIENT_ID}:${CONFIG.REDDIT_CLIENT_SECRET}`)}`,
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'User-Agent': 'nocharts/1.0'
-        },
-        body: params.toString()
-    });
-    
-    if (!response.ok) {
-        throw new Error(`Token exchange failed: ${response.status}`);
+    try {
+        const response = await fetch(CONFIG.REDDIT_TOKEN_URL, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Basic ${btoa(`${CONFIG.REDDIT_CLIENT_ID}:${CONFIG.REDDIT_CLIENT_SECRET}`)}`,
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'User-Agent': 'nocharts/1.0'
+            },
+            body: params.toString()
+        });
+        
+        console.log('🔧 Token exchange response status:', response.status);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('❌ Token exchange failed:', errorText);
+            throw new Error(`Token exchange failed: ${response.status} - ${errorText}`);
+        }
+        
+        const tokenData = await response.json();
+        console.log('✅ Token exchange successful:', tokenData);
+        return tokenData;
+        
+    } catch (error) {
+        console.error('❌ Token exchange error:', error);
+        
+        // If it's a CORS error, provide helpful message
+        if (error.message.includes('CORS') || error.message.includes('Failed to fetch')) {
+            console.error('❌ CORS error - Reddit token endpoint doesn\'t support client-side requests');
+            throw new Error('Token exchange failed due to CORS restrictions. This requires a server-side implementation.');
+        }
+        
+        throw error;
     }
-    
-    return await response.json();
 }
 
 /**
@@ -813,34 +836,36 @@ async function getRedditAccessToken() {
     const tokenExpiry = localStorage.getItem('reddit_token_expiry');
     
     if (storedToken && tokenExpiry && Date.now() < parseInt(tokenExpiry)) {
+        console.log('✅ Using stored Reddit access token');
         return storedToken;
     }
     
-    // Check if we have an authorization code in URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get('code');
+    // Check if we have an access token in URL fragment (implicit flow)
+    const urlParams = new URLSearchParams(window.location.hash.substring(1));
+    const accessToken = urlParams.get('access_token');
     const state = urlParams.get('state');
+    const error = urlParams.get('error');
     
-    if (code && state) {
-        try {
-            // Exchange code for token
-            const tokenResponse = await exchangeRedditCode(code);
-            
-            // Store token
-            localStorage.setItem('reddit_access_token', tokenResponse.access_token);
-            localStorage.setItem('reddit_token_expiry', (Date.now() + tokenResponse.expires_in * 1000).toString());
-            
-            // Clean up URL
-            window.history.replaceState({}, document.title, window.location.pathname);
-            
-            return tokenResponse.access_token;
-        } catch (error) {
-            console.error('Token exchange failed:', error);
-            throw error;
-        }
+    if (error) {
+        console.error('❌ Reddit OAuth error:', error);
+        throw new Error(`Reddit OAuth error: ${error}`);
+    }
+    
+    if (accessToken && state) {
+        console.log('✅ Reddit access token found in URL');
+        
+        // Store token (permanent token, so set expiry far in future)
+        localStorage.setItem('reddit_access_token', accessToken);
+        localStorage.setItem('reddit_token_expiry', (Date.now() + 365 * 24 * 60 * 60 * 1000).toString()); // 1 year
+        
+        // Clean up URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+        
+        return accessToken;
     }
     
     // No token available, need to authenticate
+    console.log('❌ No Reddit access token available, need to authenticate');
     throw new Error('No Reddit access token available. Please authenticate first.');
 }
 

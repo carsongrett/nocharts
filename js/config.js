@@ -15,6 +15,8 @@ const CONFIG = {
     REDDIT_AUTH_URL: 'https://www.reddit.com/api/v1/authorize',
     REDDIT_TOKEN_URL: 'https://www.reddit.com/api/v1/access_token',
     REDDIT_API_BASE: 'https://oauth.reddit.com',
+    // Use "installed app" flow for client-side token exchange
+    REDDIT_RESPONSE_TYPE: 'token', // Use implicit flow instead of authorization code
     
     // API Endpoints
     FINNHUB_BASE_URL: 'https://finnhub.io/api/v1',

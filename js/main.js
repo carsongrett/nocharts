@@ -285,17 +285,27 @@ function handleSearchError(error, ticker) {
  * Handle OAuth callback if present in URL
  */
 function handleOAuthCallback() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get('code');
+    // Check for access token in URL fragment (implicit flow)
+    const urlParams = new URLSearchParams(window.location.hash.substring(1));
+    const accessToken = urlParams.get('access_token');
     const state = urlParams.get('state');
+    const error = urlParams.get('error');
     
-    if (code && state) {
+    if (error) {
+        console.log('❌ OAuth error detected:', error);
+        UI.showError(`Authentication failed: ${error}`);
+        // Clean up URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+        return;
+    }
+    
+    if (accessToken && state) {
         console.log('🔄 OAuth callback detected, processing...');
         
         // Show loading message
         UI.showLoading('Completing authentication...');
         
-        // The API layer will handle the token exchange automatically
+        // The API layer will handle the token storage automatically
         // when getRedditAccessToken() is called
         setTimeout(() => {
             UI.hideLoading();
@@ -303,7 +313,7 @@ function handleOAuthCallback() {
             
             // Clean up URL
             window.history.replaceState({}, document.title, window.location.pathname);
-        }, 2000);
+        }, 1000);
     }
 }
 
