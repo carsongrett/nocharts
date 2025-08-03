@@ -21,8 +21,14 @@
     }
     
     .ticker-button {
-        padding: 0.8rem 1.2rem;
-        font-size: 1rem;
+        width: 60px;
+        height: 40px;
+        padding: 0;
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
     }
     
     /* Adjust spacing for mobile */
@@ -109,9 +115,17 @@
     }
     
     .ticker-button {
-        flex: 1;
+        width: 45px;
+        height: 32px;
+        flex: none;
         margin: 0 0.1rem;
         text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        border-radius: 6px;
     }
     
     .features-grid {
@@ -209,30 +223,32 @@
 } 
 
 /* Clickable data indicators */
-.value,
-.metric-value,
-.data-point,
-.clickable-metric {
+.label,
+.metric-label,
+.data-label,
+.clickable-label {
     cursor: pointer;
     transition: all 0.2s ease;
-    text-decoration: none;
-}
-
-.value:hover,
-.metric-value:hover,
-.data-point:hover,
-.clickable-metric:hover {
     text-decoration: underline;
     text-decoration-color: #007bff;
     text-decoration-thickness: 1px;
 }
 
+.label:hover,
+.metric-label:hover,
+.data-label:hover,
+.clickable-label:hover {
+    text-decoration: underline;
+    text-decoration-color: #0056b3;
+    text-decoration-thickness: 2px;
+}
+
 /* Touch feedback for mobile */
 @media (max-width: 768px) {
-    .value:active,
-    .metric-value:active,
-    .data-point:active,
-    .clickable-metric:active {
+    .label:active,
+    .metric-label:active,
+    .data-label:active,
+    .clickable-label:active {
         background-color: rgba(0, 123, 255, 0.1);
         border-radius: 4px;
         padding: 2px 4px;
@@ -320,17 +336,27 @@
     color: #333;
 }
 
+.description-content {
+    color: #333;
+    font-size: 0.95rem;
+    white-space: pre-wrap;
+}
+
 /* More link styling */
 .more-link {
     color: #007bff;
     text-decoration: underline;
     cursor: pointer;
-    font-weight: 500;
+    font-weight: 600;
     transition: color 0.2s ease;
+    padding: 2px 4px;
+    border-radius: 3px;
+    background-color: rgba(0, 123, 255, 0.1);
 }
 
 .more-link:hover {
     color: #0056b3;
+    background-color: rgba(0, 123, 255, 0.2);
 }
 
 /* Mobile-specific modal styling */

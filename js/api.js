@@ -205,6 +205,21 @@ async function getStockQuote(symbol) {
  */
 async function getCompanyNews(symbol, pageSize = 10, companyName = null) {
     console.log('🔍 getCompanyNews called with symbol:', symbol, 'pageSize:', pageSize);
+    console.log('🔧 CONFIG.MOCK_MODE:', CONFIG.MOCK_MODE);
+    
+    // Use mock data if mock mode is enabled
+    if (CONFIG.MOCK_MODE) {
+        console.log('🔧 Mock mode enabled, returning N/A for news');
+        return [{
+            title: 'News not available in mock mode',
+            description: 'News data requires live API access. Switch to online mode to view real news.',
+            url: '#',
+            publishedAt: new Date().toISOString(),
+            source: { name: 'Mock Mode' },
+            sentiment: null,
+            entities: []
+        }];
+    }
     
     const formattedSymbol = Utils.formatTicker(symbol);
     const cacheKey = `company_news_${formattedSymbol}_${pageSize}`;

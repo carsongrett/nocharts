@@ -269,20 +269,41 @@ class TickerPage {
         
         if (descriptionElement && overview && overview.description) {
             const fullText = overview.description;
-            const truncatedText = typeof Utils !== 'undefined' ? Utils.truncateText(fullText, 500) : fullText.substring(0, 500) + (fullText.length > 500 ? '...' : '');
             
-            // Create truncated text with "more" link
-            const moreLink = '<span class="more-link">more</span>';
-            const displayText = truncatedText + ' ' + moreLink;
+            // Smart truncation: find a good breaking point
+            const maxLength = 150; // Shorter for better UX
+            let truncatedText = fullText;
             
-            // Set HTML content with more link
+            if (fullText.length > maxLength) {
+                // Try to break at sentence end
+                const sentenceEnd = fullText.indexOf('. ', maxLength - 50);
+                if (sentenceEnd > maxLength - 100 && sentenceEnd < maxLength + 50) {
+                    truncatedText = fullText.substring(0, sentenceEnd + 1);
+                } else {
+                    // Try to break at word boundary
+                    const wordBreak = fullText.lastIndexOf(' ', maxLength);
+                    if (wordBreak > maxLength - 30) {
+                        truncatedText = fullText.substring(0, wordBreak);
+                    } else {
+                        truncatedText = fullText.substring(0, maxLength);
+                    }
+                }
+            }
+            
+            // Only show "more" link if text was actually truncated
+            const displayText = fullText.length > maxLength 
+                ? truncatedText + ' <span class="more-link">(...)</span>'
+                : truncatedText;
+            
+            // Set HTML content
             descriptionElement.innerHTML = displayText;
             
-            // Add click handler for the more link
+            // Add click handler for the more link only if it exists
             const moreLinkElement = descriptionElement.querySelector('.more-link');
             if (moreLinkElement) {
                 moreLinkElement.addEventListener('click', (e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     this.showDescriptionModal(fullText);
                 });
             }
@@ -292,6 +313,15 @@ class TickerPage {
     }
     
     showDescriptionModal(fullText) {
+        // Remove any existing modal first
+        const existingModal = document.getElementById('descriptionModal');
+        if (existingModal) {
+            existingModal.remove();
+        }
+        
+        // Use the original text without any formatting
+        const formattedText = fullText;
+        
         // Create modal HTML
         const modalHTML = `
             <div id="descriptionModal" class="description-modal">
@@ -301,7 +331,7 @@ class TickerPage {
                         <button class="modal-close" id="modalClose">&times;</button>
                     </div>
                     <div class="modal-body">
-                        <p>${fullText}</p>
+                        <div class="description-content">${formattedText}</div>
                     </div>
                 </div>
             </div>
@@ -344,7 +374,9 @@ class TickerPage {
         if (modal) {
             modal.classList.remove('show');
             setTimeout(() => {
-                modal.remove();
+                if (modal && modal.parentNode) {
+                    modal.remove();
+                }
             }, 300);
         }
     }
