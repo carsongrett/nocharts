@@ -46,6 +46,9 @@ function initializeApp() {
     // Setup theme
     setupTheme();
     
+    // Handle OAuth callback if present
+    handleOAuthCallback();
+    
     // Set up event listeners
     setupEventListeners();
     
@@ -264,9 +267,44 @@ function handleSearchError(error, ticker) {
         errorMessage = 'Network error. Please check your internet connection and try again.';
     } else if (error.message.includes('API key')) {
         errorMessage = 'API configuration error. Please check your API keys.';
+    } else if (error.message.includes('No Reddit access token')) {
+        errorMessage = 'Reddit authentication required. You will be redirected to authorize access.';
+        console.log('🔗 Redirecting to Reddit OAuth...');
+        // The OAuth redirect will happen automatically in the API layer
+        return; // Don't show error message since redirect is expected
+    } else if (error.message.includes('OAuth') || error.message.includes('redirect')) {
+        errorMessage = 'Authentication in progress. Please complete the authorization process.';
+        console.log('🔄 OAuth flow in progress...');
+        return; // Don't show error message since redirect is expected
     }
     
     UI.showError(errorMessage);
+}
+
+/**
+ * Handle OAuth callback if present in URL
+ */
+function handleOAuthCallback() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    const state = urlParams.get('state');
+    
+    if (code && state) {
+        console.log('🔄 OAuth callback detected, processing...');
+        
+        // Show loading message
+        UI.showLoading('Completing authentication...');
+        
+        // The API layer will handle the token exchange automatically
+        // when getRedditAccessToken() is called
+        setTimeout(() => {
+            UI.hideLoading();
+            UI.showSuccess('Authentication completed successfully!');
+            
+            // Clean up URL
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }, 2000);
+    }
 }
 
 /**

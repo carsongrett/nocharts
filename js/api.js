@@ -205,27 +205,12 @@ async function getStockQuote(symbol) {
  */
 async function getCompanyNews(symbol, pageSize = 10, companyName = null) {
     console.log('🔍 getCompanyNews called with symbol:', symbol, 'pageSize:', pageSize);
-    console.log('🔧 CONFIG.MOCK_MODE:', CONFIG.MOCK_MODE);
-    console.log('🔧 MockData available:', typeof MockData !== 'undefined');
-    
-    // Use mock data if mock mode is enabled and available
-    if (CONFIG.MOCK_MODE && typeof MockData !== 'undefined') {
-        console.log('🔧 Using mock data for company news');
-        try {
-            return await MockData.getCompanyNews(symbol, pageSize);
-        } catch (error) {
-            console.error('Mock data failed, falling back to API:', error);
-            // Continue to API call if mock data fails
-        }
-    }
     
     const formattedSymbol = Utils.formatTicker(symbol);
     const cacheKey = `company_news_${formattedSymbol}_${pageSize}`;
     
     // Use provided company name or fallback to symbol
     const searchTerm = companyName || formattedSymbol;
-    
-    const url = `${CONFIG.NEWS_API_BASE_URL}?q=${encodeURIComponent(searchTerm)}&pageSize=${pageSize}&sortBy=publishedAt&language=en&apiKey=${CONFIG.NEWS_API_KEY}`;
     
     try {
         // Check cache first
@@ -239,56 +224,49 @@ async function getCompanyNews(symbol, pageSize = 10, companyName = null) {
             throw new Error('Internal rate limit exceeded. Please try again later.');
         }
         
-        // Make News API request without problematic headers
-        const response = await fetch(url, {
-            method: 'GET',
-            // No Content-Type header to avoid CORS issues
-        });
-        
-        // Check if response is ok
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        // Parse response
-        const data = await response.json();
-        
-        // Cache the response
-        if (data && !data.status === 'error') {
-            Utils.setCache(cacheKey, data.articles || []);
-        }
-        
-        if (data.status === 'error') {
-            throw new Error(data.message || 'News API error');
-        }
-        
-        return data.articles || [];
-        
-    } catch (error) {
-        console.error('Failed to get company news:', error);
-        
-        // Try Reddit as fallback if News API fails
-        console.log('🔄 News API failed, trying Reddit as fallback...');
+        // Try Reddit first (as requested)
+        console.log('🔗 Trying Reddit API first...');
         try {
             const redditPosts = await getRedditNews(symbol, pageSize);
-            console.log('✅ Reddit fallback successful');
+            console.log('✅ Reddit API successful');
+            Utils.setCache(cacheKey, redditPosts);
             return redditPosts;
         } catch (redditError) {
-            console.error('Reddit fallback also failed:', redditError);
+            console.warn('❌ Reddit API failed, trying News API:', redditError.message);
             
-            // If CORS error, try to provide helpful message
-            if (error.message.includes('CORS') || error.message.includes('Failed to fetch')) {
-                console.warn('CORS error with APIs, falling back to mock data');
-                // Return mock data as final fallback
-                if (typeof MockData !== 'undefined') {
-                    return MockData.getCompanyNews(symbol, pageSize);
-                }
+            // Try News API as fallback
+            const url = `${CONFIG.NEWS_API_BASE_URL}?q=${encodeURIComponent(searchTerm)}&pageSize=${pageSize}&sortBy=publishedAt&language=en&apiKey=${CONFIG.NEWS_API_KEY}`;
+            
+            const response = await fetch(url, {
+                method: 'GET',
+                // No Content-Type header to avoid CORS issues
+            });
+            
+            // Check if response is ok
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
             
-            // Return empty array instead of throwing error to prevent undefined issues
-            console.warn('All news sources failed, returning empty array');
-            return [];
+            // Parse response
+            const data = await response.json();
+            
+            if (data.status === 'error') {
+                throw new Error(data.message || 'News API error');
+            }
+            
+            const articles = data.articles || [];
+            Utils.setCache(cacheKey, articles);
+            console.log('✅ News API successful');
+            return articles;
+            
         }
+        
+    } catch (error) {
+        console.error('Failed to get company news from both sources:', error);
+        
+        // Return empty array instead of throwing error to prevent undefined issues
+        console.warn('All news sources failed, returning empty array');
+        return [];
     }
 }
 
@@ -389,19 +367,6 @@ async function getRedditSentiment(symbol) {
  */
 async function getFinnhubBasicFinancials(symbol) {
     console.log('🔍 getFinnhubBasicFinancials called with symbol:', symbol);
-    console.log('🔧 CONFIG.MOCK_MODE:', CONFIG.MOCK_MODE);
-    console.log('🔧 MockData available:', typeof MockData !== 'undefined');
-    
-    // Use mock data if mock mode is enabled and available
-    if (CONFIG.MOCK_MODE && typeof MockData !== 'undefined') {
-        console.log('🔧 Using mock data for basic financials');
-        try {
-            return await MockData.getStockOverview(symbol);
-        } catch (error) {
-            console.error('Mock data failed, falling back to API:', error);
-            // Continue to API call if mock data fails
-        }
-    }
     
     const formattedSymbol = Utils.formatTicker(symbol);
     const cacheKey = `finnhub_basic_financials_${formattedSymbol}`;
@@ -420,17 +385,6 @@ async function getFinnhubBasicFinancials(symbol) {
         
     } catch (error) {
         console.error('Failed to get Finnhub basic financials:', error);
-        
-        // Fallback to mock data if available
-        if (typeof MockData !== 'undefined') {
-            console.log('🔄 Falling back to mock data for basic financials');
-            try {
-                return MockData.getStockOverview(symbol);
-            } catch (mockError) {
-                console.error('Mock data fallback also failed:', mockError);
-            }
-        }
-        
         throw error;
     }
 }
@@ -442,19 +396,6 @@ async function getFinnhubBasicFinancials(symbol) {
  */
 async function getFinnhubEarnings(symbol) {
     console.log('🔍 getFinnhubEarnings called with symbol:', symbol);
-    console.log('🔧 CONFIG.MOCK_MODE:', CONFIG.MOCK_MODE);
-    console.log('🔧 MockData available:', typeof MockData !== 'undefined');
-    
-    // Use mock data if mock mode is enabled and available
-    if (CONFIG.MOCK_MODE && typeof MockData !== 'undefined') {
-        console.log('🔧 Using mock data for earnings');
-        try {
-            return await MockData.getStockOverview(symbol);
-        } catch (error) {
-            console.error('Mock data failed, falling back to API:', error);
-            // Continue to API call if mock data fails
-        }
-    }
     
     const formattedSymbol = Utils.formatTicker(symbol);
     const cacheKey = `finnhub_earnings_${formattedSymbol}`;
@@ -473,17 +414,6 @@ async function getFinnhubEarnings(symbol) {
         
     } catch (error) {
         console.error('Failed to get Finnhub earnings:', error);
-        
-        // Fallback to mock data if available
-        if (typeof MockData !== 'undefined') {
-            console.log('🔄 Falling back to mock data for earnings');
-            try {
-                return MockData.getStockOverview(symbol);
-            } catch (mockError) {
-                console.error('Mock data fallback also failed:', mockError);
-            }
-        }
-        
         throw error;
     }
 }
@@ -495,19 +425,6 @@ async function getFinnhubEarnings(symbol) {
  */
 async function getComprehensiveStockData(symbol) {
     console.log('🔍 getComprehensiveStockData called with symbol:', symbol);
-    console.log('🔧 CONFIG.MOCK_MODE:', CONFIG.MOCK_MODE);
-    console.log('🔧 MockData available:', typeof MockData !== 'undefined');
-    
-    // Use mock data if mock mode is enabled and available
-    if (CONFIG.MOCK_MODE && typeof MockData !== 'undefined') {
-        console.log('🔧 Using mock data for comprehensive stock data');
-        try {
-            return await MockData.getComprehensiveStockData(symbol);
-        } catch (error) {
-            console.error('Mock data failed, falling back to API:', error);
-            // Continue to API call if mock data fails
-        }
-    }
     
     const formattedSymbol = Utils.formatTicker(symbol);
     
@@ -641,36 +558,28 @@ async function getRedditNews(symbol, pageSize = 10) {
             throw new Error('Internal rate limit exceeded. Please try again later.');
         }
         
-        // Try OAuth first, fallback to sample data
-        try {
-            // Use OAuth API to search Reddit
-            const searchEndpoint = `/search.json?q=${encodeURIComponent(formattedSymbol)}&restrict_sr=1&sort=new&limit=${pageSize}`;
-            
-            console.log('🔗 Making authenticated Reddit API request...');
-            const data = await makeRedditApiRequest(searchEndpoint);
-            
-            if (!data || !data.data || !data.data.children) {
-                console.warn('❌ No Reddit data returned, using sample data');
-                return getSampleRedditData(formattedSymbol, pageSize);
-            }
-            
-            // Transform Reddit posts to match news article format
-            const posts = transformRedditData(data, 'Reddit OAuth API');
-            
-            // Cache the response
-            Utils.setCache(cacheKey, posts);
-            
-            console.log(`✅ Reddit OAuth API returned ${posts.length} posts for ${formattedSymbol}`);
-            return posts;
-            
-        } catch (oauthError) {
-            console.warn('❌ OAuth failed, using sample data:', oauthError.message);
-            return getSampleRedditData(formattedSymbol, pageSize);
+        // Use OAuth API to search Reddit
+        const searchEndpoint = `/search.json?q=${encodeURIComponent(formattedSymbol)}&restrict_sr=1&sort=new&limit=${pageSize}`;
+        
+        console.log('🔗 Making authenticated Reddit API request...');
+        const data = await makeRedditApiRequest(searchEndpoint);
+        
+        if (!data || !data.data || !data.data.children) {
+            throw new Error('No Reddit data returned');
         }
+        
+        // Transform Reddit posts to match news article format
+        const posts = transformRedditData(data, 'Reddit OAuth API');
+        
+        // Cache the response
+        Utils.setCache(cacheKey, posts);
+        
+        console.log(`✅ Reddit OAuth API returned ${posts.length} posts for ${formattedSymbol}`);
+        return posts;
         
     } catch (error) {
         console.error('Failed to get Reddit news:', error);
-        return getSampleRedditData(formattedSymbol, pageSize);
+        throw error; // Re-throw to let caller handle the error
     }
 }
 

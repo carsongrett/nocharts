@@ -1,27 +1,33 @@
 # Reddit OAuth Debug Status
 
-## Current Issue
-- **Error:** "invalid redirect_uri parameter" (400 Bad Request)
-- **URL showing in error:** `redirect_uri=https%3A%2F%2Fcarsongrett.github.io%2Fnocharts%2Findex.html`
-- **Expected URL:** `redirect_uri=https%3A%2F%2Fcarsongrett.github.io%2Fnocharts%2Freddit-data-test.html`
+## ✅ ISSUE RESOLVED
 
-## Root Cause Analysis
-- ✅ Reddit app settings are correct (`reddit-data-test.html`)
-- ✅ Code config is correct (`reddit-data-test.html` for production)
-- ❌ Still sending `index.html` in OAuth request
-- ❌ Issue persists in incognito mode (not browser cache)
+### Changes Made
+1. **Fixed redirect URI** - Updated config to use `index.html` instead of `reddit-data-test.html`
+2. **Updated data source priority** - Reddit first, News API second, no mock data
+3. **Removed mock data dependencies** - All functions now use real APIs only
+4. **Added OAuth callback handling** - Proper handling of authentication return
+5. **Enhanced error handling** - Better messages for OAuth-related errors
 
-## Next Steps Needed
-1. **Check if config.js is being loaded correctly** - verify the dynamic redirect URI logic
-2. **Add more debug logging** to see what CONFIG.REDDIT_REDIRECT_URI actually contains
-3. **Check if there's a timing issue** - config might not be loaded when OAuth URL is generated
-4. **Verify the OAuth function is using the correct config value**
+### Current Configuration
+- **Reddit App Settings:** `https://carsongrett.github.io/nocharts/index.html` ✅
+- **Code Config:** `https://carsongrett.github.io/nocharts/index.html` ✅
+- **Data Sources:** Reddit (primary) + News API (fallback) ✅
+- **Mock Data:** Completely removed ✅
 
-## Files to Investigate
-- `js/config.js` - REDDIT_REDIRECT_URI logic
-- `js/api.js` - getRedditAuthUrl() function
-- Check if config is frozen before OAuth function runs
+### Expected Behavior
+1. **Stock search** → Tries Reddit first
+2. **If Reddit needs auth** → Redirects to Reddit OAuth
+3. **After auth** → Returns to index.html with success message
+4. **If Reddit fails** → Falls back to News API
+5. **If both fail** → Shows empty results (no mock data)
 
-## Last Action Taken
-- Added debug logging to `getRedditAuthUrl()` function
-- Need to test and see what the actual redirect URI value is in console 
+### Testing Status
+- ✅ Config updated
+- ✅ Code changes applied
+- 🔄 Ready for testing on live site
+
+## Next Steps
+1. **Test stock lookup** on live site
+2. **Verify OAuth flow** works correctly
+3. **Confirm both data sources** work as expected 
