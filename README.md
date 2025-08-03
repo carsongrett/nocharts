@@ -36,8 +36,7 @@ Homepage → Search Ticker → Company Summary → Timeline → Sentiment Analys
 
 ### 📊 Data Sources
 - **Finnhub API** - Stock data, company information, financial metrics ($9.99/month, 1M calls/day)
-- **News API** - Company news and headlines (100 req/day free, $449/month unlimited)
-- **Reddit API** - Social sentiment and mentions (60 req/minute free) - Coming Soon
+- **Marketaux API** - Professional financial news with sentiment analysis (Free tier available)
 - **Yahoo Finance** - Financial data, earnings (web scraping, fallback) - Coming Soon
 - **SEC EDGAR** - Regulatory filings (fallback) - Coming Soon
 
@@ -49,8 +48,7 @@ Homepage → Search Ticker → Company Summary → Timeline → Sentiment Analys
 - **[CSS3](https://developer.mozilla.org/en-US/docs/Web/CSS)** - Styling and responsive design
 - **[Vanilla JavaScript](https://developer.mozilla.org/en-US/docs/Web/JavaScript)** - Client-side functionality
 - **[Finnhub API](https://finnhub.io/)** - Stock data and financial metrics ($9.99/month)
-- **[News API](https://newsapi.org/)** - Company news and headlines (100 req/day free)
-- **[Reddit API](https://www.reddit.com/dev/api/)** - Social sentiment (60 req/minute free) - Coming Soon
+- **[Marketaux API](https://www.marketaux.com/)** - Professional financial news with sentiment analysis
 - **[Yahoo Finance](https://finance.yahoo.com/)** - Financial data (web scraping, fallback) - Coming Soon
 
 ---
@@ -98,16 +96,15 @@ stock-narrative-tracker/
 
 ### 🔌 Phase 3: Data Integration (Week 3)
 - [x] Finnhub API integration (✅ Complete)
-- [x] News API integration (✅ Complete)
-- [ ] Reddit API integration (Coming Soon)
+- [x] Marketaux API integration (✅ Complete)
 - [ ] Yahoo Finance data scraping (Coming Soon)
 - [ ] API error handling and fallbacks
 - [ ] CORS handling strategies
 
 ### 🧠 Phase 4: Narrative Processing (Week 4)
+- [x] Sentiment analysis (✅ Built into Marketaux API)
 - [ ] Headline clustering algorithm
 - [ ] Timeline event grouping
-- [ ] Sentiment analysis
 - [ ] Story summarization
 
 ### 📈 Phase 5: Optimization (Week 5)
@@ -131,12 +128,15 @@ stock-narrative-tracker/
 - **Rate Limiting**: Set internal rate limits higher than API limits (20 req/min vs 5 req/min)
 - **Data Structure Validation**: Always test raw API responses before processing
 - **Field Mapping**: API response fields may differ from documentation (e.g., `peTTM` vs `peRatio`)
+- **Marketaux Integration**: Professional financial news API with built-in sentiment analysis
+- **Entity Filtering**: Use `symbols` parameter to filter news by specific stock tickers
 
 ### Data Processing Insights
 - **Market Cap Formatting**: Finnhub returns market cap in millions, divide by 1M for trillions
-- **Error Handling**: Implement graceful fallbacks to mock data when APIs fail
+- **Error Handling**: Implement graceful fallbacks when APIs fail
 - **Caching Strategy**: 30-minute cache duration reduces API calls significantly
 - **Data Validation**: Check for null/undefined values before processing
+- **Marketaux Data**: Rich news articles with sentiment scores and entity identification
 
 ### Development Workflow
 - **Test Files**: Create isolated HTML test files for API debugging
@@ -149,6 +149,7 @@ stock-narrative-tracker/
 - **Data Units**: Verify units (millions vs billions) in API responses
 - **Field Names**: API field names may be different than expected (e.g., `currentDividendYieldTTM`)
 - **Error Messages**: Implement specific error messages for different failure types
+- **Marketaux Limits**: Check plan limits for API request limits
 
 ---
 
@@ -222,20 +223,19 @@ stock-narrative-tracker/
 
 ---
 
-## 🔑 API Setup (All Free!)
+## 🔑 API Setup
 
 ### Finnhub API (Stock Data) - PRIMARY
 1. Sign up at [finnhub.io](https://finnhub.io/)
 2. Get your free API key (1M requests/day with paid plan)
 3. Add to `js/config.js` as `FINNHUB_API_KEY`
 
-### News API (Company News) - ACTIVE
-1. Sign up at [newsapi.org](https://newsapi.org/)
-2. Get your free API key (100 requests/day)
-3. Add to `js/config.js` as `NEWS_API_KEY`
+### Marketaux API (Financial News) - ACTIVE
+1. Sign up at [marketaux.com](https://www.marketaux.com/)
+2. Get your free API token
+3. Add to `js/config.js` as `MARKETAUX_API_KEY`
 
 ### Coming Soon APIs
-- **Reddit API** - Social sentiment and mentions (60 req/minute free)
 - **Yahoo Finance** - Financial data, earnings (web scraping, fallback)
 - **SEC EDGAR** - Regulatory filings (fallback)
 
@@ -243,82 +243,37 @@ stock-narrative-tracker/
 
 ## 🧠 Sentiment Analysis Implementation
 
-### Current Mock Data Structure
-The app currently uses pre-tagged sentiment data for development:
+### Current Implementation
+The app uses **Marketaux API's built-in sentiment analysis**:
+
 ```javascript
-// Example from mock-data.js
+// Marketaux API response includes sentiment scores
 {
-    title: 'Microsoft Cloud Revenue Continues Strong Growth',
-    sentiment: 'positive'  // Pre-tagged for UI testing
-},
-{
-    title: 'Microsoft Faces Antitrust Concerns',
-    sentiment: 'negative'  // Pre-tagged for UI testing
+    "entities": [
+        {
+            "symbol": "MSFT",
+            "name": "Microsoft Corporation",
+            "sentiment_score": 0.7783,  // Built-in sentiment analysis
+            "highlights": [
+                {
+                    "highlight": "It's also one of the \"Magnificent Seven\"...",
+                    "sentiment": 0.7783
+                }
+            ]
+        }
+    ]
 }
 ```
 
-### Phase 3: Real Sentiment Analysis (Recommended Implementation)
+### Features
+- ✅ **Built-in sentiment analysis** from Marketaux API
+- ✅ **Entity-specific sentiment** for each stock mentioned
+- ✅ **Sentiment scores** ranging from -1 (negative) to +1 (positive)
+- ✅ **Highlighted text** showing why sentiment was assigned
+- ✅ **Real-time analysis** of financial news articles
 
-#### 1. Keyword-Based Analysis (Immediate - No Additional Cost)
-```javascript
-function analyzeSentiment(headline, description) {
-    const positiveKeywords = ['growth', 'surge', 'profit', 'beat', 'rise', 'gain', 'positive', 'strong', 'up', 'higher'];
-    const negativeKeywords = ['fall', 'drop', 'loss', 'decline', 'negative', 'weak', 'concern', 'risk', 'down', 'lower'];
-    
-    const text = (headline + ' ' + description).toLowerCase();
-    
-    let positiveCount = 0;
-    let negativeCount = 0;
-    
-    positiveKeywords.forEach(word => {
-        if (text.includes(word)) positiveCount++;
-    });
-    
-    negativeKeywords.forEach(word => {
-        if (text.includes(word)) negativeCount++;
-    });
-    
-    if (positiveCount > negativeCount) return 'positive';
-    if (negativeCount > positiveCount) return 'negative';
-    return 'neutral';
-}
-```
-
-#### 2. API Integration Strategy
-```javascript
-// In api.js - Enhanced news function
-async function getCompanyNewsWithSentiment(symbol) {
-    const news = await getCompanyNews(symbol);
-    
-    return news.map(article => ({
-        ...article,
-        sentiment: analyzeSentiment(article.title, article.description),
-        confidence: calculateConfidence(article)
-    }));
-}
-
-function calculateConfidence(article) {
-    // Based on article length, source reliability, keyword density
-    const factors = {
-        length: Math.min(article.description.length / 100, 1),
-        sourceReliability: getSourceReliability(article.source.name),
-        keywordDensity: calculateKeywordDensity(article)
-    };
-    
-    return (factors.length + factors.sourceReliability + factors.keywordDensity) / 3;
-}
-```
-
-#### 3. Sentiment Sources Priority
-1. **News API sentiment** (if available)
-2. **Keyword analysis** (fallback)
-3. **Reddit sentiment** (community-driven) - Coming Soon
-4. **AI-powered analysis** (future enhancement)
-
-#### 4. Implementation Timeline
-- **Phase 2 (Current)**: Keep mock sentiment for UI development
-- **Phase 3 (Next)**: Implement keyword analysis with real APIs
-- **Phase 4 (Future)**: Add AI-powered sentiment analysis
+### Implementation
+The sentiment analysis is automatically provided by Marketaux API, eliminating the need for custom keyword analysis or external sentiment services.
 
 ---
 
@@ -419,13 +374,12 @@ async function getCompanyNews(symbol) {
 
 ---
 
-## 📊 Data Sources & Rate Limits (All Free!)
+## 📊 Data Sources & Rate Limits
 
 | Source | Rate Limit | Data Type | CORS Support | Cost | Status |
 |--------|------------|-----------|--------------|------|--------|
 | Finnhub | 1M requests/day | Stock data, company info | ✅ Yes | $9.99/month | ✅ Active |
-| News API | 100 requests/day | Company news, headlines | ✅ Yes | Free | ✅ Active |
-| Reddit | No limit | Social sentiment | ✅ Yes | Free | 🔄 Coming Soon |
+| Marketaux | Varies by plan | Financial news, sentiment | ✅ Yes | Free tier available | ✅ Active |
 | Yahoo Finance | No limit | Financial data, earnings | ❌ No (proxy needed) | Free | 🔄 Coming Soon |
 | SEC EDGAR | No limit | Regulatory filings | ✅ Yes | Free | 🔄 Coming Soon |
 
@@ -450,7 +404,7 @@ async function getCompanyNews(symbol) {
    - No build process required
 
 3. **Development features**
-   - **Mock Mode**: Set `MOCK_MODE: true` in `js/config.js` for testing without APIs
+   - **API Testing**: Test Marketaux and Finnhub APIs directly
    - **Debug Tools**: Open browser console and use `NoChartsDebug` functions
    - **Live Editing**: Changes to HTML/CSS/JS files reload automatically
 
@@ -566,7 +520,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🙏 Acknowledgments
 
 - [Finnhub](https://finnhub.io/) for stock data API
-- [News API](https://newsapi.org/) for free news data
+- [Marketaux](https://www.marketaux.com/) for professional financial news API
 - [Yahoo Finance](https://finance.yahoo.com/) for financial data (Coming Soon)
 - [GitHub Pages](https://pages.github.com/) for free hosting
 - [MDN Web Docs](https://developer.mozilla.org/) for excellent documentation

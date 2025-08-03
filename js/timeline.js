@@ -49,7 +49,12 @@ class Timeline {
         
         return this.items.filter(item => {
             if (item.type === 'news') {
-                return item.sentiment === filter;
+                // Handle sentiment object
+                let itemSentiment = item.sentiment;
+                if (typeof item.sentiment === 'object' && item.sentiment !== null) {
+                    itemSentiment = item.sentiment.sentiment || 'neutral';
+                }
+                return itemSentiment === filter;
             }
             return true; // Keep earnings events regardless of filter
         });
@@ -129,8 +134,19 @@ class Timeline {
     }
 
     createNewsItem(item, index) {
-        const sentimentClass = item.sentiment || 'neutral';
-        const sentimentIcon = this.getSentimentIcon(item.sentiment);
+        // Handle sentiment object properly
+        let sentimentClass = 'neutral';
+        let sentimentLabel = 'neutral';
+        
+        if (typeof item.sentiment === 'object' && item.sentiment !== null) {
+            sentimentClass = item.sentiment.sentiment || 'neutral';
+            sentimentLabel = item.sentiment.sentiment || 'neutral';
+        } else if (typeof item.sentiment === 'string') {
+            sentimentClass = item.sentiment;
+            sentimentLabel = item.sentiment;
+        }
+        
+        const sentimentIcon = this.getSentimentIcon(sentimentClass);
         const categoryBadge = this.getCategoryBadge(item.category);
         
         // Handle Reddit-specific data
@@ -153,7 +169,7 @@ class Timeline {
                     </div>
                     <div class="timeline-badges">
                         ${categoryBadge}
-                        <span class="sentiment-badge ${sentimentClass}">${item.sentiment || 'neutral'}</span>
+                        <span class="sentiment-badge ${sentimentClass}">${sentimentLabel}</span>
                         ${isRedditPost ? '<span class="reddit-badge">Reddit</span>' : ''}
                     </div>
                 </div>
@@ -209,7 +225,13 @@ class Timeline {
     }
 
     getSentimentIcon(sentiment) {
-        switch (sentiment) {
+        // Handle sentiment object
+        let sentimentType = sentiment;
+        if (typeof sentiment === 'object' && sentiment !== null) {
+            sentimentType = sentiment.sentiment || 'neutral';
+        }
+        
+        switch (sentimentType) {
             case 'positive': return '📈';
             case 'negative': return '📉';
             default: return '📊';
@@ -219,9 +241,22 @@ class Timeline {
     getSentimentText(sentiment, score) {
         if (!sentiment) return 'Neutral';
         
-        const scoreText = score ? ` (${score > 0 ? '+' : ''}${score})` : '';
+        // Handle both string sentiment and sentiment object
+        let sentimentLabel = sentiment;
+        let sentimentScore = score;
         
-        switch (sentiment) {
+        // If sentiment is an object with score and sentiment properties
+        if (typeof sentiment === 'object' && sentiment !== null) {
+            sentimentLabel = sentiment.sentiment || 'neutral';
+            sentimentScore = sentiment.score || 0;
+        }
+        
+        // Format the score with proper sign and decimal places
+        const scoreText = sentimentScore !== undefined && sentimentScore !== null 
+            ? ` (${sentimentScore > 0 ? '+' : ''}${sentimentScore.toFixed(3)})` 
+            : '';
+        
+        switch (sentimentLabel) {
             case 'positive': return `Positive${scoreText}`;
             case 'negative': return `Negative${scoreText}`;
             default: return `Neutral${scoreText}`;
@@ -281,9 +316,24 @@ class Timeline {
             total: this.items.length,
             news: this.items.filter(item => item.type === 'news').length,
             earnings: this.items.filter(item => item.type === 'earnings').length,
-            positive: this.items.filter(item => item.sentiment === 'positive').length,
-            negative: this.items.filter(item => item.sentiment === 'negative').length,
-            neutral: this.items.filter(item => item.sentiment === 'neutral').length
+            positive: this.items.filter(item => {
+                if (typeof item.sentiment === 'object' && item.sentiment !== null) {
+                    return item.sentiment.sentiment === 'positive';
+                }
+                return item.sentiment === 'positive';
+            }).length,
+            negative: this.items.filter(item => {
+                if (typeof item.sentiment === 'object' && item.sentiment !== null) {
+                    return item.sentiment.sentiment === 'negative';
+                }
+                return item.sentiment === 'negative';
+            }).length,
+            neutral: this.items.filter(item => {
+                if (typeof item.sentiment === 'object' && item.sentiment !== null) {
+                    return item.sentiment.sentiment === 'neutral';
+                }
+                return item.sentiment === 'neutral';
+            }).length
         };
         
         return stats;

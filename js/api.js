@@ -291,6 +291,84 @@ async function getCompanyNews(symbol, pageSize = 10, companyName = null) {
 }
 
 /**
+ * Get Wikipedia company description
+ * @param {string} symbol - Stock symbol
+ * @param {string} companyName - Company name for Wikipedia search
+ * @returns {Promise} - Promise with Wikipedia description
+ */
+async function getWikipediaDescription(symbol, companyName) {
+    console.log('🔍 getWikipediaDescription called with symbol:', symbol, 'companyName:', companyName);
+    
+    const cacheKey = `wikipedia_${symbol}`;
+    
+    try {
+        // Check cache first
+        const cachedData = Utils.getCache(cacheKey);
+        if (cachedData) {
+            console.log('🔍 Using cached Wikipedia description for:', symbol);
+            return cachedData;
+        }
+        
+        // Check rate limiting
+        if (!Utils.checkRateLimit()) {
+            throw new Error('Internal rate limit exceeded. Please try again later.');
+        }
+        
+        // Search for Wikipedia page
+        const searchTerm = companyName || symbol;
+        const searchUrl = `${CONFIG.WIKIPEDIA_BASE_URL}/page/summary/${encodeURIComponent(searchTerm)}`;
+        
+        console.log('🔗 Fetching Wikipedia description...');
+        
+        const response = await fetch(searchUrl, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+        
+        if (!response.ok) {
+            console.warn('Wikipedia API not available, skipping description');
+            return null;
+        }
+        
+        const data = await response.json();
+        console.log('🔍 Wikipedia API response:', data);
+        
+        if (!data.extract) {
+            console.warn('No Wikipedia extract found for:', searchTerm);
+            return null;
+        }
+        
+        // Clean and format the description
+        let description = data.extract;
+        
+        // Remove parenthetical citations like (NASDAQ: AAPL)
+        description = description.replace(/\([^)]*NASDAQ[^)]*\)/gi, '');
+        description = description.replace(/\([^)]*NYSE[^)]*\)/gi, '');
+        
+        // Remove other common citation patterns
+        description = description.replace(/\([^)]*\)/g, '');
+        
+        // Clean up extra spaces
+        description = description.replace(/\s+/g, ' ').trim();
+        
+        // Limit length to reasonable size
+        if (description.length > 500) {
+            description = description.substring(0, 500) + '...';
+        }
+        
+        Utils.setCache(cacheKey, description);
+        console.log(`✅ Wikipedia description successful for ${symbol}`);
+        return description;
+        
+    } catch (error) {
+        console.error('Failed to get Wikipedia description:', error);
+        return null;
+    }
+}
+
+/**
  * Get earnings calendar from Finnhub
  * @param {string} symbol - Stock symbol
  * @returns {Promise} - Promise with earnings data
@@ -434,18 +512,38 @@ async function getComprehensiveStockData(symbol) {
         const profile = await getFinnhubStockProfile(formattedSymbol);
         const companyName = profile?.name || formattedSymbol;
         
-        // Then fetch quote, basic financials, earnings, and news in parallel
-        const [quote, basicFinancials, earnings, news] = await Promise.allSettled([
+        // Then fetch quote, basic financials, earnings, news, and Wikipedia description in parallel
+        const [quote, basicFinancials, earnings, news, wikipediaDescription] = await Promise.allSettled([
             getFinnhubQuote(formattedSymbol),
             getFinnhubBasicFinancials(formattedSymbol),
             getFinnhubEarnings(formattedSymbol),
-            getCompanyNews(formattedSymbol, 5, companyName)
+            getCompanyNews(formattedSymbol, 5, companyName),
+            getWikipediaDescription(formattedSymbol, companyName)
         ]);
+        
+        // Extract Marketaux entities from news for better company description
+        let marketauxEntities = null;
+        if (news.status === 'fulfilled' && news.value && news.value.length > 0) {
+            // Get entities from the first article that has them
+            for (const article of news.value) {
+                if (article.entities && Array.isArray(article.entities) && article.entities.length > 0) {
+                    marketauxEntities = article.entities;
+                    break;
+                }
+            }
+        }
+        
+        // Re-process profile with Marketaux entities and Wikipedia description for better description
+        const wikipediaDesc = wikipediaDescription.status === 'fulfilled' ? wikipediaDescription.value : null;
+        console.log('🔍 Wikipedia description status:', wikipediaDescription.status);
+        console.log('🔍 Wikipedia description value:', wikipediaDesc);
+        const enhancedProfile = profile ? DataProcessor.processFinnhubProfile(profile, marketauxEntities, wikipediaDesc) : null;
+        console.log('🔍 Enhanced profile description:', enhancedProfile?.description);
         
         // Combine results
         const result = {
             symbol: formattedSymbol,
-            overview: profile, // Use Finnhub profile instead of Alpha Vantage overview
+            overview: enhancedProfile, // Use enhanced profile with Marketaux data
             quote: quote.status === 'fulfilled' ? quote.value : null,
             basicFinancials: basicFinancials.status === 'fulfilled' ? basicFinancials.value : null,
             earnings: earnings.status === 'fulfilled' ? earnings.value : null,
@@ -459,6 +557,9 @@ async function getComprehensiveStockData(symbol) {
         }
         if (news.status === 'rejected') {
             console.warn('Company news failed:', news.reason);
+        }
+        if (wikipediaDescription.status === 'rejected') {
+            console.warn('Wikipedia description failed:', wikipediaDescription.reason);
         }
         
         return result;

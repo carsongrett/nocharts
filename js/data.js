@@ -1,11 +1,104 @@
 // ===== DATA PROCESSING FUNCTIONS =====
 
 /**
+ * Generate company description from available data
+ * @param {string} name - Company name
+ * @param {string} industry - Industry
+ * @param {string} country - Country
+ * @param {number} marketCap - Market capitalization
+ * @param {Array} marketauxEntities - Marketaux entities data
+ * @param {string} wikipediaDescription - Wikipedia description if available
+ * @returns {string} - Generated description
+ */
+function generateCompanyDescription(name, industry, country, marketCap, marketauxEntities = null, wikipediaDescription = null) {
+    console.log('🔍 generateCompanyDescription called with:', { name, wikipediaDescription });
+    
+    // If we have a Wikipedia description, use it as the primary description
+    if (wikipediaDescription && wikipediaDescription.trim()) {
+        console.log('🔍 Using Wikipedia description:', wikipediaDescription);
+        return wikipediaDescription;
+    }
+    
+    if (!name) return '';
+    
+    const parts = [];
+    
+    // Add company name
+    parts.push(name);
+    
+    // Try to get better info from Marketaux entities first
+    if (marketauxEntities && Array.isArray(marketauxEntities) && marketauxEntities.length > 0) {
+        const primaryEntity = marketauxEntities[0]; // First entity is usually the primary company
+        
+        if (primaryEntity.industry && primaryEntity.industry !== 'N/A') {
+            parts.push(`a ${primaryEntity.industry} company`);
+        } else if (industry && industry !== 'N/A') {
+            parts.push(`a ${industry} company`);
+        }
+        
+        if (primaryEntity.country && primaryEntity.country !== 'N/A') {
+            const countryName = getCountryName(primaryEntity.country);
+            parts.push(`based in ${countryName}`);
+        } else if (country && country !== 'N/A') {
+            parts.push(`based in ${country}`);
+        }
+    } else {
+        // Fallback to Finnhub data
+        if (industry && industry !== 'N/A') {
+            parts.push(`a ${industry} company`);
+        }
+        
+        if (country && country !== 'N/A') {
+            parts.push(`based in ${country}`);
+        }
+    }
+    
+    // Add market cap info if available
+    if (marketCap) {
+        const capInBillions = marketCap / 1000000000;
+        if (capInBillions >= 1) {
+            parts.push(`with a market cap of $${capInBillions.toFixed(1)}B`);
+        }
+    }
+    
+    return parts.join(', ') + '.';
+}
+
+/**
+ * Convert country code to country name
+ * @param {string} countryCode - Two-letter country code
+ * @returns {string} - Country name
+ */
+function getCountryName(countryCode) {
+    const countryMap = {
+        'us': 'United States',
+        'ca': 'Canada',
+        'uk': 'United Kingdom',
+        'de': 'Germany',
+        'fr': 'France',
+        'jp': 'Japan',
+        'cn': 'China',
+        'au': 'Australia',
+        'in': 'India',
+        'br': 'Brazil',
+        'kr': 'South Korea',
+        'nl': 'Netherlands',
+        'ch': 'Switzerland',
+        'se': 'Sweden',
+        'sg': 'Singapore'
+    };
+    
+    return countryMap[countryCode.toLowerCase()] || countryCode.toUpperCase();
+}
+
+/**
  * Process Finnhub stock profile data
  * @param {Object} data - Raw Finnhub profile data
+ * @param {Array} marketauxEntities - Optional Marketaux entities for better description
+ * @param {string} wikipediaDescription - Optional Wikipedia description
  * @returns {Object} - Processed profile data
  */
-function processFinnhubProfile(data) {
+function processFinnhubProfile(data, marketauxEntities = null, wikipediaDescription = null) {
     if (!data || Object.keys(data).length === 0) {
         return null;
     }
@@ -13,7 +106,7 @@ function processFinnhubProfile(data) {
     return {
         symbol: data.ticker || '',
         name: data.name || '',
-        description: data.name || '', // Finnhub doesn't provide descriptions
+        description: generateCompanyDescription(data.name, data.finnhubIndustry, data.country, data.marketCapitalization, marketauxEntities, wikipediaDescription),
         exchange: data.exchange || '',
         currency: data.currency || 'USD',
         country: data.country || '',
@@ -188,13 +281,40 @@ function processNewsArticles(articles) {
         author: article.author || '',
         publishedAt: article.publishedAt || '',
         relativeTime: Utils.getRelativeTime(article.publishedAt),
-        sentiment: analyzeSentiment(article.title + ' ' + (article.description || '')),
+        sentiment: processMarketauxSentiment(article.sentiment),
         category: categorizeNews(article.title + ' ' + (article.description || ''))
     }));
 }
 
 /**
- * Simple sentiment analysis
+ * Process Marketaux sentiment scores
+ * @param {number} sentimentScore - Marketaux sentiment score (-1.0 to +1.0)
+ * @returns {Object} - Sentiment analysis result
+ */
+function processMarketauxSentiment(sentimentScore) {
+    // If no sentiment score from Marketaux, return neutral
+    if (sentimentScore === null || sentimentScore === undefined) {
+        return { score: 0, sentiment: 'neutral' };
+    }
+    
+    // Convert Marketaux score to our format
+    const score = parseFloat(sentimentScore);
+    
+    // Define thresholds for sentiment classification
+    const POSITIVE_THRESHOLD = 0.2;
+    const NEGATIVE_THRESHOLD = -0.2;
+    
+    if (score > POSITIVE_THRESHOLD) {
+        return { score, sentiment: 'positive' };
+    } else if (score < NEGATIVE_THRESHOLD) {
+        return { score, sentiment: 'negative' };
+    } else {
+        return { score, sentiment: 'neutral' };
+    }
+}
+
+/**
+ * Simple sentiment analysis (fallback for non-Marketaux data)
  * @param {string} text - Text to analyze
  * @returns {Object} - Sentiment analysis result
  */
@@ -332,7 +452,14 @@ function filterNewsBySentiment(articles, sentiment) {
         return articles;
     }
     
-    return articles.filter(article => article.sentiment === sentiment);
+    return articles.filter(article => {
+        // Handle sentiment object
+        let articleSentiment = article.sentiment;
+        if (typeof article.sentiment === 'object' && article.sentiment !== null) {
+            articleSentiment = article.sentiment.sentiment || 'neutral';
+        }
+        return articleSentiment === sentiment;
+    });
 }
 
 /**
@@ -357,9 +484,15 @@ function getNewsSummary(articles) {
     let totalSentimentScore = 0;
     
     articles.forEach(article => {
-        // Count sentiments
-        sentimentCounts[article.sentiment]++;
-        totalSentimentScore += article.sentiment.score;
+        // Count sentiments - handle sentiment object
+        let sentimentType = article.sentiment;
+        if (typeof article.sentiment === 'object' && article.sentiment !== null) {
+            sentimentType = article.sentiment.sentiment || 'neutral';
+            totalSentimentScore += article.sentiment.score || 0;
+        } else {
+            totalSentimentScore += 0; // No score for string sentiment
+        }
+        sentimentCounts[sentimentType]++;
         
         // Count categories
         const category = article.category || 'general';

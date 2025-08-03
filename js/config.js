@@ -9,6 +9,7 @@ const CONFIG = {
     // API Endpoints
     FINNHUB_BASE_URL: 'https://finnhub.io/api/v1',
     MARKETAUX_BASE_URL: 'https://api.marketaux.com/v1',
+    WIKIPEDIA_BASE_URL: 'https://en.wikipedia.org/api/rest_v1',
     
     // App Settings
     APP_NAME: 'NoCharts',

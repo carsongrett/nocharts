@@ -139,7 +139,7 @@ class TickerPage {
         
         const processed = {
             symbol: stockData.symbol,
-            overview: stockData.overview ? DataProcessor.processFinnhubProfile(stockData.overview) : null,
+            overview: stockData.overview, // Use the already-processed overview from API
             quote: stockData.quote ? DataProcessor.processFinnhubQuote(stockData.quote) : null,
             basicFinancials: stockData.basicFinancials ? DataProcessor.processFinnhubBasicFinancials(stockData.basicFinancials) : null,
             earnings: stockData.earnings ? DataProcessor.processFinnhubEarnings(stockData.earnings) : null,
@@ -268,10 +268,84 @@ class TickerPage {
         const descriptionElement = document.getElementById('descriptionText');
         
         if (descriptionElement && overview && overview.description) {
-            const truncatedText = typeof Utils !== 'undefined' ? Utils.truncateText(overview.description, 500) : overview.description.substring(0, 500) + (overview.description.length > 500 ? '...' : '');
-            descriptionElement.textContent = truncatedText;
+            const fullText = overview.description;
+            const truncatedText = typeof Utils !== 'undefined' ? Utils.truncateText(fullText, 500) : fullText.substring(0, 500) + (fullText.length > 500 ? '...' : '');
+            
+            // Create truncated text with "more" link
+            const moreLink = '<span class="more-link">more</span>';
+            const displayText = truncatedText + ' ' + moreLink;
+            
+            // Set HTML content with more link
+            descriptionElement.innerHTML = displayText;
+            
+            // Add click handler for the more link
+            const moreLinkElement = descriptionElement.querySelector('.more-link');
+            if (moreLinkElement) {
+                moreLinkElement.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.showDescriptionModal(fullText);
+                });
+            }
         } else if (descriptionElement) {
             descriptionElement.textContent = 'No company description available.';
+        }
+    }
+    
+    showDescriptionModal(fullText) {
+        // Create modal HTML
+        const modalHTML = `
+            <div id="descriptionModal" class="description-modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Company Description</h3>
+                        <button class="modal-close" id="modalClose">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <p>${fullText}</p>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Add modal to page
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        
+        // Add event listeners
+        const modal = document.getElementById('descriptionModal');
+        const closeBtn = document.getElementById('modalClose');
+        
+        // Close on button click
+        closeBtn.addEventListener('click', () => {
+            this.closeDescriptionModal();
+        });
+        
+        // Close on backdrop click
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                this.closeDescriptionModal();
+            }
+        });
+        
+        // Close on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                this.closeDescriptionModal();
+            }
+        });
+        
+        // Show modal with animation
+        setTimeout(() => {
+            modal.classList.add('show');
+        }, 10);
+    }
+    
+    closeDescriptionModal() {
+        const modal = document.getElementById('descriptionModal');
+        if (modal) {
+            modal.classList.remove('show');
+            setTimeout(() => {
+                modal.remove();
+            }, 300);
         }
     }
 
