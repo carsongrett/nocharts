@@ -209,9 +209,6 @@ async function getCompanyNews(symbol, pageSize = 10, companyName = null) {
     const formattedSymbol = Utils.formatTicker(symbol);
     const cacheKey = `company_news_${formattedSymbol}_${pageSize}`;
     
-    // Use provided company name or fallback to symbol
-    const searchTerm = companyName || formattedSymbol;
-    
     try {
         // Check cache first
         const cachedData = Utils.getCache(cacheKey);
@@ -224,48 +221,71 @@ async function getCompanyNews(symbol, pageSize = 10, companyName = null) {
             throw new Error('Internal rate limit exceeded. Please try again later.');
         }
         
-        // Try Reddit first (as requested)
-        console.log('🔗 Trying Reddit API first...');
-        try {
-            const redditPosts = await getRedditNews(symbol, pageSize);
-            console.log('✅ Reddit API successful');
-            Utils.setCache(cacheKey, redditPosts);
-            return redditPosts;
-        } catch (redditError) {
-            console.warn('❌ Reddit API failed, trying News API:', redditError.message);
-            
-            // Try News API as fallback
-            const url = `${CONFIG.NEWS_API_BASE_URL}?q=${encodeURIComponent(searchTerm)}&pageSize=${pageSize}&sortBy=publishedAt&language=en&apiKey=${CONFIG.NEWS_API_KEY}`;
-            
-            const response = await fetch(url, {
-                method: 'GET',
-                // No Content-Type header to avoid CORS issues
-            });
-            
-            // Check if response is ok
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+        // Use Marketaux API
+        console.log('🔗 Fetching news from Marketaux API...');
+        
+        const params = new URLSearchParams({
+            api_token: CONFIG.MARKETAUX_API_KEY,
+            symbols: formattedSymbol,
+            filter_entities: 'true',
+            language: 'en',
+            limit: pageSize.toString()
+        });
+        
+        const url = `${CONFIG.MARKETAUX_BASE_URL}/news/all?${params.toString()}`;
+        
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
             }
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            console.error('❌ Marketaux API error:', errorData);
             
-            // Parse response
-            const data = await response.json();
-            
-            if (data.status === 'error') {
-                throw new Error(data.message || 'News API error');
+            if (response.status === 401) {
+                throw new Error('Invalid Marketaux API token');
+            } else if (response.status === 429) {
+                throw new Error('Marketaux API rate limit exceeded');
+            } else if (response.status === 402) {
+                throw new Error('Marketaux API usage limit reached');
+            } else {
+                throw new Error(`Marketaux API error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
             }
-            
-            const articles = data.articles || [];
-            Utils.setCache(cacheKey, articles);
-            console.log('✅ News API successful');
-            return articles;
-            
         }
         
+        const data = await response.json();
+        
+        if (!data.data || !Array.isArray(data.data)) {
+            throw new Error('Invalid response format from Marketaux API');
+        }
+        
+        // Transform Marketaux articles to match expected format
+        const articles = data.data.map(article => ({
+            title: article.title,
+            description: article.description,
+            url: article.url,
+            publishedAt: article.published_at,
+            source: {
+                name: article.source
+            },
+            urlToImage: article.image_url,
+            // Add sentiment data if available
+            sentiment: article.entities?.[0]?.sentiment_score || null,
+            entities: article.entities || []
+        }));
+        
+        Utils.setCache(cacheKey, articles);
+        console.log(`✅ Marketaux API successful - returned ${articles.length} articles for ${formattedSymbol}`);
+        return articles;
+        
     } catch (error) {
-        console.error('Failed to get company news from both sources:', error);
+        console.error('Failed to get company news from Marketaux:', error);
         
         // Return empty array instead of throwing error to prevent undefined issues
-        console.warn('All news sources failed, returning empty array');
+        console.warn('Marketaux API failed, returning empty array');
         return [];
     }
 }
@@ -339,26 +359,7 @@ async function searchCompanies(keywords) {
     }
 }
 
-/**
- * Get market sentiment from Reddit (placeholder for future implementation)
- * @param {string} symbol - Stock symbol
- * @returns {Promise} - Promise with sentiment data
- */
-async function getRedditSentiment(symbol) {
-    // This is a placeholder for future Reddit API integration
-    // For now, return mock data
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve({
-                symbol: Utils.formatTicker(symbol),
-                mentions: Math.floor(Math.random() * 100) + 10,
-                sentiment: Math.random() > 0.5 ? 'positive' : 'negative',
-                confidence: Math.random() * 0.5 + 0.5,
-                lastUpdated: new Date().toISOString()
-            });
-        }, 1000);
-    });
-}
+
 
 /**
  * Get basic financials from Finnhub
@@ -475,7 +476,7 @@ async function getComprehensiveStockData(symbol) {
 function validateApiKeys() {
     const results = {
         finnhub: false,
-        newsApi: false,
+        marketaux: false,
         message: ''
     };
     
@@ -483,16 +484,16 @@ function validateApiKeys() {
         results.finnhub = true;
     }
     
-    if (CONFIG.NEWS_API_KEY && CONFIG.NEWS_API_KEY !== 'your_news_api_key_here') {
-        results.newsApi = true;
+    if (CONFIG.MARKETAUX_API_KEY && CONFIG.MARKETAUX_API_KEY !== 'your_marketaux_key_here') {
+        results.marketaux = true;
     }
     
-    if (!results.finnhub && !results.newsApi) {
+    if (!results.finnhub && !results.marketaux) {
         results.message = 'No API keys configured. Please add your API keys to config.js';
     } else if (!results.finnhub) {
         results.message = 'Finnhub API key not configured';
-    } else if (!results.newsApi) {
-        results.message = 'News API key not configured';
+    } else if (!results.marketaux) {
+        results.message = 'Marketaux API key not configured';
     }
     
     return results;
@@ -913,17 +914,11 @@ window.API = {
     getStockOverview,
     getStockQuote,
     getCompanyNews,
-    getRedditNews,
     getEarningsCalendar,
     searchCompanies,
-    getRedditSentiment,
     getComprehensiveStockData,
     validateApiKeys,
     testFinnhubAPI,
-    // Reddit OAuth functions
-    getRedditAuthUrl,
-    getRedditAccessToken,
-    makeRedditApiRequest,
     // Cache management for testing
     clearAllCache: () => Utils.clearCache(),
     getCacheStats: () => {

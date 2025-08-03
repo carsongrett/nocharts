@@ -46,8 +46,7 @@ function initializeApp() {
     // Setup theme
     setupTheme();
     
-    // Handle OAuth callback if present
-    handleOAuthCallback();
+
     
     // Set up event listeners
     setupEventListeners();
@@ -265,57 +264,14 @@ function handleSearchError(error, ticker) {
         errorMessage = `Stock ticker "${ticker}" not found. Please check the symbol and try again.`;
     } else if (error.message.includes('network') || error.message.includes('fetch')) {
         errorMessage = 'Network error. Please check your internet connection and try again.';
-    } else if (error.message.includes('API key')) {
+        } else if (error.message.includes('API key')) {
         errorMessage = 'API configuration error. Please check your API keys.';
-    } else if (error.message.includes('No Reddit access token')) {
-        errorMessage = 'Reddit authentication required. You will be redirected to authorize access.';
-        console.log('🔗 Redirecting to Reddit OAuth...');
-        // The OAuth redirect will happen automatically in the API layer
-        return; // Don't show error message since redirect is expected
-    } else if (error.message.includes('OAuth') || error.message.includes('redirect')) {
-        errorMessage = 'Authentication in progress. Please complete the authorization process.';
-        console.log('🔄 OAuth flow in progress...');
-        return; // Don't show error message since redirect is expected
     }
     
     UI.showError(errorMessage);
 }
 
-/**
- * Handle OAuth callback if present in URL
- */
-function handleOAuthCallback() {
-    // Check for access token in URL fragment (implicit flow)
-    const urlParams = new URLSearchParams(window.location.hash.substring(1));
-    const accessToken = urlParams.get('access_token');
-    const state = urlParams.get('state');
-    const error = urlParams.get('error');
-    
-    if (error) {
-        console.log('❌ OAuth error detected:', error);
-        UI.showError(`Authentication failed: ${error}`);
-        // Clean up URL
-        window.history.replaceState({}, document.title, window.location.pathname);
-        return;
-    }
-    
-    if (accessToken && state) {
-        console.log('🔄 OAuth callback detected, processing...');
-        
-        // Show loading message
-        UI.showLoading('Completing authentication...');
-        
-        // The API layer will handle the token storage automatically
-        // when getRedditAccessToken() is called
-        setTimeout(() => {
-            UI.hideLoading();
-            UI.showSuccess('Authentication completed successfully!');
-            
-            // Clean up URL
-            window.history.replaceState({}, document.title, window.location.pathname);
-        }, 1000);
-    }
-}
+
 
 /**
  * Validate API configuration
