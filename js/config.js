@@ -37,7 +37,7 @@ const CONFIG = {
     },
     
     // Mock Data Mode (set to true to use mock data instead of APIs)
-    MOCK_MODE: true
+    MOCK_MODE: false
 };
 
 // Prevent modification of config object
