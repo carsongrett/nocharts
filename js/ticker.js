@@ -670,12 +670,21 @@ class TickerPage {
     updateMobileEarningsData() {
         const { earnings, basicFinancials } = this.stockData;
         
-        // Update upcoming earnings
-        if (earnings && earnings.length > 0) {
-            const nextEarnings = earnings[0]; // Most recent/upcoming
-            this.updateElement('nextEarningsDate', nextEarnings.period || 'N/A');
-            this.updateElement('nextEarningsEPS', nextEarnings.estimate ? `$${nextEarnings.estimate.toFixed(2)}` : 'N/A');
-            this.updateElement('nextEarningsRevenue', 'N/A'); // Revenue not available in current API
+        // Update upcoming earnings based on data format
+        if (earnings) {
+            if (Array.isArray(earnings) && earnings.length > 0) {
+                // Mock data format
+                const nextEarnings = earnings[0];
+                this.updateElement('nextEarningsDate', nextEarnings.period || 'N/A');
+                this.updateElement('nextEarningsEPS', nextEarnings.estimate ? `$${nextEarnings.estimate.toFixed(2)}` : 'N/A');
+                this.updateElement('nextEarningsRevenue', 'N/A');
+            } else if (typeof earnings === 'object') {
+                // Real API format
+                const earningsDate = earnings.earningsDate ? new Date(earnings.earningsDate) : null;
+                this.updateElement('nextEarningsDate', earningsDate ? earningsDate.toLocaleDateString() : 'N/A');
+                this.updateElement('nextEarningsEPS', earnings.eps ? `$${earnings.eps.toFixed(2)}` : 'N/A');
+                this.updateElement('nextEarningsRevenue', earnings.revenue ? `$${(earnings.revenue / 1000000).toFixed(1)}M` : 'N/A');
+            }
         }
         
         // Update analyst estimates
@@ -694,52 +703,85 @@ class TickerPage {
         const { earnings } = this.stockData;
         const earningsContainer = document.getElementById('earnings-quarters');
         
-        if (!earningsContainer || !earnings || earnings.length === 0) return;
+        if (!earningsContainer || !earnings) return;
         
         // Clear existing content
         earningsContainer.innerHTML = '';
         
-        // Show last 2 quarters
-        const recentEarnings = earnings.slice(0, 2);
-        
-        recentEarnings.forEach(earning => {
+        // Check if earnings is an array (mock data) or object (real API)
+        if (Array.isArray(earnings)) {
+            // Mock data format - show last 2 quarters
+            const recentEarnings = earnings.slice(0, 2);
+            
+            recentEarnings.forEach(earning => {
+                const quarterDiv = document.createElement('div');
+                quarterDiv.className = 'earnings-quarter';
+                
+                // Format quarter name
+                const quarterName = earning.period || 'Unknown Quarter';
+                
+                // Calculate surprise
+                let surpriseText = 'N/A';
+                let surpriseClass = '';
+                if (earning.estimate && earning.actual) {
+                    const surprise = ((earning.actual - earning.estimate) / earning.estimate) * 100;
+                    surpriseText = `${surprise > 0 ? '+' : ''}${surprise.toFixed(1)}%`;
+                    surpriseClass = surprise >= 0 ? '' : 'miss';
+                }
+                
+                quarterDiv.innerHTML = `
+                    <div class="quarter-header">${quarterName}</div>
+                    <div class="earnings-metrics">
+                        <div class="metric">
+                            <div class="metric-label" onclick="showPopup('eps-estimate', event)">EPS Estimate</div>
+                            <div class="metric-value">$${earning.estimate ? earning.estimate.toFixed(2) : 'N/A'}</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label" onclick="showPopup('eps-actual', event)">EPS Actual</div>
+                            <div class="metric-value">$${earning.actual ? earning.actual.toFixed(2) : 'N/A'}</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label" onclick="showPopup('earnings-surprise', event)">Surprise</div>
+                            <div class="metric-value">
+                                <span class="surprise-badge ${surpriseClass}">${surpriseText}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                earningsContainer.appendChild(quarterDiv);
+            });
+        } else if (earnings && typeof earnings === 'object') {
+            // Real API format - show single earnings data
             const quarterDiv = document.createElement('div');
             quarterDiv.className = 'earnings-quarter';
             
-            // Format quarter name
-            const quarterName = earning.period || 'Unknown Quarter';
-            
-            // Calculate surprise
-            let surpriseText = 'N/A';
-            let surpriseClass = '';
-            if (earning.estimate && earning.actual) {
-                const surprise = ((earning.actual - earning.estimate) / earning.estimate) * 100;
-                surpriseText = `${surprise > 0 ? '+' : ''}${surprise.toFixed(1)}%`;
-                surpriseClass = surprise >= 0 ? '' : 'miss';
-            }
+            // Format quarter name from earnings date
+            const earningsDate = earnings.earningsDate ? new Date(earnings.earningsDate) : null;
+            const quarterName = earningsDate ? 
+                `Q${Math.ceil((earningsDate.getMonth() + 1) / 3)} ${earningsDate.getFullYear()}` : 
+                'Recent Earnings';
             
             quarterDiv.innerHTML = `
                 <div class="quarter-header">${quarterName}</div>
                 <div class="earnings-metrics">
                     <div class="metric">
-                        <div class="metric-label" onclick="showPopup('eps-estimate', event)">EPS Estimate</div>
-                        <div class="metric-value">$${earning.estimate ? earning.estimate.toFixed(2) : 'N/A'}</div>
-                    </div>
-                    <div class="metric">
                         <div class="metric-label" onclick="showPopup('eps-actual', event)">EPS Actual</div>
-                        <div class="metric-value">$${earning.actual ? earning.actual.toFixed(2) : 'N/A'}</div>
+                        <div class="metric-value">$${earnings.eps ? earnings.eps.toFixed(2) : 'N/A'}</div>
                     </div>
                     <div class="metric">
-                        <div class="metric-label" onclick="showPopup('earnings-surprise', event)">Surprise</div>
-                        <div class="metric-value">
-                            <span class="surprise-badge ${surpriseClass}">${surpriseText}</span>
-                        </div>
+                        <div class="metric-label" onclick="showPopup('revenue-actual', event)">Revenue</div>
+                        <div class="metric-value">$${earnings.revenue ? (earnings.revenue / 1000000).toFixed(1) + 'M' : 'N/A'}</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label" onclick="showPopup('earnings-date', event)">Date</div>
+                        <div class="metric-value">${earnings.earningsDate ? new Date(earnings.earningsDate).toLocaleDateString() : 'N/A'}</div>
                     </div>
                 </div>
             `;
             
             earningsContainer.appendChild(quarterDiv);
-        });
+        }
     }
 }
 
@@ -810,6 +852,14 @@ const earningsDefinitions = {
     'revenue-estimate': {
         title: 'Revenue Estimate',
         description: 'Analyst consensus estimate for total revenue. This represents the expected sales and income for the quarter before expenses.'
+    },
+    'revenue-actual': {
+        title: 'Revenue Actual',
+        description: 'The actual total revenue reported by the company for this quarter. This is the real sales figure announced during earnings.'
+    },
+    'earnings-date': {
+        title: 'Earnings Date',
+        description: 'The date when the company reported their earnings for this quarter. This shows when the financial results were announced.'
     }
 };
 
