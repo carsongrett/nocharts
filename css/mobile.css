@@ -220,6 +220,221 @@
         box-shadow: none;
         border: 1px solid #ddd;
     }
+}
+
+/* Mobile Collapsible Sections */
+@media (max-width: 768px) {
+    /* Hide desktop sections on mobile */
+    .ticker-page .overview-grid,
+    .ticker-page .timeline-section {
+        display: none !important;
+    }
+    
+    /* Show mobile collapsible sections */
+    .collapsible-section {
+        display: block;
+        border-bottom: 1px solid #eee;
+        margin-bottom: 0;
+    }
+    
+    /* Section headers */
+    .section-header {
+        padding: 16px 20px;
+        background: white;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 16px;
+        font-weight: 600;
+        color: #333;
+        border: none;
+        width: 100%;
+        text-align: left;
+    }
+    
+    .section-header:hover {
+        background: #f9f9f9;
+    }
+    
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    /* Chevron indicators */
+    .chevron {
+        font-size: 12px;
+        transition: transform 0.2s ease;
+    }
+    
+    .chevron.expanded {
+        transform: rotate(180deg);
+    }
+    
+    /* Section content */
+    .section-content {
+        display: none;
+        padding: 0 20px 20px;
+        background: white;
+    }
+    
+    .section-content.expanded {
+        display: block;
+    }
+    
+    /* Hide original section titles on mobile */
+    .overview-grid .card-title,
+    .timeline-section .section-title {
+        display: none;
+    }
+    
+    /* Adjust data list for mobile */
+    .data-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .data-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .data-item:last-child {
+        border-bottom: none;
+    }
+    
+    .data-item .label {
+        font-size: 14px;
+        color: #666;
+        text-decoration: none;
+        cursor: default;
+    }
+    
+    .data-item .value {
+        font-size: 14px;
+        font-weight: 600;
+        color: #333;
+    }
+    
+    /* Timeline adjustments for mobile */
+    .timeline-section .section-header {
+        margin-bottom: 0;
+    }
+    
+    .timeline-filters {
+        display: none; /* Hide filters on mobile for now */
+    }
+    
+    /* Earnings Specific Styles */
+    .earnings-quarter {
+        background: #f8f9fa;
+        border-radius: 6px;
+        padding: 12px;
+        margin-bottom: 8px;
+    }
+    
+    .quarter-header {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 8px;
+    }
+    
+    .earnings-metrics {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+    }
+    
+    .metric {
+        text-align: center;
+        flex: 1;
+    }
+    
+    .metric-label {
+        font-size: 11px;
+        color: #666;
+        margin-bottom: 4px;
+        cursor: pointer;
+        text-decoration: underline;
+        text-decoration-color: #007bff;
+        text-decoration-thickness: 1px;
+        transition: all 0.2s ease;
+    }
+    
+    .metric-label:hover {
+        text-decoration-color: #0056b3;
+        text-decoration-thickness: 2px;
+    }
+    
+    .metric-value {
+        font-size: 13px;
+        font-weight: 600;
+    }
+    
+    .surprise-badge {
+        background: #10b981;
+        color: white;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+    
+    .surprise-badge.miss {
+        background: #ef4444;
+    }
+    
+    .upcoming-earnings {
+        background: #fef3c7;
+        border: 1px solid #f59e0b;
+        border-radius: 6px;
+        padding: 12px;
+        margin-top: 8px;
+    }
+    
+    .upcoming-header {
+        font-weight: 600;
+        color: #92400e;
+        margin-bottom: 8px;
+    }
+    
+    /* Popup styles for earnings definitions */
+    .popup {
+        position: fixed;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 1000;
+        max-width: 300px;
+        font-size: 14px;
+        line-height: 1.4;
+        color: #333;
+    }
+    
+    .popup-title {
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #2d3748;
+    }
+    
+    .popup-description {
+        color: #4a5568;
+    }
+}
+
+/* Hide mobile sections on desktop */
+@media (min-width: 769px) {
+    .ticker-page .collapsible-section {
+        display: none !important;
+    }
 } 
 
 /* Clickable data indicators */

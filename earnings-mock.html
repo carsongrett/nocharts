@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earnings Section Mock</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: #1a1a1a;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .stock-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .stock-symbol {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .stock-price {
+            font-size: 1.2rem;
+        }
+
+        .change.positive {
+            color: #10b981;
+        }
+
+        .change.negative {
+            color: #ef4444;
+        }
+
+        /* Company Description */
+        .company-description {
+            background: white;
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        /* Collapsible Sections */
+        .collapsible-section {
+            border-bottom: 1px solid #eee;
+        }
+
+        .section-header {
+            padding: 16px 20px;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            border: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .section-header:hover {
+            background: #f9f9f9;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chevron {
+            font-size: 12px;
+            transition: transform 0.2s ease;
+        }
+
+        .chevron.expanded {
+            transform: rotate(180deg);
+        }
+
+        .section-content {
+            display: none;
+            padding: 0 20px 20px;
+            background: white;
+        }
+
+        .section-content.expanded {
+            display: block;
+        }
+
+        /* Data Lists */
+        .data-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .data-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .data-item:last-child {
+            border-bottom: none;
+        }
+
+        .data-item .label {
+            font-size: 14px;
+            color: #666;
+            cursor: pointer;
+            text-decoration: underline;
+            text-decoration-color: #007bff;
+            text-decoration-thickness: 1px;
+            transition: all 0.2s ease;
+        }
+
+        .data-item .label:hover {
+            text-decoration-color: #0056b3;
+            text-decoration-thickness: 2px;
+        }
+
+        .data-item .value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .value.positive {
+            color: #10b981;
+        }
+
+        .value.negative {
+            color: #ef4444;
+        }
+
+        .value.neutral {
+            color: #6b7280;
+        }
+
+        /* Earnings Specific Styles */
+        .earnings-quarter {
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 8px;
+        }
+
+        .quarter-header {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .earnings-metrics {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .metric {
+            text-align: center;
+            flex: 1;
+        }
+
+        .metric-label {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 4px;
+            cursor: pointer;
+            text-decoration: underline;
+            text-decoration-color: #007bff;
+            text-decoration-thickness: 1px;
+            transition: all 0.2s ease;
+        }
+
+        .metric-label:hover {
+            text-decoration-color: #0056b3;
+            text-decoration-thickness: 2px;
+        }
+
+        .metric-value {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .surprise-badge {
+            background: #10b981;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .surprise-badge.miss {
+            background: #ef4444;
+        }
+
+        .upcoming-earnings {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 6px;
+            padding: 12px;
+            margin-top: 8px;
+        }
+
+        .upcoming-header {
+            font-weight: 600;
+            color: #92400e;
+            margin-bottom: 8px;
+        }
+
+        /* Popup styles */
+        .popup {
+            position: fixed;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            max-width: 300px;
+            font-size: 14px;
+            line-height: 1.4;
+            color: #333;
+        }
+
+        .popup-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #2d3748;
+        }
+
+        .popup-description {
+            color: #4a5568;
+        }
+
+        /* News Items */
+        .news-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .news-item:last-child {
+            border-bottom: none;
+        }
+
+        .news-time {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .news-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .news-source {
+            font-size: 11px;
+            color: #666;
+        }
+
+        .sentiment-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .sentiment-badge.positive {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .sentiment-badge.negative {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .sentiment-badge.neutral {
+            background: #f3f4f6;
+            color: #374151;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="stock-info">
+                <div>
+                    <div class="stock-symbol">AAPL</div>
+                    <div style="font-size: 0.9rem; color: #ccc;">Apple Inc.</div>
+                </div>
+                <div class="stock-price">
+                    <div>$175.43</div>
+                    <div class="change positive">+2.15 (+1.24%)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Company Description -->
+        <div class="company-description">
+            Apple Inc. designs, manufactures, and markets smartphones, personal computers, tablets, wearables, and accessories worldwide. The company offers iPhone, Mac, iPad, and wearables, home, and accessories...
+        </div>
+
+        <!-- Financial Data Section (existing) -->
+        <section class="collapsible-section">
+            <div class="section-header" onclick="toggleSection('data')">
+                <div class="section-title">
+                    📊 Financial Data
+                </div>
+                <div class="chevron" id="data-chevron">▼</div>
+            </div>
+            <div class="section-content" id="data-content">
+                <div class="data-list">
+                    <div class="data-item">
+                        <span class="label">Market Cap:</span>
+                        <span class="value">$2.8T</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="label">P/E Ratio:</span>
+                        <span class="value">28.5</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="label">Revenue Growth:</span>
+                        <span class="value positive">+8.1%</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="label">Dividend Yield:</span>
+                        <span class="value">0.5%</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- NEW: Earnings Section -->
+        <section class="collapsible-section">
+            <div class="section-header" onclick="toggleSection('earnings')">
+                <div class="section-title">
+                    📈 Earnings & Estimates
+                </div>
+                <div class="chevron" id="earnings-chevron">▼</div>
+            </div>
+            <div class="section-content" id="earnings-content">
+                <!-- Recent Earnings -->
+                <div class="earnings-quarter">
+                    <div class="quarter-header">Q4 2023 (Oct-Dec)</div>
+                    <div class="earnings-metrics">
+                        <div class="metric">
+                            <div class="metric-label" onclick="showPopup('eps-estimate', event)">EPS Estimate</div>
+                            <div class="metric-value">$2.10</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label" onclick="showPopup('eps-actual', event)">EPS Actual</div>
+                            <div class="metric-value">$2.18</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label" onclick="showPopup('earnings-surprise', event)">Surprise</div>
+                            <div class="metric-value">
+                                <span class="surprise-badge">+3.8%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="earnings-quarter">
+                    <div class="quarter-header">Q3 2023 (Jul-Sep)</div>
+                    <div class="earnings-metrics">
+                        <div class="metric">
+                            <div class="metric-label" onclick="showPopup('eps-estimate', event)">EPS Estimate</div>
+                            <div class="metric-value">$1.39</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label" onclick="showPopup('eps-actual', event)">EPS Actual</div>
+                            <div class="metric-value">$1.46</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label" onclick="showPopup('earnings-surprise', event)">Surprise</div>
+                            <div class="metric-value">
+                                <span class="surprise-badge">+5.0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upcoming Earnings -->
+                <div class="upcoming-earnings">
+                    <div class="upcoming-header">📅 Next Earnings</div>
+                    <div class="data-list">
+                        <div class="data-item">
+                            <span class="label">Report Date:</span>
+                            <span class="value">Jan 25, 2024</span>
+                        </div>
+                        <div class="data-item">
+                            <span class="label">EPS Estimate:</span>
+                            <span class="value">$2.11</span>
+                        </div>
+                        <div class="data-item">
+                            <span class="label">Revenue Est:</span>
+                            <span class="value">$118.2B</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analyst Estimates -->
+                <div class="data-list" style="margin-top: 16px;">
+                    <div class="data-item">
+                        <span class="label" onclick="showPopup('forward-pe', event)">Forward P/E:</span>
+                        <span class="value">26.8</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="label" onclick="showPopup('eps-growth', event)">EPS Growth (YoY):</span>
+                        <span class="value positive">+12.3%</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="label" onclick="showPopup('estimate-revisions', event)">Estimate Revisions:</span>
+                        <span class="value positive">+2.1%</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="label" onclick="showPopup('beat-rate', event)">Beat Rate (4Q):</span>
+                        <span class="value">75%</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- News Section (existing) -->
+        <section class="collapsible-section">
+            <div class="section-header" onclick="toggleSection('news')">
+                <div class="section-title">
+                    📰 Recent News
+                </div>
+                <div class="chevron" id="news-chevron">▼</div>
+            </div>
+            <div class="section-content" id="news-content">
+                <div class="news-item">
+                    <div class="news-time">2 hours ago</div>
+                    <div class="news-title">Apple Reports Strong Q4 Earnings, Beats Estimates</div>
+                    <div class="news-source">Reuters <span class="sentiment-badge positive">Positive</span></div>
+                </div>
+                <div class="news-item">
+                    <div class="news-time">1 day ago</div>
+                    <div class="news-title">Analysts Raise Apple Price Targets Ahead of Earnings</div>
+                    <div class="news-source">Bloomberg <span class="sentiment-badge positive">Positive</span></div>
+                </div>
+                <div class="news-item">
+                    <div class="news-time">3 days ago</div>
+                    <div class="news-title">iPhone Sales Concerns Weigh on Apple Stock</div>
+                    <div class="news-source">CNBC <span class="sentiment-badge negative">Negative</span></div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        function toggleSection(sectionId) {
+            const content = document.getElementById(sectionId + '-content');
+            const chevron = document.getElementById(sectionId + '-chevron');
+            
+            if (content && chevron) {
+                if (content.classList.contains('expanded')) {
+                    content.classList.remove('expanded');
+                    chevron.classList.remove('expanded');
+                } else {
+                    content.classList.add('expanded');
+                    chevron.classList.add('expanded');
+                }
+            }
+        }
+
+        // Earnings definitions
+        const earningsDefinitions = {
+            'eps-estimate': {
+                title: 'EPS Estimate',
+                description: 'Analyst consensus estimate for Earnings Per Share. This is what Wall Street analysts expect the company to report for the quarter.'
+            },
+            'eps-actual': {
+                title: 'EPS Actual',
+                description: 'The actual Earnings Per Share reported by the company. This is the real number that was announced during the earnings call.'
+            },
+            'earnings-surprise': {
+                title: 'Earnings Surprise',
+                description: 'The difference between estimated and actual EPS, shown as a percentage. Positive surprises (beats) are good, negative surprises (misses) are concerning.'
+            },
+            'forward-pe': {
+                title: 'Forward P/E Ratio',
+                description: 'Price-to-Earnings ratio based on next year\'s estimated earnings. Lower values suggest the stock may be undervalued relative to future earnings.'
+            },
+            'eps-growth': {
+                title: 'EPS Growth (Year-over-Year)',
+                description: 'The percentage change in Earnings Per Share compared to the same quarter last year. Positive growth indicates improving profitability.'
+            },
+            'estimate-revisions': {
+                title: 'Estimate Revisions',
+                description: 'Recent changes to analyst earnings estimates. Positive revisions suggest analysts are becoming more optimistic about the company\'s prospects.'
+            },
+            'beat-rate': {
+                title: 'Beat Rate',
+                description: 'Percentage of quarters where the company beat analyst estimates over the past 4 quarters. Higher rates indicate consistent outperformance.'
+            }
+        };
+
+        function showPopup(definitionKey, event) {
+            // Remove any existing popup
+            const existingPopup = document.querySelector('.popup');
+            if (existingPopup) {
+                existingPopup.remove();
+            }
+
+            const definition = earningsDefinitions[definitionKey];
+            if (!definition) return;
+
+            // Create popup
+            const popup = document.createElement('div');
+            popup.className = 'popup';
+            popup.innerHTML = `
+                <div class="popup-title">${definition.title}</div>
+                <div class="popup-description">${definition.description}</div>
+            `;
+
+            // Position popup near the clicked element
+            const rect = event.target.getBoundingClientRect();
+            popup.style.left = rect.left + 'px';
+            popup.style.top = (rect.bottom + 5) + 'px';
+
+            // Add to page
+            document.body.appendChild(popup);
+
+            // Remove popup when clicking elsewhere
+            setTimeout(() => {
+                document.addEventListener('click', function removePopup() {
+                    popup.remove();
+                    document.removeEventListener('click', removePopup);
+                });
+            }, 100);
+        }
+
+        // Start with all sections collapsed
+        document.addEventListener('DOMContentLoaded', function() {
+            // All sections start collapsed by default
+        });
+    </script>
+</body>
+</html> 

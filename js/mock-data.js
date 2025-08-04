@@ -316,6 +316,33 @@ const MockData = {
                 symbol: formattedSymbol,
                 overview: overview,
                 quote: quote['Global Quote'] || quote,
+                basicFinancials: {
+                    forwardPE: 26.8,
+                    epsGrowth: 12.3,
+                    revenueGrowth: 8.1,
+                    profitMargin: 25.2,
+                    currentRatio: 1.8
+                },
+                earnings: [
+                    {
+                        period: 'Q4 2023 (Oct-Dec)',
+                        estimate: 2.10,
+                        actual: 2.18,
+                        surprise: 3.8
+                    },
+                    {
+                        period: 'Q3 2023 (Jul-Sep)',
+                        estimate: 1.39,
+                        actual: 1.46,
+                        surprise: 5.0
+                    },
+                    {
+                        period: 'Q2 2023 (Apr-Jun)',
+                        estimate: 1.43,
+                        actual: 1.52,
+                        surprise: 6.3
+                    }
+                ],
                 news: news,
                 lastUpdated: new Date().toISOString()
             };

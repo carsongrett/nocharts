@@ -124,6 +124,48 @@
                     </div>
                 </section>
 
+                <!-- Mobile Collapsible Data Section -->
+                <section class="collapsible-section" id="dataSection">
+                    <div class="section-header" onclick="toggleSection('data')">
+                        <div class="section-title">
+                            📊 Financial Data
+                        </div>
+                        <div class="chevron" id="data-chevron">▼</div>
+                    </div>
+                    <div class="section-content" id="data-content">
+                        <div class="data-list">
+                            <div class="data-item">
+                                <span class="label">Market Cap:</span>
+                                <span class="value" id="mobileMarketCap">--</span>
+                            </div>
+                            <div class="data-item">
+                                <span class="label">P/E Ratio:</span>
+                                <span class="value" id="mobilePeRatio">--</span>
+                            </div>
+                            <div class="data-item">
+                                <span class="label">Revenue Growth:</span>
+                                <span class="value" id="mobileRevenueGrowth">--</span>
+                            </div>
+                            <div class="data-item">
+                                <span class="label">Dividend Yield:</span>
+                                <span class="value" id="mobileDividendYield">--</span>
+                            </div>
+                            <div class="data-item">
+                                <span class="label">52 Week High-Low:</span>
+                                <span class="value" id="mobileWeekHighLow">--</span>
+                            </div>
+                            <div class="data-item">
+                                <span class="label">Profit Margin:</span>
+                                <span class="value" id="mobileProfitMargin">--</span>
+                            </div>
+                            <div class="data-item">
+                                <span class="label">Current Ratio:</span>
+                                <span class="value" id="mobileCurrentRatio">--</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
                 <!-- Timeline Section -->
                 <section class="timeline-section">
                     <div class="section-header">
@@ -138,6 +180,76 @@
                     
                     <div class="timeline" id="timeline">
                         <!-- Timeline items will be dynamically generated here -->
+                    </div>
+                </section>
+
+                <!-- Mobile Collapsible Earnings Section -->
+                <section class="collapsible-section" id="earningsSection">
+                    <div class="section-header" onclick="toggleSection('earnings')">
+                        <div class="section-title">
+                            📈 Earnings & Estimates
+                        </div>
+                        <div class="chevron" id="earnings-chevron">▼</div>
+                    </div>
+                    <div class="section-content" id="earnings-content">
+                        <!-- Recent Earnings Quarters -->
+                        <div id="earnings-quarters">
+                            <!-- Earnings quarters will be dynamically generated here -->
+                        </div>
+                        
+                        <!-- Upcoming Earnings -->
+                        <div class="upcoming-earnings" id="upcoming-earnings">
+                            <div class="upcoming-header">📅 Next Earnings</div>
+                            <div class="data-list">
+                                <div class="data-item">
+                                    <span class="label" onclick="showPopup('report-date', event)">Report Date:</span>
+                                    <span class="value" id="nextEarningsDate">--</span>
+                                </div>
+                                <div class="data-item">
+                                    <span class="label" onclick="showPopup('eps-estimate', event)">EPS Estimate:</span>
+                                    <span class="value" id="nextEarningsEPS">--</span>
+                                </div>
+                                <div class="data-item">
+                                    <span class="label" onclick="showPopup('revenue-estimate', event)">Revenue Est:</span>
+                                    <span class="value" id="nextEarningsRevenue">--</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Analyst Estimates -->
+                        <div class="data-list" style="margin-top: 16px;">
+                            <div class="data-item">
+                                <span class="label" onclick="showPopup('forward-pe', event)">Forward P/E:</span>
+                                <span class="value" id="mobileForwardPE">--</span>
+                            </div>
+                            <div class="data-item">
+                                <span class="label" onclick="showPopup('eps-growth', event)">EPS Growth (YoY):</span>
+                                <span class="value" id="mobileEPSGrowth">--</span>
+                            </div>
+                            <div class="data-item">
+                                <span class="label" onclick="showPopup('estimate-revisions', event)">Estimate Revisions:</span>
+                                <span class="value" id="mobileEstimateRevisions">--</span>
+                            </div>
+                            <div class="data-item">
+                                <span class="label" onclick="showPopup('beat-rate', event)">Beat Rate (4Q):</span>
+                                <span class="value" id="mobileBeatRate">--</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Mobile Collapsible News Section -->
+                <section class="collapsible-section" id="newsSection">
+                    <div class="section-header" onclick="toggleSection('news')">
+                        <div class="section-title">
+                            📰 Recent News
+                        </div>
+                        <div class="chevron" id="news-chevron">▼</div>
+                    </div>
+                    <div class="section-content" id="news-content">
+                        <div class="timeline" id="mobileTimeline">
+                            <!-- Mobile timeline items will be dynamically generated here -->
+                        </div>
                     </div>
                 </section>
             </div>

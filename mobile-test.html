@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Collapsible Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: #1a1a1a;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        /* Stock Info */
+        .stock-info {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .stock-name {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .stock-price {
+            font-size: 32px;
+            font-weight: 700;
+            color: #22c55e;
+            margin-bottom: 8px;
+        }
+
+        .stock-change {
+            font-size: 14px;
+            color: #22c55e;
+            margin-bottom: 16px;
+        }
+
+        .stock-description {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        /* Collapsible Sections */
+        .collapsible-section {
+            border-bottom: 1px solid #eee;
+        }
+
+        .section-header {
+            padding: 16px 20px;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .section-header:hover {
+            background: #f9f9f9;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chevron {
+            font-size: 12px;
+            transition: transform 0.2s ease;
+        }
+
+        .chevron.expanded {
+            transform: rotate(180deg);
+        }
+
+        .section-content {
+            display: none;
+            padding: 0 20px 20px;
+            background: white;
+        }
+
+        .section-content.expanded {
+            display: block;
+        }
+
+        /* Data Grid */
+        .data-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .data-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .data-item:last-child {
+            border-bottom: none;
+        }
+
+        .data-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .data-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        /* News Items */
+        .news-item {
+            padding: 16px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .news-item:last-child {
+            border-bottom: none;
+        }
+
+        .news-source {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .news-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .news-snippet {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .news-sentiment {
+            display: inline-block;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-top: 8px;
+        }
+
+        .sentiment-positive {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .sentiment-negative {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .sentiment-neutral {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        /* Mobile-only styles */
+        @media (min-width: 481px) {
+            .container {
+                border: 2px solid #ddd;
+                margin: 20px auto;
+                border-radius: 12px;
+                overflow: hidden;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Stock Narrative Tracker</h1>
+        </div>
+
+        <!-- Stock Info (Always Visible) -->
+        <div class="stock-info">
+            <div class="stock-name">Apple Inc. (AAPL)</div>
+            <div class="stock-price">$176.85</div>
+            <div class="stock-change">+$1.65 (+0.94%)</div>
+            <div class="stock-description">
+                Apple Inc. designs, manufactures, and markets smartphones, personal computers, tablets, wearables, and accessories worldwide. The company's products include iPhone, Mac, iPad, Apple Watch, and Apple TV.
+            </div>
+        </div>
+
+        <!-- Data Section (Collapsible) -->
+        <div class="collapsible-section">
+            <div class="section-header" onclick="toggleSection('data')">
+                <div class="section-title">
+                    📊 Financial Data
+                </div>
+                <div class="chevron" id="data-chevron">▼</div>
+            </div>
+            <div class="section-content" id="data-content">
+                <div class="data-grid">
+                    <div class="data-item">
+                        <div class="data-label">Market Cap</div>
+                        <div class="data-value">$2.8T</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">P/E Ratio</div>
+                        <div class="data-value">28.5</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">Dividend Yield</div>
+                        <div class="data-value">0.5%</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">Volume</div>
+                        <div class="data-value">45.7M</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">Sector</div>
+                        <div class="data-value">Technology</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- News Section (Collapsible) -->
+        <div class="collapsible-section">
+            <div class="section-header" onclick="toggleSection('news')">
+                <div class="section-title">
+                    📰 Recent News
+                </div>
+                <div class="chevron" id="news-chevron">▼</div>
+            </div>
+            <div class="section-content" id="news-content">
+                <div class="news-item">
+                    <div class="news-source">TechCrunch • 2h ago</div>
+                    <div class="news-title">Apple Reports Record Q4 Earnings, iPhone Sales Surge</div>
+                    <div class="news-snippet">Apple Inc. reported record-breaking fourth-quarter earnings, with iPhone sales exceeding expectations and services revenue hitting new highs.</div>
+                    <div class="news-sentiment sentiment-positive">Positive</div>
+                </div>
+                
+                <div class="news-item">
+                    <div class="news-source">Reuters • 4h ago</div>
+                    <div class="news-title">Apple Vision Pro Launch Date Announced</div>
+                    <div class="news-snippet">Apple has officially announced the launch date for its highly anticipated Vision Pro mixed reality headset.</div>
+                    <div class="news-sentiment sentiment-positive">Positive</div>
+                </div>
+                
+                <div class="news-item">
+                    <div class="news-source">Financial Times • 6h ago</div>
+                    <div class="news-title">Apple Faces Regulatory Scrutiny Over App Store Policies</div>
+                    <div class="news-snippet">Regulators are investigating Apple's App Store policies and their impact on competition in the mobile app ecosystem.</div>
+                    <div class="news-sentiment sentiment-negative">Negative</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleSection(sectionId) {
+            const content = document.getElementById(sectionId + '-content');
+            const chevron = document.getElementById(sectionId + '-chevron');
+            
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                chevron.classList.remove('expanded');
+            } else {
+                content.classList.add('expanded');
+                chevron.classList.add('expanded');
+            }
+        }
+
+        // Add some interactivity for demo
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Mobile collapsible test loaded');
+            console.log('Click on "Financial Data" or "Recent News" to expand/collapse sections');
+        });
+    </script>
+</body>
+</html> 

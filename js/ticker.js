@@ -83,6 +83,22 @@ class TickerPage {
         }
     }
 
+    // Mobile collapsible section toggle
+    toggleSection(sectionId) {
+        const content = document.getElementById(sectionId + '-content');
+        const chevron = document.getElementById(sectionId + '-chevron');
+        
+        if (content && chevron) {
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                chevron.classList.remove('expanded');
+            } else {
+                content.classList.add('expanded');
+                chevron.classList.add('expanded');
+            }
+        }
+    }
+
     toggleCompanyDescription() {
         const descriptionText = document.getElementById('descriptionText');
         if (descriptionText) {
@@ -261,6 +277,12 @@ class TickerPage {
             this.updateElement('negativeArticles', newsSummary.negative);
             this.updateElement('neutralArticles', newsSummary.neutral);
         }
+        
+        // Update mobile data sections with same data
+        this.updateMobileData();
+        
+        // Update mobile earnings data
+        this.updateMobileEarningsData();
     }
 
     updateCompanyDescription() {
@@ -388,6 +410,49 @@ class TickerPage {
         }
     }
 
+    updateMobileData() {
+        const { overview, basicFinancials } = this.stockData;
+        
+        // Update mobile data with same values as desktop
+        if (overview) {
+            let marketCap = 'N/A';
+            if (overview.marketCap) {
+                const marketCapValue = parseFloat(overview.marketCap);
+                if (marketCapValue >= 1e6) {
+                    marketCap = `$${(marketCapValue / 1e6).toFixed(1)}T`;
+                } else if (marketCapValue >= 1e3) {
+                    marketCap = `$${(marketCapValue / 1e3).toFixed(1)}B`;
+                } else {
+                    marketCap = `$${marketCapValue.toFixed(1)}M`;
+                }
+            }
+            this.updateElement('mobileMarketCap', marketCap);
+        }
+        
+        if (basicFinancials) {
+            this.updateElement('mobilePeRatio', basicFinancials.peRatio ? basicFinancials.peRatio.toFixed(2) : 'N/A');
+            this.updateElement('mobileDividendYield', basicFinancials.dividendYield ? `${basicFinancials.dividendYield.toFixed(2)}%` : 'N/A');
+            this.updateElement('mobileRevenueGrowth', basicFinancials.revenueGrowth ? `${basicFinancials.revenueGrowth.toFixed(2)}%` : 'N/A');
+            
+            let weekRange = 'N/A';
+            if (basicFinancials.weekHigh && basicFinancials.weekLow) {
+                weekRange = `$${basicFinancials.weekLow.toFixed(2)} - $${basicFinancials.weekHigh.toFixed(2)}`;
+            }
+            this.updateElement('mobileWeekHighLow', weekRange);
+            
+            this.updateElement('mobileProfitMargin', basicFinancials.profitMargin ? `${basicFinancials.profitMargin.toFixed(2)}%` : 'N/A');
+            this.updateElement('mobileCurrentRatio', basicFinancials.currentRatio ? basicFinancials.currentRatio.toFixed(2) : 'N/A');
+        } else {
+            // Fallback to N/A for mobile
+            this.updateElement('mobilePeRatio', 'N/A');
+            this.updateElement('mobileDividendYield', 'N/A');
+            this.updateElement('mobileRevenueGrowth', 'N/A');
+            this.updateElement('mobileWeekHighLow', 'N/A');
+            this.updateElement('mobileProfitMargin', 'N/A');
+            this.updateElement('mobileCurrentRatio', 'N/A');
+        }
+    }
+
     initializeTimeline() {
         if (!this.stockData || !this.stockData.timeline) return;
         
@@ -398,11 +463,14 @@ class TickerPage {
         }
         
         try {
-            // Initialize timeline
+            // Initialize desktop timeline
             this.timeline = TimelineManager.initializeTimeline();
             
-            // Add timeline items
+            // Add timeline items to desktop
             this.timeline.addItems(this.stockData.timeline);
+            
+            // Initialize mobile timeline
+            this.initializeMobileTimeline();
             
             // Animate timeline in
             setTimeout(() => {
@@ -411,6 +479,34 @@ class TickerPage {
         } catch (error) {
             console.error('Failed to initialize timeline:', error);
         }
+    }
+
+    initializeMobileTimeline() {
+        if (!this.stockData || !this.stockData.timeline) return;
+        
+        const mobileTimeline = document.getElementById('mobileTimeline');
+        if (!mobileTimeline) return;
+        
+        // Clear existing content
+        mobileTimeline.innerHTML = '';
+        
+        // Add timeline items to mobile
+        this.stockData.timeline.forEach(item => {
+            const timelineItem = document.createElement('div');
+            timelineItem.className = 'timeline-item';
+            timelineItem.innerHTML = `
+                <div class="timeline-content">
+                    <div class="timeline-header">
+                        <span class="timeline-time">${item.time}</span>
+                        <span class="timeline-source">${item.source}</span>
+                    </div>
+                    <h3 class="timeline-title">${item.title}</h3>
+                    <p class="timeline-description">${item.description}</p>
+                    <div class="timeline-sentiment ${item.sentiment}">${item.sentiment}</div>
+                </div>
+            `;
+            mobileTimeline.appendChild(timelineItem);
+        });
     }
 
     updatePageMetadata() {
@@ -570,6 +666,81 @@ class TickerPage {
     refresh() {
         this.loadStockData();
     }
+    
+    updateMobileEarningsData() {
+        const { earnings, basicFinancials } = this.stockData;
+        
+        // Update upcoming earnings
+        if (earnings && earnings.length > 0) {
+            const nextEarnings = earnings[0]; // Most recent/upcoming
+            this.updateElement('nextEarningsDate', nextEarnings.period || 'N/A');
+            this.updateElement('nextEarningsEPS', nextEarnings.estimate ? `$${nextEarnings.estimate.toFixed(2)}` : 'N/A');
+            this.updateElement('nextEarningsRevenue', 'N/A'); // Revenue not available in current API
+        }
+        
+        // Update analyst estimates
+        if (basicFinancials) {
+            this.updateElement('mobileForwardPE', basicFinancials.forwardPE ? basicFinancials.forwardPE.toFixed(2) : 'N/A');
+            this.updateElement('mobileEPSGrowth', basicFinancials.epsGrowth ? `${basicFinancials.epsGrowth.toFixed(1)}%` : 'N/A');
+            this.updateElement('mobileEstimateRevisions', 'N/A'); // Not available in current API
+            this.updateElement('mobileBeatRate', 'N/A'); // Not available in current API
+        }
+        
+        // Generate earnings quarters
+        this.generateEarningsQuarters();
+    }
+    
+    generateEarningsQuarters() {
+        const { earnings } = this.stockData;
+        const earningsContainer = document.getElementById('earnings-quarters');
+        
+        if (!earningsContainer || !earnings || earnings.length === 0) return;
+        
+        // Clear existing content
+        earningsContainer.innerHTML = '';
+        
+        // Show last 2 quarters
+        const recentEarnings = earnings.slice(0, 2);
+        
+        recentEarnings.forEach(earning => {
+            const quarterDiv = document.createElement('div');
+            quarterDiv.className = 'earnings-quarter';
+            
+            // Format quarter name
+            const quarterName = earning.period || 'Unknown Quarter';
+            
+            // Calculate surprise
+            let surpriseText = 'N/A';
+            let surpriseClass = '';
+            if (earning.estimate && earning.actual) {
+                const surprise = ((earning.actual - earning.estimate) / earning.estimate) * 100;
+                surpriseText = `${surprise > 0 ? '+' : ''}${surprise.toFixed(1)}%`;
+                surpriseClass = surprise >= 0 ? '' : 'miss';
+            }
+            
+            quarterDiv.innerHTML = `
+                <div class="quarter-header">${quarterName}</div>
+                <div class="earnings-metrics">
+                    <div class="metric">
+                        <div class="metric-label" onclick="showPopup('eps-estimate', event)">EPS Estimate</div>
+                        <div class="metric-value">$${earning.estimate ? earning.estimate.toFixed(2) : 'N/A'}</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label" onclick="showPopup('eps-actual', event)">EPS Actual</div>
+                        <div class="metric-value">$${earning.actual ? earning.actual.toFixed(2) : 'N/A'}</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label" onclick="showPopup('earnings-surprise', event)">Surprise</div>
+                        <div class="metric-value">
+                            <span class="surprise-badge ${surpriseClass}">${surpriseText}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            earningsContainer.appendChild(quarterDiv);
+        });
+    }
 }
 
 // Initialize ticker page when DOM is loaded
@@ -584,4 +755,96 @@ if (document.readyState === 'loading') {
     });
 } else {
     window.tickerPage = new TickerPage();
+}
+
+// Global function for mobile collapsible sections
+function toggleSection(sectionId) {
+    const content = document.getElementById(sectionId + '-content');
+    const chevron = document.getElementById(sectionId + '-chevron');
+    
+    if (content && chevron) {
+        if (content.classList.contains('expanded')) {
+            content.classList.remove('expanded');
+            chevron.classList.remove('expanded');
+        } else {
+            content.classList.add('expanded');
+            chevron.classList.add('expanded');
+        }
+    }
+}
+
+// Earnings definitions for popups
+const earningsDefinitions = {
+    'eps-estimate': {
+        title: 'EPS Estimate',
+        description: 'Analyst consensus estimate for Earnings Per Share. This is what Wall Street analysts expect the company to report for the quarter.'
+    },
+    'eps-actual': {
+        title: 'EPS Actual',
+        description: 'The actual Earnings Per Share reported by the company. This is the real number that was announced during the earnings call.'
+    },
+    'earnings-surprise': {
+        title: 'Earnings Surprise',
+        description: 'The difference between estimated and actual EPS, shown as a percentage. Positive surprises (beats) are good, negative surprises (misses) are concerning.'
+    },
+    'forward-pe': {
+        title: 'Forward P/E Ratio',
+        description: 'Price-to-Earnings ratio based on next year\'s estimated earnings. Lower values suggest the stock may be undervalued relative to future earnings.'
+    },
+    'eps-growth': {
+        title: 'EPS Growth (Year-over-Year)',
+        description: 'The percentage change in Earnings Per Share compared to the same quarter last year. Positive growth indicates improving profitability.'
+    },
+    'estimate-revisions': {
+        title: 'Estimate Revisions',
+        description: 'Recent changes to analyst earnings estimates. Positive revisions suggest analysts are becoming more optimistic about the company\'s prospects.'
+    },
+    'beat-rate': {
+        title: 'Beat Rate',
+        description: 'Percentage of quarters where the company beat analyst estimates over the past 4 quarters. Higher rates indicate consistent outperformance.'
+    },
+    'report-date': {
+        title: 'Earnings Report Date',
+        description: 'The scheduled date when the company will announce its quarterly earnings results. This is when investors learn about the company\'s financial performance.'
+    },
+    'revenue-estimate': {
+        title: 'Revenue Estimate',
+        description: 'Analyst consensus estimate for total revenue. This represents the expected sales and income for the quarter before expenses.'
+    }
+};
+
+// Global popup function for earnings
+function showPopup(definitionKey, event) {
+    // Remove any existing popup
+    const existingPopup = document.querySelector('.popup');
+    if (existingPopup) {
+        existingPopup.remove();
+    }
+
+    const definition = earningsDefinitions[definitionKey];
+    if (!definition) return;
+
+    // Create popup
+    const popup = document.createElement('div');
+    popup.className = 'popup';
+    popup.innerHTML = `
+        <div class="popup-title">${definition.title}</div>
+        <div class="popup-description">${definition.description}</div>
+    `;
+
+    // Position popup near the clicked element
+    const rect = event.target.getBoundingClientRect();
+    popup.style.left = rect.left + 'px';
+    popup.style.top = (rect.bottom + 5) + 'px';
+
+    // Add to page
+    document.body.appendChild(popup);
+
+    // Remove popup when clicking elsewhere
+    setTimeout(() => {
+        document.addEventListener('click', function removePopup() {
+            popup.remove();
+            document.removeEventListener('click', removePopup);
+        });
+    }, 100);
 } 
